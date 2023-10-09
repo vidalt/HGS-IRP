@@ -22,6 +22,9 @@ int mainIRP(int argc, char *argv[])
 
   commandline c(argc, argv);
 
+  string instance_data = "/Users/anvita/Projects/IRP/Data/Small/Istanze0105h3/abs1n5_1.dat";
+  c.set_debug_prams(instance_data);
+
   if (c.is_valid())
   {
     // Nombre de ticks horloge que le programme est autorise a durer
@@ -227,6 +230,10 @@ int mainTest3(int argc, char *argv[])
   // try
   //{
   commandline c(argc, argv);
+  string instance_data = "/Users/anvita/Projects/IRP/Data/Small/Istanze0105h3/abs3n10_1.dat";
+
+  c.set_debug_prams(instance_data);
+
   if (c.is_valid())
   {
     // Nombre de ticks horloge que le programme est autorise a durer
@@ -1532,6 +1539,6 @@ int mainTest50(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
   //   mainTest4(argc, argv);
-  //  mainTest3(argc, argv);
+  // mainTest3(argc, argv);
   mainIRP(argc, argv);
 }

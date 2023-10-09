@@ -67,6 +67,7 @@ public:
     std::shared_ptr<PLFunction> getInBound(double lb, double ub, bool updateValueAt0);
 
     double calculateCost(int day, int client, double detour, double demand, double freeload);
+    double calculateDemandFromCost(int day, int client, double detour, double cost, double freeload);
 
     //    bool testBasicFuncs(int nbpoints);
 
