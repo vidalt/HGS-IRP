@@ -80,14 +80,9 @@ PLFunction::PLFunction(Params *params, vector<Insertion> insertions, int day, in
             bool is_dominated_vehicle = (index->load <= pre_load) || (pre_insertion_cost_with_current_demand <= current_cost);
             if (!is_dominated_vehicle)
             {
-                y = current_cost;
-                x = calculateDemandFromCost(day, client, pre_detour, y, pre_load);
+                x = pre_load + (index->detour - pre_detour) / params->penalityCapa;
+                y = calculateCost(day, client, pre_detour, x, pre_load);
 
-                double test_y = calculateCost(day, client, pre_detour, x, pre_load);
-                if (neq(y, test_y))
-                {
-                    cout << "ERROR";
-                }
                 if (neq(x, pre_x))
                 {
                     shared_ptr<LinearPiece> tmp(make_shared<LinearPiece>(pre_x, pre_y, x, y));

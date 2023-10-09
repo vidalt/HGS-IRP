@@ -434,6 +434,7 @@ int LocalSearch::mutation11(int client)
 
   if (neq(tmpCost, objective))
   {
+    double cost = lotsizingSolver->F[2]->cost(47.5);
     cout << "!!!!!!!!!!!!!!INCONSISTENT!!!!!!!!!!!! " << tmpCost << "<>" << objective << " | " << tmpCost - objective << endl;
     exit(EXIT_FAILURE);
   }

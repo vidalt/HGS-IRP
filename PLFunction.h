@@ -11,6 +11,7 @@
 #include <vector>
 #include "LinearPiece.h"
 #include "Params.h"
+#include <cassert>
 
 using namespace std;
 

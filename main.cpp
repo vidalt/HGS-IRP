@@ -22,7 +22,7 @@ int mainIRP(int argc, char *argv[])
 
   commandline c(argc, argv);
 
-  string instance_data = "/Users/anvita/Projects/IRP/Data/Small/Istanze0105h3/abs1n5_1.dat";
+  string instance_data = "./Data/Small/Istanze0105h3/abs1n5_1.dat";
   c.set_debug_prams(instance_data);
 
   if (c.is_valid())

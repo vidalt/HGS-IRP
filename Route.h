@@ -1,5 +1,5 @@
 /*                       Algorithme - HGSADC                         */
-/*                    Propriété de Thibaut VIDAL                     */
+/*                    Propriï¿½tï¿½ de Thibaut VIDAL                     */
 /*                    thibaut.vidal@cirrelt.ca                       */
 
 #ifndef ROUTE_H
@@ -12,94 +12,92 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
-using namespace std ;
+using namespace std;
 
-class Noeud ;
-class LocalSearch ;
+class Noeud;
+class LocalSearch;
 
 class Route
 {
 
 private:
+	// acces aux donnees de l'instance
+	Params *params;
 
-// acces aux donnees de l'instance
-Params * params ;
-
-// acces à d'autres characteristiques
-LocalSearch * myLS ;
+	// acces ï¿½ d'autres characteristiques
+	LocalSearch *myLS;
 
 public:
+	// numero de la route
+	int cour;
 
-// numero de la route
-int cour ;
+	// day associated to the route
+	int day;
 
-// day associated to the route
-int day ;
+	// depot associe a la route
+	Noeud *depot;
 
-// depot associe a la route
-Noeud * depot ;
+	// distance total de parcours sur la route
+	double temps;
 
-// distance total de parcours sur la route
-double temps ;
+	// chargement total sur la route
+	double charge;
 
-// chargement total sur la route
-double charge ;
+	// duree maximum de la route
+	double maxRouteTime;
 
-// duree maximum de la route
-double maxRouteTime ;
+	// chargement maximum de la route
+	double vehicleCapacity;
 
-// chargement maximum de la route
-double vehicleCapacity ;
+	// valide ou non
+	bool isFeasible;
 
-// valide ou non
-bool isFeasible ;
+	inline double excedentCharge(double charge)
+	{
+		return std::max<double>(0, charge - vehicleCapacity);
+	}
 
-inline double excedentCharge(double charge)
-{
-	return std::max<double>(0,charge-vehicleCapacity);
-}
+	inline double excedentLength(double length)
+	{
+		return std::max<double>(0, length - maxRouteTime);
+	}
 
-inline double excedentLength(double length)
-{
-	return std::max<double>(0,length-maxRouteTime);
-}
+	// coordonnï¿½es du centroide de la route
+	// ainsi que l'angle pris par rapport au segment (0,0) (0,1)
+	// utilisï¿½ pour refaire le giant tour apres la LS
+	// pas d'utilitï¿½ lors de la recherche locale
+	double centroidX;
+	double centroidY;
+	double centroidAngle;
 
-// coordonnées du centroide de la route
-// ainsi que l'angle pris par rapport au segment (0,0) (0,1)
-// utilisé pour refaire le giant tour apres la LS
-// pas d'utilité lors de la recherche locale
-double centroidX ;
-double centroidY ;
-double centroidAngle ;
+	// calcule les coordonnï¿½es du centroide
+	void updateCentroidCoord();
 
-// calcule les coordonnées du centroide
-void updateCentroidCoord ();
+	// met ï¿½ jour les charges partielles de la route associï¿½e au noeud U
+	void updateRouteData();
 
-// met à jour les charges partielles de la route associée au noeud U
-void updateRouteData () ;
+	// pour chaque noeud, stocke le cout de l'insertion dans la route
+	vector<Insertion> bestInsertion;
 
-// pour chaque noeud, stocke le cout de l'insertion dans la route
-vector < Insertion > bestInsertion ;
+	// pour chaque noeud, booleen indiquant si tous les mouvements impliquant ce noeud
+	// et cette route ont ï¿½tï¿½ testï¿½s sans succï¿½s
+	vector<bool> nodeAndRouteTested;
 
-// pour chaque noeud, booleen indiquant si tous les mouvements impliquant ce noeud
-// et cette route ont été testés sans succès
-vector <bool> nodeAndRouteTested ;
+	// pour un client donnï¿½, trouve la meilleure position d'insertion
+	// ï¿½ventuellement fait le calcul pour tous les clients d'un coup, ou pour plusieurs
+	void evalInsertClient(Noeud *U);
 
-// pour un client donné, trouve la meilleure position d'insertion
-// éventuellement fait le calcul pour tous les clients d'un coup, ou pour plusieurs
-void evalInsertClient (Noeud * U) ;
+	// no insertion is calculated
+	void initiateInsertions();
 
-// no insertion is calculated
-void initiateInsertions();
+	// moves having nodes in this route need to be examined again
+	void reinitSingleDayMoves();
 
-// moves having nodes in this route need to be examined again
-void reinitSingleDayMoves();
+	Route(void);
 
-Route(void);
+	Route(int cour, int day, Noeud *depot, double temps, double charge, double maxRouteTime, double vehicleCapacity, Params *params, LocalSearch *myLS);
 
-Route(int cour, int day, Noeud * depot, double temps, double charge, double maxRouteTime, double vehicleCapacity, Params * params, LocalSearch * myLS);
-
-~Route(void);
+	~Route(void);
 };
 
 #endif
