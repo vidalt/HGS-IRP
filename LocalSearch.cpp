@@ -212,8 +212,7 @@ int LocalSearch::mutationSameDay(int day)
 
       // c'est un d�pot on tente l'insertion derriere le depot de ce jour
       // si il ya corr�lation
-      if (params->isCorrelated1[noeudU->cour][depots[day][0]->cour] &&
-          moveEffectue != 1)
+      if (params->isCorrelated1[noeudU->cour][depots[day][0]->cour] && moveEffectue != 1)
         for (int route = 0; route < (int)depots[day].size(); route++)
         {
           noeudV = depots[day][route];
@@ -374,8 +373,7 @@ int LocalSearch::mutation11(int client)
   // cout << "Client: " << client << " Best cost: " << objective << endl;
 
   // using DP
-  unique_ptr<LotSizingSolver> lotsizingSolver(
-      make_unique<LotSizingSolver>(params, insertions, client));
+  unique_ptr<LotSizingSolver> lotsizingSolver(make_unique<LotSizingSolver>(params, insertions, client));
   bool ok = lotsizingSolver->solve();
 
   objective = lotsizingSolver->objective;
