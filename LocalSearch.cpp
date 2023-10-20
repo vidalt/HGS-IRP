@@ -212,8 +212,7 @@ int LocalSearch::mutationSameDay(int day)
 
       // c'est un d�pot on tente l'insertion derriere le depot de ce jour
       // si il ya corr�lation
-      if (params->isCorrelated1[noeudU->cour][depots[day][0]->cour] &&
-          moveEffectue != 1)
+      if (params->isCorrelated1[noeudU->cour][depots[day][0]->cour] && moveEffectue != 1)
         for (int route = 0; route < (int)depots[day].size(); route++)
         {
           noeudV = depots[day][route];
@@ -323,16 +322,14 @@ int LocalSearch::mutation11(int client)
   }
 
   // Compute the current lot sizing solution cost (from the model point of view)
-  // before optimization.
+  // before optimizatio  currentCost = evaluateCurrentCost(client);
   currentCost = evaluateCurrentCost(client);
 
   /* Generate the structures of the subproblem */
   vector<double> myA = vector<double>(params->nbDays);
   vector<double> myB = vector<double>(params->nbDays);
-  vector<vector<Insertion>> insertions =
-      vector<vector<Insertion>>(params->nbDays);
-  double netInventoryCost =
-      params->cli[client].inventoryCost - params->inventoryCostSupplier;
+  vector<vector<Insertion>> insertions = vector<vector<Insertion>>(params->nbDays);
+  double netInventoryCost = params->cli[client].inventoryCost - params->inventoryCostSupplier;
   vector<double> quantities = vector<double>(params->nbDays);
   vector<int> breakpoints = vector<int>(params->nbDays);
   double objective;
@@ -376,8 +373,7 @@ int LocalSearch::mutation11(int client)
   // cout << "Client: " << client << " Best cost: " << objective << endl;
 
   // using DP
-  unique_ptr<LotSizingSolver> lotsizingSolver(
-      make_unique<LotSizingSolver>(params, insertions, client));
+  unique_ptr<LotSizingSolver> lotsizingSolver(make_unique<LotSizingSolver>(params, insertions, client));
   bool ok = lotsizingSolver->solve();
 
   objective = lotsizingSolver->objective;
@@ -409,9 +405,8 @@ int LocalSearch::mutation11(int client)
   // Then looking at the solution of the model and inserting in the good place
   for (int k = 1; k <= params->ancienNbDays; k++)
   {
-    if (breakpoints[k - 1] != -1 &&
-        quantities[k - 1] > 0.0001) // don't forget that in the model the index
-                                    // goes from 0 to t-1
+    if (breakpoints[k - 1] != -1 && quantities[k - 1] > 0.0001) // don't forget that in the model the index
+                                                                // goes from 0 to t-1
     {
       // if (quantities[k-1] < 0.0001)
       //{
@@ -421,34 +416,25 @@ int LocalSearch::mutation11(int client)
       // quantity");
       //}
       demandPerDay[k][client] = quantities[k - 1];
-      clients[k][client]->placeInsertion =
-          lotsizingSolver->breakpoints[k - 1]->place;
+      clients[k][client]->placeInsertion = lotsizingSolver->breakpoints[k - 1]->place;
       // insertions[k - 1][breakpoints[k - 1]].place;
       addNoeud(clients[k][client]);
 
-      //                double re_obj = evaluateCurrentCost(client);
-      //                // print solution
-      //                cout << "client: " << client << " re-obj: " << re_obj <<
-      //                endl;
-      //                cout << "day: " << k << " quantity: " << quantities[k -
-      //                1]
-      //                     << " route: " <<
-      //                     clients[k][client]->placeInsertion->route->cour;
-      //                cout << " in route: " <<
-      //                clients[k][client]->placeInsertion->cour << endl;
+      // double re_obj = evaluateCurrentCost(client);
+      // // print solution
+      // cout << "client: " << client << " re-obj: " << re_obj << " obj: " << objective << endl;
+      // cout << "day: " << k << " quantity: " << quantities[k - 1] << " route: " << clients[k][client]->placeInsertion->route->cour;
+      // cout << " in route: " << clients[k][client]->placeInsertion->cour << endl;
     }
   }
 
-  //        double tmpCost = evaluateCurrentCost(client);
-  //
-  //        if ((tmpCost - objective < -0.001) || (tmpCost - objective > 0.001))
-  //        {
-  //            cout << "!!!!!!!!!!!!!!INCONSISTENT!!!!!!!!!!!! " << tmpCost <<
-  //            "<>"
-  //                 << objective << " | " << tmpCost - objective << endl;
-  //
-  //            exit(EXIT_FAILURE);
-  //        }
+  double tmpCost = evaluateCurrentCost(client);
+
+  if (neq(tmpCost, objective))
+  {
+    cout << "!!!!!!!!!!!!!!INCONSISTENT!!!!!!!!!!!! " << tmpCost << "<>" << objective << " | " << tmpCost - objective << endl;
+    exit(EXIT_FAILURE);
+  }
 
   // if (currentCost > 0.001 && objective > currentCost + 0.001) {
   //   cout << "CLIENT : " << client << " | currentCost: " << currentCost
