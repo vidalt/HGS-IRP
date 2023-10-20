@@ -522,10 +522,8 @@ double LocalSearch::evaluateSolutionCost()
 
   // Adding inventory cost
   for (int k = 1; k <= params->ancienNbDays; k++)
-    for (int i = params->nbDepots; i < params->nbDepots + params->nbClients;
-         i++)
-      myCost += demandPerDay[k][i] * (params->ancienNbDays + 1 - k) *
-                (params->cli[i].inventoryCost - params->inventoryCostSupplier);
+    for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++)
+      myCost += demandPerDay[k][i] * (params->ancienNbDays + 1 - k) * (params->cli[i].inventoryCost - params->inventoryCostSupplier);
 
   // And the necessary constants
   myCost += params->objectiveConstant;
