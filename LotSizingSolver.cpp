@@ -308,9 +308,9 @@ bool LotSizingSolver::backtracking()
   {
     quantities[i] = 0.0;
     breakpoints[i] = nullptr;
-    I[i] = 0;
+    I[i] = 0; // inventory level at the end of each day
   }
-  // backtracking
+  // backtracking from the last day
   int day = horizon - 1;
 
   if (C[day]->nbPieces == 0 && C[day]->pieceAt0 == nullptr)
@@ -335,16 +335,17 @@ bool LotSizingSolver::backtracking()
 
   while (tmp != nullptr)
   {
+    // no delivery at day 0
     if (day == 0 && (tmp->fromC != nullptr || tmp->fromF == nullptr))
       break;
 
+    // no delivery before
     if (tmp->fromF == nullptr && tmp->fromC == nullptr)
       break;
 
+    // no delivery before and no delivery cost
     if (tmp->cost(I[day]) == 0 && tmp->fromC == nullptr)
       break;
-
-    //        Cs[day] = tmp;
 
     // if do not delivery any thing, then inventory at the end of previous day
     // equals this day demand
@@ -364,12 +365,9 @@ bool LotSizingSolver::backtracking()
         tmpF = tmpF->fromF;
       breakpoints[day] = tmpF->fromInst;
 
-      if (params->cli[client].startingInventory >=
-          (day + 1) * params->cli[client].dailyDemand[day])
+      if (params->cli[client].startingInventory >= (day + 1) * params->cli[client].dailyDemand[day])
       {
-        quantities[day] = I[day] +
-                          (day + 1) * params->cli[client].dailyDemand[day] -
-                          params->cli[client].startingInventory;
+        quantities[day] = I[day] + (day + 1) * params->cli[client].dailyDemand[day] - params->cli[client].startingInventory;
       }
       else
       {
@@ -385,14 +383,12 @@ bool LotSizingSolver::backtracking()
     {
       std::shared_ptr<LinearPiece> fromC = tmp->fromC->clone();
       std::shared_ptr<LinearPiece> fromF = tmp->fromF->clone();
-      //            while (fromF->fromF != nullptr) fromF = fromF->fromF;
 
       fromC->p1->x += params->cli[client].dailyDemand[day];
       fromC->p2->x += params->cli[client].dailyDemand[day];
 
       bool ok = false;
-      if ((exceptionalPieces[day] != nullptr) &&
-          fromC->eqlp(exceptionalPieces[day]))
+      if ((exceptionalPieces[day] != nullptr) && fromC->eqlp(exceptionalPieces[day]))
       {
         double q = I[day] + params->cli[client].dailyDemand[day];
         double fromI = 0;
@@ -417,10 +413,7 @@ bool LotSizingSolver::backtracking()
       }
       else
       {
-        solveEquationSystem(tmp, fromC, fromF, I[day],
-                            params->cli[client].dailyDemand[day], I[day - 1],
-                            quantities[day]);
-
+        solveEquationSystem(tmp, fromC, fromF, I[day], params->cli[client].dailyDemand[day], I[day - 1], quantities[day]);
         tmp = fromC;
       }
 
@@ -464,6 +457,9 @@ void LotSizingSolver::solveEquationSystem(std::shared_ptr<LinearPiece> C,
     double x2 = fromF->p2->x;
     double y2 = fromF->p2->y;
 
+    // C(I) = fromC(fromI) + fromF(quantity)
+    //    fromC(fromI) = fromC->p2->y + slopeFromC * (fromC->p2->x - fromI): calculate value at a point fromI of Piece fromC
+    //    fromF(quantity) = fromF->p2->y + slopeFromF * (fromF->p2->x - quantity)
     double numerator = C->cost(I) - y1 - y2;
     numerator -= slopeC * (I + demand - x1);
     numerator += slopeF * x2;
@@ -515,8 +511,7 @@ bool LotSizingSolver::solve()
   C[0] = F[0]->getInBound(0, params->cli[client].maxInventory - params->cli[client].startingInventory,
                           true);
 
-  C[0]->shiftLeft(params->cli[client].dailyDemand[0] -
-                  params->cli[client].startingInventory);
+  C[0]->shiftLeft(params->cli[client].dailyDemand[0] - params->cli[client].startingInventory);
   for (int i = 0; i < C[0]->nbPieces; i++)
   {
     C[0]->pieces[i]->fromC = nullptr;
