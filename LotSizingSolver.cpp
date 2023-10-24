@@ -460,6 +460,8 @@ void LotSizingSolver::solveEquationSystem(std::shared_ptr<LinearPiece> C,
     // C(I) = fromC(fromI) + fromF(quantity)
     //    fromC(fromI) = fromC->p2->y + slopeFromC * (fromC->p2->x - fromI): calculate value at a point fromI of Piece fromC
     //    fromF(quantity) = fromF->p2->y + slopeFromF * (fromF->p2->x - quantity)
+    //    fromI = I + demand - quantity
+    // ==> get quantity
     double numerator = C->cost(I) - y1 - y2;
     numerator -= slopeC * (I + demand - x1);
     numerator += slopeF * x2;
