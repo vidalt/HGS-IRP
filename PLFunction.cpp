@@ -62,6 +62,7 @@ PLFunction::PLFunction(Params *params, vector<Insertion> insertions, int day, in
     Noeud *pre_place = nullptr;
 
     // loop through periods
+    // loop through periods
     while (index != insertions.end())
     {
         // make a first piece for the first insertion
