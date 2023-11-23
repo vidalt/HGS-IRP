@@ -379,12 +379,15 @@ int LocalSearch::mutation11(int client)
   objective = lotsizingSolver->objective;
   quantities = lotsizingSolver->quantities;
 
-  // if (abs(objective - lotsizingSolver->objective) > 0.01) {
-  //   cout << "cplex objective: " << objective
-  //        << "DP objective: " << lotsizingSolver->objective << endl
+  // if (gt(objective, currentCost))
+  // {
+  //   cout << "solver objective: " << objective
+  //        << " Current cost " << currentCost << endl
   //        << endl;
 
-  //   exit(EXIT_FAILURE);
+  //   double cost = evaluateCurrentCost(client);
+
+  //   // exit(EXIT_FAILURE);
   // }
 
   // cout << "------------------------------" << endl;
@@ -405,8 +408,8 @@ int LocalSearch::mutation11(int client)
   // Then looking at the solution of the model and inserting in the good place
   for (int k = 1; k <= params->ancienNbDays; k++)
   {
-    if (breakpoints[k - 1] != -1 && quantities[k - 1] > 0.0001) // don't forget that in the model the index
-                                                                // goes from 0 to t-1
+    if (quantities[k - 1] > 0.0001) // don't forget that in the model the index
+                                    // goes from 0 to t-1
     {
       // if (quantities[k-1] < 0.0001)
       //{
@@ -432,7 +435,9 @@ int LocalSearch::mutation11(int client)
 
   if (neq(tmpCost, objective))
   {
-    double cost = lotsizingSolver->F[2]->cost(47.5);
+    double cost = lotsizingSolver->F[2]->cost(80);
+    double test = evaluateCurrentCost(client);
+    // clients[2][client]->route->
     cout << "!!!!!!!!!!!!!!INCONSISTENT!!!!!!!!!!!! " << tmpCost << "<>" << objective << " | " << tmpCost - objective << endl;
     exit(EXIT_FAILURE);
   }
@@ -446,6 +451,8 @@ int LocalSearch::mutation11(int client)
   if (objective < currentCost - 0.0001) // An improving move has been found,
                                         // the search is not finished.
   {
+
+    // cout << "mutation 11: client " << client << endl;
     // cout << "Objective: " << objective << "| current cost: " << currentCost << endl;
     rechercheTerminee = false;
     return 1;

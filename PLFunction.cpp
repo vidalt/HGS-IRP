@@ -224,7 +224,7 @@ std::shared_ptr<LinearPiece> PLFunction::getMinimalPiece(int client, double &min
         minAt = minPiece->p2->x;
     }
 
-    if (pieceAt0 != nullptr && lt(valueAt0, minValue))
+    if (pieceAt0 != nullptr && le(valueAt0, minValue))
     {
         minPiece = pieceAt0;
         minValue = valueAt0;

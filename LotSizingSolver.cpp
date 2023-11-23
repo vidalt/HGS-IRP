@@ -344,8 +344,8 @@ bool LotSizingSolver::backtracking()
       break;
 
     // no delivery before and no delivery cost
-    if (tmp->cost(I[day]) == 0 && tmp->fromC == nullptr)
-      break;
+    // if (tmp->fromC == nullptr && tmp->fromF != nullptr && tmp->fromF->cost(I[day]) == 0)
+    //   break;
 
     // if do not delivery any thing, then inventory at the end of previous day
     // equals this day demand
@@ -439,15 +439,8 @@ void LotSizingSolver::solveEquationSystem(std::shared_ptr<LinearPiece> C,
 
   if (eq(slopeC, slopeF))
   {
-    if (lt(fromF->p2->x, demand))
-    {
-      quantity = demand;
-    }
-    else
-    {
-      quantity = fromF->p2->x;
-    }
-    fromI = I + demand - quantity;
+    quantity = fromF->p2->x;
+    fromI = std::max<double>(0., I + demand - quantity);
   }
   else
   {
