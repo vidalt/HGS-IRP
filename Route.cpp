@@ -53,7 +53,7 @@ void Route::updateRouteData()
 void Route::evalInsertClient(Noeud *U)
 {
 	Noeud *courNoeud;
-	double cout;
+	double detour;
 	bestInsertion[U->cour].detour = 1.e30;
 	bestInsertion[U->cour].place = NULL;
 	bestInsertion[U->cour].load = -1.e30;
@@ -66,11 +66,11 @@ void Route::evalInsertClient(Noeud *U)
 		while (!courNoeud->estUnDepot || firstIt == true)
 		{
 			firstIt = false;
-			cout = params->timeCost[courNoeud->cour][U->cour] + params->timeCost[U->cour][courNoeud->suiv->cour] - params->timeCost[courNoeud->cour][courNoeud->suiv->cour];
+			detour = params->timeCost[courNoeud->cour][U->cour] + params->timeCost[U->cour][courNoeud->suiv->cour] - params->timeCost[courNoeud->cour][courNoeud->suiv->cour];
 
-			if (cout < bestInsertion[U->cour].detour - 0.0001)
+			if (detour < bestInsertion[U->cour].detour - 0.0001)
 			{
-				bestInsertion[U->cour].detour = cout;
+				bestInsertion[U->cour].detour = detour;
 				bestInsertion[U->cour].place = courNoeud;
 			}
 			courNoeud = courNoeud->suiv;
@@ -92,12 +92,12 @@ void Route::evalInsertClient(Noeud *U)
 		while (!courNoeud->estUnDepot || firstIt == true)
 		{
 			firstIt = false;
-			cout = params->timeCost[courNoeud->cour][U->cour] + params->timeCost[U->cour][courNoeud->suiv->cour] - params->timeCost[courNoeud->cour][courNoeud->suiv->cour];
+			detour = params->timeCost[courNoeud->cour][U->cour] + params->timeCost[U->cour][courNoeud->suiv->cour] - params->timeCost[courNoeud->cour][courNoeud->suiv->cour];
 
 			// au final on peut placer d'une meilleure mani�re
-			if (cout < bestInsertion[U->cour].detour - 0.0001)
+			if (detour < bestInsertion[U->cour].detour - 0.0001)
 			{
-				bestInsertion[U->cour].detour = cout;
+				bestInsertion[U->cour].detour = detour;
 				bestInsertion[U->cour].place = courNoeud;
 			}
 			courNoeud = courNoeud->suiv;

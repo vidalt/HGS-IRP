@@ -1,0 +1,8 @@
+irp
+run.sh
+*.o
+sol-*
+bks-*
+.vscode
+
+

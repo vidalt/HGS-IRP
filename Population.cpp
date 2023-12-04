@@ -420,10 +420,10 @@ void Population::ExportPop(string nomFichier)
 		cout << "ecriture de la solution du meilleur : fitness " << trainer->coutSol.evaluation << " dans : " << nomFichier.c_str() << endl;
 		myfile.open(nomFichier.data());
 
-		// export cost
+		// 1: export cost
 		myfile << trainer->coutSol.evaluation << endl;
 
-		// exporting the number of routes
+		// 2: exporting the number of routes
 		compteur = 0;
 		for (int k = 1; k <= params->nbDays; k++)
 			for (int i = 0; i < (int)loc->routes[k].size(); i++)
@@ -433,14 +433,21 @@ void Population::ExportPop(string nomFichier)
 
 		// exporting the total CPU time (ms)
 		myBuff = new char[100];
-		// sprintf(myBuff, "%d", (int)(clock() / 1000));
-		strncpy(myBuff, "%d", (int)(clock() / 1000));
+
+		int cpuTime = (int)(clock() / 1000);
+		cout << "cpu time: " << cpuTime << " size: " << sizeof(cpuTime) << endl;
+
+		sprintf(myBuff, "%d", (int)(clock() / 1000));
+		// strncpy(myBuff, "%d", (int)(clock() / 1000));
 		myfile << myBuff << endl;
 
 		// exporting the time to best solution
 		myBuff = new char[100];
-		// sprintf(myBuff, "%d", (int)(timeBest / 1000));
-		strncpy(myBuff, "%d", (int)(timeBest / 1000));
+		int bestTime = (int)(timeBest / 1000);
+		cout << "best time: " << bestTime << " size: " << sizeof(bestTime) << endl;
+
+		sprintf(myBuff, "%d", (int)(timeBest / 1000));
+		// strncpy(myBuff, "%d", (int)(timeBest / 1000));
 		myfile << myBuff << endl;
 
 		for (int k = 1; k <= params->nbDays; k++)

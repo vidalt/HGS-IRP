@@ -119,7 +119,7 @@ commandline::~commandline() {}
 
 string commandline::get_path_to_instance() { return instance_name; }
 
-string commandline::get_path_to_solution() { return sortie_name; }
+string commandline::get_path_to_solution() { return sortie_name + "." + to_string(seed); }
 
 string commandline::get_path_to_BKS() { return BKS_name; }
 

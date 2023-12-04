@@ -22,7 +22,8 @@ int mainIRP(int argc, char *argv[])
 
   commandline c(argc, argv);
 
-  // string instance_data = "./Data/Small/Istanze0105h3/abs3n10_1.dat";
+  // string instance_data = "./Data/Small/Istanze0105h3/abs1n10_1.dat";
+  // string instance_data = "./Data/Big/Istanze0105/abs1n200_3.dat";
   // c.set_debug_prams(instance_data);
 
   if (c.is_valid())
