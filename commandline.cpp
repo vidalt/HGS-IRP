@@ -106,7 +106,7 @@ void commandline::set_debug_prams(string instance)
   seed = 1000;
   type = 38;  // unknown
   nbCli = -1; // unknown
-  nbVeh = 2;  // unknown
+  nbVeh = 5;  // unknown
   relax = -1; // unknown
 
   command_ok = true;

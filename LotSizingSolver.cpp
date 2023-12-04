@@ -413,7 +413,8 @@ bool LotSizingSolver::backtracking()
       }
       else
       {
-        solveEquationSystem(tmp, fromC, fromF, I[day], params->cli[client].dailyDemand[day], I[day - 1], quantities[day]);
+        double maxClientInventory = params->cli[client].maxInventory;
+        solveEquationSystem(tmp, fromC, fromF, I[day], params->cli[client].dailyDemand[day], I[day - 1], quantities[day], maxClientInventory);
         tmp = fromC;
       }
 
@@ -432,14 +433,14 @@ void LotSizingSolver::solveEquationSystem(std::shared_ptr<LinearPiece> C,
                                           std::shared_ptr<LinearPiece> fromC,
                                           std::shared_ptr<LinearPiece> fromF,
                                           double I, double demand,
-                                          double &fromI, double &quantity)
+                                          double &fromI, double &quantity, double maxClientInventory)
 {
   double slopeC = (fromC->p2->y - fromC->p1->y) / (fromC->p2->x - fromC->p1->x);
   double slopeF = (fromF->p2->y - fromF->p1->y) / (fromF->p2->x - fromF->p1->x);
 
   if (eq(slopeC, slopeF))
   {
-    quantity = fromF->p2->x;
+    quantity = std::min(maxClientInventory, fromF->p2->x);
     fromI = std::max<double>(0., I + demand - quantity);
   }
   else

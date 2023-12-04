@@ -85,7 +85,9 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 void Genetic::muter()
 {
 	rejeton->updateLS();
+
 	rejeton->localSearch->runSearchTotal(false);
+
 	rejeton->updateIndiv();
 	population->updateNbValides(rejeton);
 }
@@ -308,6 +310,27 @@ int Genetic::crossPOX2()
 					}
 				}
 			}
+		}
+	}
+
+	// update from Jingyi
+	vector<vector<double>> I_end(params->nbDays + 2, vector<double>(params->nbDepots + params->nbClients));
+	for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++)
+	{
+		I_end[0][i] = params->cli[i].startingInventory;
+		// if(i == 157)cout<<“day0 cus = “<<i<<” “<<I_end[0][i]<<endl;
+	}
+	for (int k = 1; k <= params->nbDays; k++)
+	{
+		for (int cus = params->nbDepots; cus < params->nbDepots + params->nbClients; cus++)
+		{
+			// if(cus == 157)cout<<“cus = “<<cus<<endl;
+			rejeton->chromL[k][cus] = std::min<double>(rejeton->chromL[k][cus], params->cli[cus].maxInventory - I_end[k - 1][cus]);
+
+			// if(cus == 157)cout<<“yesterday “<<I_end[k-1][cus]<<” today “<<rejeton->chromL[k][cus]<<” maxIn “<<params->cli[cus].maxInventory<<endl;
+			I_end[k][cus] = std::max<double>(0, I_end[k - 1][cus] + rejeton->chromL[k][cus] - params->cli[cus].dailyDemand[k - 1]);
+
+			// if(cus == 157) cout<<“Iend “<<I_end[k][cus]<<endl;
 		}
 	}
 

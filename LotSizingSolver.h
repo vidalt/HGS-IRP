@@ -12,15 +12,17 @@
 
 using namespace std;
 
-class LotSizingSolver {
+class LotSizingSolver
+{
 private:
-    Params * params;
+    Params *params;
+
 public:
     vector<vector<Insertion>> insertions;
     vector<std::shared_ptr<PLFunction>> C;
     vector<std::shared_ptr<PLFunction>> F;
-    vector<double > I;
-    vector<double > quantities;
+    vector<double> I;
+    vector<double> quantities;
     vector<std::shared_ptr<Insertion>> breakpoints;
     vector<std::shared_ptr<LinearPiece>> exceptionalPieces;
 
@@ -30,27 +32,26 @@ public:
 
     bool traces;
 
-    LotSizingSolver(Params * params, vector<vector<Insertion>> insertions, int client);
+    LotSizingSolver(Params *params, vector<vector<Insertion>> insertions, int client);
 
     std::shared_ptr<PLFunction> copyPLFunction(std::shared_ptr<PLFunction> source);
 
-    vector<double > getBreakpoints(std::shared_ptr<PLFunction> f1, std::shared_ptr<PLFunction> f2);
+    vector<double> getBreakpoints(std::shared_ptr<PLFunction> f1, std::shared_ptr<PLFunction> f2);
 
     std::shared_ptr<PLFunction> min(std::shared_ptr<PLFunction> f1, std::shared_ptr<PLFunction> f2);
 
     std::shared_ptr<PLFunction> supperposition(std::shared_ptr<LinearPiece> fromPieceC, std::shared_ptr<LinearPiece>
-        fromPieceF);
+                                                                                            fromPieceF);
 
     std::shared_ptr<PLFunction> supperposition(std::shared_ptr<PLFunction> fromC, std::shared_ptr<PLFunction> fromF);
 
     bool backtracking();
 
     void solveEquationSystem(std::shared_ptr<LinearPiece> C, std::shared_ptr<LinearPiece> fromC,
-        std::shared_ptr<LinearPiece> fromF, double I, double demand, double &fromI, double &quantity);
+                             std::shared_ptr<LinearPiece> fromF, double I, double demand, double &fromI, double &quantity, double maxClientInventory);
     bool solve();
 
     ~LotSizingSolver();
 };
 
-
-#endif //IRP_LOTSIZINGSOLVER_H
+#endif // IRP_LOTSIZINGSOLVER_H

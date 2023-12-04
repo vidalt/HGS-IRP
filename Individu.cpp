@@ -528,7 +528,6 @@ void Individu::updateIndiv()
 {
 	// Don't forget to copy back the load delivered to each customer on each day
 	chromL = localSearch->demandPerDay;
-
 	vector<Route *> ordreRoutesAngle;
 	Route *temp;
 	Noeud *node;

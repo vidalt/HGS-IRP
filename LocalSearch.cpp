@@ -418,6 +418,7 @@ int LocalSearch::mutation11(int client)
       //	throw ("ISSUE : ILP suggests inserting a visit with 0
       // quantity");
       //}
+
       demandPerDay[k][client] = quantities[k - 1];
       clients[k][client]->placeInsertion = lotsizingSolver->breakpoints[k - 1]->place;
       // insertions[k - 1][breakpoints[k - 1]].place;
