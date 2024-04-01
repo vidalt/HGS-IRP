@@ -20,15 +20,17 @@ void commandline::set_default_sorties_name(string to_parse)
 
   if (position != -1)
   {
-    sortie_name = to_parse.substr(0, position + 1) + "sol-" +
-                  to_parse.substr(position + 1, to_parse.length() - 1);
-    BKS_name = to_parse.substr(0, position + 1) + "bks-" +
-               to_parse.substr(position + 1, to_parse.length() - 1);
+    string directory = to_parse.substr(0, position + 1) + "result/";
+    string filename = to_parse.substr(position + 1, to_parse.length() - position - 1-4);
+
+    sortie_name = directory + "STsol-" + filename+ "_veh-" + std::to_string(nbVeh) + "_rou-" + std::to_string(rou);
+    BKS_name = directory + "STbks-" + filename+ "_veh-" + std::to_string(nbVeh) + "_rou-" + std::to_string(rou);
   }
   else
   {
-    sortie_name = "sol-" + to_parse;
-    BKS_name = "bks-" + to_parse;
+    sortie_name = to_parse.substr(0, position + 1) + "STsol-" +
+                  to_parse.substr(position + 1, to_parse.length() - 1) +"-seed-"+to_parse.substr(seed)+"-veh-"+to_parse.substr(nbVeh)+"-rou-"+to_parse.substr(rou);
+    BKS_name = "STbks-" + to_parse;
   }
 }
 
@@ -51,13 +53,15 @@ commandline::commandline(int argc, char *argv[])
   {
     // default values
     set_instance_name(string(argv[1]));
-    set_default_sorties_name(string(argv[1]));
+    
     cpu_time = 1200;
     seed = 0;
     type = 0;   // unknown
     nbCli = -1; // unknown
     nbVeh = -1; // unknown
     relax = -1; // unknown
+    rou = -1;
+    stockout = false;
 
     // afficher le lancement du programme :
     // for ( int i = 0 ; i < argc ; i ++ )
@@ -83,12 +87,18 @@ commandline::commandline(int argc, char *argv[])
         nbCli = atoi(argv[i + 1]);
       else if (string(argv[i]) == "-veh")
         nbVeh = atoi(argv[i + 1]);
+      else if (string(argv[i]) == "-stock"){
+          rou = atoi(argv[i + 1]);
+          stockout=true;
+      }
+        
       else
       {
         cout << "Commande non reconnue : " << string(argv[i]) << endl;
         command_ok = false;
       }
     }
+    set_default_sorties_name(string(argv[1]));
     command_ok = true;
   }
 }
@@ -106,7 +116,7 @@ void commandline::set_debug_prams(string instance)
   seed = 1000;
   type = 38;  // unknown
   nbCli = -1; // unknown
-  nbVeh = 5;  // unknown
+  nbVeh = 2;  // unknown
   relax = -1; // unknown
 
   command_ok = true;
@@ -119,11 +129,15 @@ commandline::~commandline() {}
 
 string commandline::get_path_to_instance() { return instance_name; }
 
-string commandline::get_path_to_solution() { return sortie_name + "." + to_string(seed); }
+string commandline::get_path_to_solution() { return sortie_name; }
 
 string commandline::get_path_to_BKS() { return BKS_name; }
 
 int commandline::get_type() { return type; }
+
+int commandline::get_stockout() { return stockout; }
+
+int commandline::get_rou() { return rou; }
 
 // renvoie le nombre de clients
 int commandline::get_nbCli() { return nbCli; }

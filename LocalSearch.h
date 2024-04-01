@@ -34,47 +34,43 @@ struct paireJours
 class LocalSearch
 {
 private:
-  // acces aux donnees de l'instance
-  Params *params;
-
-  // test pour sortir de la LS
-  bool rechercheTerminee;
-
-  // inique si l'on est ans une phase de reparation
-  bool isRepPhase;
-
-  // acces � son individu associ�
-  Individu *individu;
+    Params *params;          // 指向包含问题参数的对象的指针。
+    bool rechercheTerminee;  // 一个标志，表示是否完成了本地搜索。
+    bool isRepPhase;         // 标志，表示是否处于修复阶段。
+    Individu *individu;      // 指向与本地搜索关联的个体的指针。
 
 public:
   // vecteur donnant l'ordre de parcours des sommets pour chaque jour, ne
   // contenant pas les sommets
   // qui n'existent pas pour le jour donn�
   // afin de diversifier la recherche
+  // 向量给出了每天遍历顶点的顺序，不包含
+  // 不包含顶点
+  // 在指定日期不存在的顶点
+  // 为了使搜索多样化
+  // 一个二维向量，表示每天要遍历的节点的顺序。
   vector<vector<int>> ordreParcours;
 
-  // ajoute un client dans l'ordre de parcours
+  // ajoute un client dans l'ordre de parcours // 方法，将客户添加到指定天的遍历顺序中
   void addOP(int day, int client);
 
-  // enleve un client de l'ordre de parcours
   void removeOP(int day, int client);
-
-  // les tableaux ordreParcours et ordreJours sont r�organis�s al�atoirement
+  // 从指定天的遍历顺序中移除客户的方法。
+  
   void melangeParcours();
-
-  // updates the moves for each node which will be tried in mutationSameDay
+  // 重新随机化遍历的顺序，可能是为了增加搜索的多样性。
+  
   void updateMoves();
-
-  // vecteur donnant l'ordre al�atoire de parcours des jours pour les migrations
-  // entre-jours
+  // 更新将在mutationSameDay方法中尝试的每个节点的移动。
+  
   vector<int> ordreJours;
-
-  // flag lev� si il est possible de d�placer un client dans son jour avec un
-  // b�n�fice
+  // 一个向量，表示用于跨日迁移的随机遍历的顺序。链接起来day
+  
   bool deplacementIntraJour;
-
-  // dit si on est au premier parcours ou non
+  // 标志，表示是否可以在同一天内移动客户以实现利润。
+  
   bool firstLoop;
+  // 标志，表示是否是首次遍历。
 
   Noeud *noeudU;
   Noeud *noeudUPred;
@@ -90,9 +86,23 @@ public:
       noeudVPredCour, yCour;
   int dayCour;
 
-  // vecteur de taille nbClients , l'element client(day)(i) contient des donnees
+  /* vecteur de taille nbClients , l'element client(day)(i) contient des donnees
   // relatives
   // a l'emplacement de la visite du client i+1 dans les routes
+  clients
+│
+├── Day 1
+│   ├── Client 1 -> Noeud Pointer
+│   ├── Client 2 -> Noeud Pointer
+│   └── ...
+│
+├── Day 2
+│   ├── Client 1 -> Noeud Pointer
+│   ├── Client 2 -> Noeud Pointer
+│   └── ...
+│
+└── ...
+*/
   vector<vector<Noeud *>> clients;
 
   // noeuds associ�s aux depots utilis�s
@@ -101,32 +111,39 @@ public:
   // noeuds associ�s aux terminaisons des routes (doublon des depots)
   vector<vector<Noeud *>> depotsFin;
 
-  // vecteur repertoriant des donnees sur les routes
+  // vecteur repertoriant des donnees sur les routes routes是一个表示路线数据的向量。
   vector<vector<Route *>> routes;
 
-  // demandPerDay[i][j] -> The load to be delivered to each customer [j] on day
-  // [i]
+  // demandPerDay[i][j] -> The load to be delivered to each customer [j] on day [i]
   vector<vector<double>> demandPerDay;
 
   // Straightforward ILS, using a simple shaking operator
+  // 运行简单的迭代局部搜索方法，使用简单的振荡操作。
   void runILS(bool isRepPhase, int maxIterations);
 
   // lance la recherche locale avec changement de jours
+  // 运行完整的局部搜索方法，可以更改天数。
   void runSearchTotal(bool isRepPhase);
-
+  void runSearchTotalprint(bool isRepPhase);
   // effectue une parcours complet de toutes les mutations possibles
   // retourne le nombre de mouvements effectu�s
+  // 在同一天内执行完整的可能变异。对所有可能的突变进行完整扫描  返回所做移动的次数/
   int mutationSameDay(int day);
 
   // pour un client, marque que tous les mouvements impliquant ce noeud ont �t�
   // test�s pour chaque route du jour day
+  //对于一个客户端，标志着涉及该节点的所有运动都已在一天中的每条路线上进行了测试。
+  // 测试了当天的每条路线
   void nodeTestedForEachRoute(int cli, int day);
 
   // effectue un parcours complet de tous les changement de pattern et swap
   // intra-jours possibles
   // retourne le nombre de mouvements effectu�s
+  // 对所有模式的变化和交换进行完整的巡回检查
+  // 日内可能
+  // 返回移动次数
   int mutationDifferentDay();
-
+  int mutationDifferentDayprint();
   // Neighborhoods
 
   /* RELOCATE */
@@ -170,15 +187,16 @@ public:
 
   /* PI procedure for IRP */
   int mutation11(int client);
-
+  int mutation11print(int client);
   // Evaluates the current objective function from the model
   double evaluateCurrentCost(int client);
-
+  double evaluateCurrentCost_stockout (int client);
+  double evaluateCurrentCost_p (int client);
   // Evaluates the current objective function of the whole solution
   double evaluateSolutionCost();
 
   // Prints some useful information on the current solution
-  void printInventoryLevels();
+  void printInventoryLevels(std::ostream& file,bool add);
 
   /* Routines to update the solution */
 
@@ -197,6 +215,7 @@ public:
   // calcule pour un jour donn� et un client donn� (repr�sent� par un noeud)
   // les couts d'insertion dans les differentes routes constituant ce jour
   void computeCoutInsertion(Noeud *client);
+  void computeCoutInsertionp(Noeud *client);
 
   // performs a basic shaking for the problem
   // only for testing

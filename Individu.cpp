@@ -28,6 +28,7 @@ Individu::Individu(Params *params) : params(params)
 }
 
 // constructeur d'un individu al�atoire avec toutes les structures de recherche (split)
+//构建一个包含所有搜索结构的个体（分割）。
 Individu::Individu(Params *params, double facteurSurete) : params(params)
 {
 	vector<int> tempVect;
@@ -45,40 +46,13 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 	// And the chromP is useless
 	// So, for now let's simply assume that we serve all customers in one delivery on day 1 (we ignore the product availability at the supplier for now)
 	// Later on we will arrange this construction
-	chromT = vector<vector<int>>(params->nbDays + 1);
-	chromL = vector<vector<double>>(params->nbDays + 1, vector<double>(params->nbClients + params->nbDepots, 0.));
-	chromR = vector<vector<int>>(params->nbDays + 1, vector<int>(params->nombreVehicules[1], -1));
+	chromT = vector<vector<int>> (params->nbDays + 1);
+	chromL = vector<vector<double>> (params->nbDays + 1, vector<double>(params->nbClients + params->nbDepots, 0.));
+	chromR = vector<vector<int>> (params->nbDays + 1, vector<int>(params->nombreVehicules[1], -1));
 
-	// Initialization of the chromL and chrom T
 
-	/*
-	// OPTION 1
-	// Generate a random order for the customers
-	vector <int> randomizedOrder ;
-	for (int i=params->nbDepots ; i < params->nbDepots + params->nbClients ; i++)
-		randomizedOrder.push_back(i);
-	std::random_shuffle(randomizedOrder.begin(),randomizedOrder.end());
-
-	// Insert each customer w.r.t. to the optimal lot sizing policy, disregarding routing costs
-	int client;
-	vector <double> insertionQuantity ;
-	for (int i = 0 ; i < params->nbClients ; i++)
-	{
-		client = randomizedOrder[i];
-		ModelLotSizingPI::bestInsertionLotSizing(client,insertionQuantity,params);
-		for (int k=1 ; k <= params->nbDays ; k++)
-		{
-			// An insertion is needed.
-			if (insertionQuantity[k-1] > 0.0001)
-			{
-				chromL[k][client] = insertionQuantity[k-1] ;
-				chromT[k].push_back(client);
-			}
-		}
-	}
-	*/
-
-	// OPTION 2 -- JUST IN TIME POLICY
+	// OPTION 2 -- JUST IN TIME POLICY  这段代码首先考虑初始库存，然后决定是否需要提供服务，并且什么时间提供。
+	
 	double startInventory;
 	double dailyDemand;
 	for (int i = params->nbDepots; i < params->nbClients + params->nbDepots; i++)
@@ -104,30 +78,36 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 	}
 
 	// And shuffle the whole solution
+	//对chromT进行洗牌，使得路由中的客户订单随机化
 	for (int k = 1; k <= params->nbDays; k++)
 	{
 		for (int i = 0; i <= (int)chromT[k].size() - 1; i++)
 		{
-			j = i + params->rng->genrand64_int64() % ((int)chromT[k].size() - i);
-			temp = chromT[k][i];
-			chromT[k][i] = chromT[k][j];
+			j = i + params->rng->genrand64_int64() % ((int)chromT[k].size() - i); //i和chromT[k].size() - 1之间的随机整数j。
+			//swap i,j
+			temp = chromT[k][i]; 
+			chromT[k][i] = chromT[k][j]; 
 			chromT[k][j] = temp;
 		}
 	}
 
 	// initialisation of the other structures
+	//初始化其他数据结构: 初始化pred二维向量，它似乎与某种预测或排序机制有关。还初始化了potentiels, suivants, 和precedents向量。
+	
 	for (int k = 0; k <= params->nbDays; k++)
 	{
 		pred.push_back(tempVect2);
 		for (int i = 0; i < params->nombreVehicules[k] + 1; i++)
 		{
-			pred[k].push_back(tempVect);
+			//pred 是一个三维整数向量。它可能表示对于每一天、每辆卡车，每个点，其前一个访问的客户或节点是什么。
+			pred[k].push_back(tempVect); 
 			pred[k][i].push_back(0);
 			for (int j = 0; j < (int)params->nbClients + params->nbDepots + 1; j++)
 				pred[k][i].push_back(0);
 		}
 	}
-
+	//potentiels 是一个二维浮点数向量。它用于在分割算法中运行，表示到达序列中的某个顶点的距离。
+    //具体来说，potentiels[i+1] 表示dp
 	vector<double> potTemp;
 	for (int i = 0; i <= params->nombreVehicules[1]; i++)
 	{
@@ -155,6 +135,7 @@ Individu::~Individu()
 // Otherwise we call the Split version with limited fleet (which is a bit slower).
 void Individu::generalSplit()
 {
+	//cout <<"begin split"<<endl;
 	coutSol.evaluation = 0;
 
 	// lancement de la procedure split pour chaque jour
@@ -172,7 +153,9 @@ void Individu::generalSplit()
 
 	// After Split
 	// we call a function that fills all other data structures and computes the cost
+	//cout <<"after split";
 	measureSol();
+	//cout <<"after measure";
 	isFitnessComputed = true;
 
 	if (params->borneSplit > 1000)
@@ -187,10 +170,7 @@ void Individu::generalSplit()
 		params->borneSplit *= 1.1;
 		generalSplit();
 	}
-
-	// on �value les suivants -- its not used for the inventory routing
-	if (!params->isInventoryRouting)
-		computeSuivants();
+	//cout <<"end split"<<endl;
 }
 
 // fonction split which does not consider a limit on the number of vehicles
@@ -401,12 +381,31 @@ void Individu::measureSol()
 	}
 
 	// Add to the fitness the constants and the inventory cost
-	for (int k = 1; k <= params->ancienNbDays; k++)
-		for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++)
-			coutSol.fitness += chromL[k][i] * (params->ancienNbDays + 1 - k) * (params->cli[i].inventoryCost - params->inventoryCostSupplier);
+	if(params->isstockout){
+		vector<vector<double>> I_end(params->nbDays+2, vector<double>(params->nbDepots + params->nbClients));
+		for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++){
+				I_end[0][i] = params->cli[i].startingInventory;
+		}
 
+		for (int k = 1; k <= params->nbDays; k++){
+			for (int cus = params->nbDepots; cus < params->nbDepots + params->nbClients; cus++){
+				coutSol.fitness += params->cli[cus].inventoryCost* std::max<double>(0,I_end[k-1][cus]+chromL[k][cus]-params->cli[cus].dailyDemand[k]);
+				coutSol.fitness += params->cli[cus].stockoutCost* std::max<double>(0,params->cli[cus].dailyDemand[k]-I_end[k-1][cus]-chromL[k][cus]);
+
+				coutSol.fitness-= chromL[k][cus] * (params->ancienNbDays + 1 - k) * params->inventoryCostSupplier;
+				I_end[k][cus] = std::max<double>(0,I_end[k-1][cus] + chromL[k][cus] - params->cli[cus].dailyDemand[k]);
+			}	
+		}
+	}
+	
+	else
+		for (int k = 1; k <= params->ancienNbDays; k++){
+			for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++)
+				coutSol.fitness += chromL[k][i] * (params->ancienNbDays + 1 - k) * (params->cli[i].inventoryCost - params->inventoryCostSupplier);
+		}
 	// And the necessary constants
-	coutSol.fitness += params->objectiveConstant;
+	if(params->isstockout)coutSol.fitness += params->objectiveConstant_stockout;
+	else coutSol.fitness += params->objectiveConstant;
 
 	if (coutSol.capacityViol < 0.0001 && coutSol.lengthViol < 0.0001)
 		estValide = true;
@@ -429,6 +428,7 @@ void Individu::initPot(int day)
 	potentiels[0][0] = 0;
 }
 // mise a jour de l'objet localSearch, attention, split doit avoir ete calcule avant
+// 更新 localSearch 对象，但必须事先计算出分割值
 void Individu::updateLS()
 {
 	int depot;
@@ -471,7 +471,7 @@ void Individu::updateLS()
 			myDepotFin->suiv = myDepot;
 			myDepotFin->pred = myDepot;
 
-			// cas ou on a un seul sommet dans le cycle
+			// cas ou on a un seul sommet dans le cycle，一个点
 			if (j == i + 1)
 			{
 				myClient = localSearch->clients[kk][chromT[kk][i]];
@@ -522,12 +522,49 @@ void Individu::updateLS()
 			localSearch->routes[kk][i]->updateRouteData();
 	}
 }
+int partition(std::vector<Route*>& arr, int low, int high)
+{
+    Route* pivot = arr[high]; 
+    int i = (low - 1);
+	
+    for (int j = low; j <= high - 1; j++)
+    {
+        if (arr[j]->centroidAngle <= pivot->centroidAngle)
+        {
+            i++;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
 
-// mise � jour du chromT suite aux modification de localSearch
+int Individu::randomizedPartition(std::vector<Route*>& arr, int low, int high)
+{
+    //int random = low + rand() % (high - low); 
+	int random = low + params->rng->genrand64_int64() % (high - low);
+    std::swap(arr[random], arr[high]); 
+    return partition(arr, low, high); 
+}
+
+void Individu::randomizedQuickSort(std::vector<Route*>& arr, int low, int high) 
+{ 
+    if (low < high) 
+    { 
+        int pi = randomizedPartition(arr, low, high); 
+        randomizedQuickSort(arr, low, pi - 1); 
+        randomizedQuickSort(arr, pi + 1, high); 
+    } 
+}
+
+
+// mise � jour du chromT suite aux modification de localSearch，
+//每天kk的route排序，重新chromT[kk]
 void Individu::updateIndiv()
 {
 	// Don't forget to copy back the load delivered to each customer on each day
 	chromL = localSearch->demandPerDay;
+
 	vector<Route *> ordreRoutesAngle;
 	Route *temp;
 	Noeud *node;
@@ -536,11 +573,11 @@ void Individu::updateIndiv()
 	{
 		ordreRoutesAngle = localSearch->routes[kk];
 
-		// on calcule les angles des centroides
+		
 		for (int r = 0; r < (int)ordreRoutesAngle.size(); r++)
 			ordreRoutesAngle[r]->updateCentroidCoord();
 
-		// on trie les routes dans l'ordre des centroides
+		/*/ on trie les routes dans l'ordre des centroides道路按中心点顺序排序
 		if (params->triCentroides)
 			for (int r = 0; r < (int)ordreRoutesAngle.size(); r++)
 				for (int rr = 1; rr < (int)ordreRoutesAngle.size() - r - 1; rr++)
@@ -550,8 +587,18 @@ void Individu::updateIndiv()
 						ordreRoutesAngle[rr + 1] = ordreRoutesAngle[rr];
 						ordreRoutesAngle[rr] = temp;
 					}
-
+		//static int callCount = 0; 
+		//callCount++;
+		//out << "Function has been called " << callCount << " times." << std::endl;
+		
+		//******************jingyi: on calcule les angles des centroides计算中心点的角度***************
+	
+		*/
+		if (params->triCentroides)
+			randomizedQuickSort(ordreRoutesAngle, 0, ordreRoutesAngle.size() - 1);
+		
 		// on recopie les noeuds dans le chromosome
+		
 		chromT[kk].clear();
 		for (int r = 0; r < (int)ordreRoutesAngle.size(); r++)
 		{

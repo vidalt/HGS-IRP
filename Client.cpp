@@ -35,7 +35,7 @@ void Client::computeJourSuiv ()
 	}
 
 	// remplissage de la structure avec des 1 et des 0 
-	// donnant computeJourSuiv[codeT][jourT] : peut on rajouter la tache assimilée 
+	// donnant computeJourSuiv[codeT][jourT] : peut on rajouter la tache assimilï¿½e 
 	// au code codeT sur le jour jourT
 	for (int i=0 ; i < (int)visits.size() ; i++)
 	{
@@ -43,17 +43,17 @@ void Client::computeJourSuiv ()
 		frec ((int)codeTravail,(int)0,(int)pow((float)2,(int)nbJours)) ;
 	}
 
-	// on remplace les 0 et les 1 par la donnée du prochain jour où l'on peut
+	// on remplace les 0 et les 1 par la donnï¿½e du prochain jour oï¿½ l'on peut
 	// ajouter la tache
 
 	for (int k=0 ; k <= (int)pow((float)2,(int)nbJours) ; k++)
 	{
-		// une petite marque dans le champ 0 qui était vide a été laissée
-		// si cette valeur vaut -1 il n'y a rien à voir.
+		// une petite marque dans le champ 0 qui ï¿½tait vide a ï¿½tï¿½ laissï¿½e
+		// si cette valeur vaut -1 il n'y a rien ï¿½ voir.
 		if (jourSuiv[k][0] != -1)
 		{
 
-			// on parcourt de droite à gauche pour trouver le premier element non nul
+			// on parcourt de droite ï¿½ gauche pour trouver le premier element non nul
 			day = 0 ;
 			j = (int)nbJours ;
 			while ( day == 0 )

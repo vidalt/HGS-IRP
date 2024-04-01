@@ -1,7 +1,8 @@
 #include "Params.h"
 
 // creating the parameters from the instance file
-Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, string nomBKS, int seedRNG) : type(type), nbVehiculesPerDep(nbVeh)
+Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, string nomBKS, int seedRNG, int rou,bool stockout) : 
+	type(type), nbVehiculesPerDep(nbVeh)
 {
 	seed = seedRNG;
 
@@ -20,9 +21,54 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 	// ouverture du fichier en lecture
 	fichier.open(nomInstance.c_str());
 
-	// parsing des donn�es
+	// parsing des donn�es打开文件供读取
 	if (fichier.is_open())
-		preleveDonnees(nomInstance);
+		preleveDonnees(nomInstance, rou, stockout);
+	else
+	{
+		cout << "Unable to open file : " << nomInstance << endl;
+		throw string(" Unable to open file ");
+	}
+	cout << "read file done" << endl;
+
+	// Setting the parameters
+	setMethodParams();
+	
+	// Simply compute the distances from the coordinates
+	computeDistancierFromCoords();
+
+	// calcul des structures 结构计算
+	calculeStructures();
+
+	// Compute the constant value in the objective function
+	if(stockout) computeConstant_stockout();
+	else computeConstant();
+	
+}
+
+Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, string nomBKS, int seedRNG) : 
+	type(type), nbVehiculesPerDep(nbVeh)
+{
+	seed = seedRNG;
+
+	if (seed == 0)
+		rng = new Rng((unsigned long long)time(NULL));
+	else
+		rng = new Rng((unsigned long long)(seed));
+
+	pathToInstance = nomInstance;
+	pathToSolution = nomSolution;
+	pathToBKS = nomBKS;
+
+	debut = clock();
+	nbVehiculesPerDep = nbVeh;
+
+	// ouverture du fichier en lecture
+	fichier.open(nomInstance.c_str());
+
+	// parsing des donn�es打开文件供读取
+	if (fichier.is_open())
+		preleveDonnees(nomInstance, 0,0);
 	else
 	{
 		cout << "Unable to open file : " << nomInstance << endl;
@@ -36,7 +82,7 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 	// Simply compute the distances from the coordinates
 	computeDistancierFromCoords();
 
-	// calcul des structures
+	// calcul des structures 结构计算
 	calculeStructures();
 
 	// Compute the constant value in the objective function
@@ -44,16 +90,17 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 
 	// for instances 27-32 of the PVRP, there is a small patch to avoid errors because the objective function
 	// is of a very different magnitude, need to give a more adapted starting value for the penalties
-	if ((nbClients == 153 || nbClients == 102) && periodique && !multiDepot)
-		penalityCapa = 100;
+	
 }
 
 void Params::computeConstant()
 {
 	objectiveConstant = 0;
 
+
 	if (isInventoryRouting)
 	{
+
 		// Removing the customer inventory cost once the product has been consumed (CONSTANT IN OBJECTIVE)
 		for (int k = 1; k <= ancienNbDays; k++)
 			for (int i = nbDepots; i < nbDepots + nbClients; i++)
@@ -66,7 +113,9 @@ void Params::computeConstant()
 		// Adding the total cost for supplier inventory over the planning horizon (CONSTANT IN OBJECTIVE)
 		for (int k = 1; k <= ancienNbDays; k++)
 			objectiveConstant += availableSupply[k] * (ancienNbDays + 1 - k) * inventoryCostSupplier;
+
 	}
+	
 }
 
 void Params::computeDistancierFromCoords()
@@ -111,7 +160,7 @@ void Params::setMethodParams()
 	isRoundingInteger = true; // using the rounding (for now set to true, because currently testing on the instances of Uchoa)
 	isRoundingTwoDigits = false;
 
-	// parameters of the population
+	// parameters of the population  //人口参数
 	el = 3;					// ***
 	mu = 12;				// *
 	lambda = 25;			// *
@@ -119,15 +168,15 @@ void Params::setMethodParams()
 	rho = 0.30;				// o
 	delta = 0.001;			// o
 
-	// parameters of the mutation
+	// parameters of the mutation	//  突变参数
 	maxLSPhases = 10000; // number of LS phases, here RI-PI-RI  // ***
 	prox = 40;			 // granularity parameter (expressed as a percentage of the problem size -- 35%) // ***
 	proxCst = 1000000;	 // granularity parameter (expressed as a fixed maximum)
 	prox2Cst = 1000000;	 // granularity parameter on PI
 	pRep = 0.5;			 // probability of repair // o
 
-	// param�tres li�s aux p�nalit�s adaptatives
-	penalityCapa = 10;	// Initial penalty values // o
+	// param�tres li�s aux p�nalit�s adaptatives  适应性参数
+	penalityCapa = max(10,seed*50);	// Initial penalty values // o
 	penalityLength = 1; // Initial penalty values // o
 	minValides = 0.15;	// Target range for the number of feasible solutions // **
 	maxValides = 0.25;	// Target range for the number of feasible solutions // **
@@ -146,10 +195,10 @@ void Params::setMethodParams()
 
 Params::~Params(void) {}
 
-// effectue le prelevement des donnees du fichier
-void Params::preleveDonnees(string nomInstance)
+// effectue le prelevement des donnees du fichier 从文件中获取数据
+void Params::preleveDonnees(string nomInstance, int rou, bool stockout)
 {
-	// variables temporaires utilisees dans la fonction
+	// variables temporaires utilisees dans la fonction //临时变量
 	vector<Client> cTemp;
 	vector<Vehicle> tempI;
 	Client client;
@@ -159,11 +208,58 @@ void Params::preleveDonnees(string nomInstance)
 	multiDepot = false;
 	periodique = false;
 	isInventoryRouting = false;
+	isstockout = false;
+	//C. Archetti, L. Bertazzi, G. Laporte, and M.G. Speranza. A branch-and-cut algorithm for a vendor-managed inventory-routing problem. Transportation Science, 41:382-391, 2007 Instances
+
+	if (type == 38) // IRP format of Archetti http://or-brescia.unibs.it/instances 
+	{
+		cout << "path: " << nomInstance << endl;
+		isInventoryRouting = true;
+		isstockout = stockout;
+		cout<<"isstockout "<<isstockout<<endl;
+		// nbVehiculesPerDep = 2;
+		if (nbVehiculesPerDep == -1)
+		{
+			cout << "ERROR : Need to specify fleet size" << endl;
+			throw string("ERROR : Need to specify fleet size");
+		}
+		fichier >> nbClients;
+		nbClients--; // the given number of nodes also counts the supplier/depot
+		fichier >> nbDays;
+		fichier >> vc; //vehicle capacityx
+		rt = 1000000;
+		nbDepots = 1;
+		ancienNbDays = nbDays;
+
+		ordreVehicules.push_back(tempI);
+		nombreVehicules.push_back(0);
+		dayCapacity.push_back(0);
+		for (int kk = 1; kk <= nbDays; kk++)
+		{
+			ordreVehicules.push_back(tempI);
+			dayCapacity.push_back(0); //每天的车辆总容量。xxxz
+			nombreVehicules.push_back(nbDepots * nbVehiculesPerDep);  //仓库*每个仓库的车辆数
+			for (int i = 0; i < nbDepots; i++)
+				for (int j = 0; j < nbVehiculesPerDep; j++) //规划每天应该使用哪些车辆。每个车都初始化
+					ordreVehicules[kk].push_back(Vehicle(-1, -1, -1)); //特定的仓库号、最大行驶时间和车辆容量。
+		}
+
+		for (int kk = 1; kk <= nbDays; kk++)
+		{
+			for (int j = 0; j < nbVehiculesPerDep; j++)
+			{
+				ordreVehicules[kk][j].depotNumber = 0;
+				ordreVehicules[kk][j].maxRouteTime = rt;
+				ordreVehicules[kk][j].vehicleCapacity = vc;
+				dayCapacity[kk] += vc;
+			}
+		}
+	}
 
 	// format classique de VRP Cordeau
-	if (type == 0)
+	else if (type == 0)
 	{
-		// premiere ligne: description du probleme
+		// premiere ligne: description du probleme，问题描述
 		fichier >> type >> nbVehiculesPerDep >> nbClients;
 		fichier >> nbDays;
 		nbDepots = 1;
@@ -205,58 +301,18 @@ void Params::preleveDonnees(string nomInstance)
 		availableSupply.push_back(1.e30); // all supply needed on day 1
 		inventoryCostSupplier = 0.;
 	}
-	else if (type == 38) // IRP format of Archetti http://or-brescia.unibs.it/instances
-	{
-		cout << "path: " << nomInstance << endl;
-		isInventoryRouting = true;
-		// nbVehiculesPerDep = 2;
-		if (nbVehiculesPerDep == -1)
-		{
-			cout << "ERROR : Need to specify fleet size" << endl;
-			throw string("ERROR : Need to specify fleet size");
-		}
-		fichier >> nbClients;
-		nbClients--; // the given number of nodes also counts the supplier/depot
-		fichier >> nbDays;
-		fichier >> vc;
-		rt = 1000000;
-		nbDepots = 1;
-		ancienNbDays = nbDays;
-
-		ordreVehicules.push_back(tempI);
-		nombreVehicules.push_back(0);
-		dayCapacity.push_back(0);
-		for (int kk = 1; kk <= nbDays; kk++)
-		{
-			ordreVehicules.push_back(tempI);
-			dayCapacity.push_back(0);
-			nombreVehicules.push_back(nbDepots * nbVehiculesPerDep);
-			for (int i = 0; i < nbDepots; i++)
-				for (int j = 0; j < nbVehiculesPerDep; j++)
-					ordreVehicules[kk].push_back(Vehicle(-1, -1, -1));
-		}
-
-		for (int kk = 1; kk <= nbDays; kk++)
-		{
-			for (int j = 0; j < nbVehiculesPerDep; j++)
-			{
-				ordreVehicules[kk][j].depotNumber = 0;
-				ordreVehicules[kk][j].maxRouteTime = rt;
-				ordreVehicules[kk][j].vehicleCapacity = vc;
-				dayCapacity[kk] += vc;
-			}
-		}
-	}
-
+	
 	// Liste des clients
 	for (int i = 0; i < nbClients + nbDepots; i++)
 	{
-		Client client = getClient(i);
+		Client client = getClient(i,rou);
+		
 		cli.push_back(client);
 	}
+	//cout <<"client["<<2<<"]"<<cli[2].maxInventory<<"   "<<cli[2].minInventory<<"   "<<cli[2].startingInventory<<endl;
 }
 
-// calcule les autres structures du programme
+// calcule les autres structures du programme  计算程序中的其他结构
 void Params::calculeStructures()
 {
 	int temp;
@@ -284,11 +340,12 @@ void Params::calculeStructures()
 	}
 
 	// on remplit la liste des plus proches pour chaque client
+	//根据客户与每个客户/仓库之间的时间距离对ordreProximite列表进行排序
 	for (int i = nbDepots; i < nbClients + nbDepots; i++)
 	{
 		for (int j = 0; j < nbClients + nbDepots; j++)
 			if (i != j)
-				cli[i].ordreProximite.push_back(j);
+				cli[i].ordreProximite.push_back(j); 
 
 		// et on la classe
 		for (int a1 = 0; a1 < nbClients + nbDepots - 1; a1++)
@@ -301,6 +358,8 @@ void Params::calculeStructures()
 				}
 
 		// on remplit les x% plus proches
+		//基于prox（可能表示要考虑的最近客户的百分比）和proxCst（可能表示要考虑的最近客户的固定数量）
+		//来确定哪些客户/仓库与当前客户最接近，并将它们添加到sommetsVoisins列表中。这也会在isCorrelated1中设置相应的值。
 		for (int j = 0; j < (prox * (int)cli[i].ordreProximite.size()) / 100 && j < proxCst; j++)
 		{
 			cli[i].sommetsVoisins.push_back(cli[i].ordreProximite[j]);
@@ -310,7 +369,7 @@ void Params::calculeStructures()
 			isCorrelated2[i][cli[i].ordreProximite[j]] = true;
 	}
 
-	// on melange les proches
+	// on melange les proches来随机化sommetsVoisins列表的顺序。
 	shuffleProches();
 
 	// on calcule les tableaux de pattern dynamiques
@@ -322,7 +381,7 @@ void Params::calculeStructures()
 }
 
 // sous routine du prelevement de donnees
-Client Params::getClient(int i)
+Client Params::getClient(int i,int rou)
 {
 	struct couple coordonnees;
 	Client client;
@@ -375,7 +434,7 @@ Client Params::getClient(int i)
 			availableSupply[1] += initInventory;
 			fichier >> inventoryCostSupplier;
 		}
-		else // information of each customer
+		else //information of each customer
 		{
 			client.freq = 1;
 			fichier >> client.startingInventory;
@@ -385,6 +444,7 @@ Client Params::getClient(int i)
 			fichier >> myDailyDemand;
 			client.dailyDemand = vector<double>(nbDays + 1, myDailyDemand);
 			fichier >> client.inventoryCost;
+			client.stockoutCost = client.inventoryCost*rou;
 		}
 
 		client.demand = 1.e20; // Just to make sure I never rely on this field for the IRP for now (later on it will totally disappear)
@@ -437,7 +497,7 @@ Params::Params(Params *params, int decom, int *serieVisites, Vehicle **serieVehi
 	if (decom == 1)
 		periodique = false;
 
-	// affectation des autres parametres
+	// affectation des autres parametres  其他参数的分配
 	setMethodParams();
 	penalityCapa = params->penalityCapa;
 	penalityLength = params->penalityLength;
@@ -447,8 +507,8 @@ Params::Params(Params *params, int decom, int *serieVisites, Vehicle **serieVehi
 	el = params->el;
 	nbCountDistMeasure = params->nbCountDistMeasure;
 
-	// calcul des distances
-	// on remplit les distances dans timeCost
+	// calcul des distances 计算距离
+	// on remplit les distances dans timeCost 在 timeCost 中填写距离
 	for (int i = 0; i < nbClients + nbDepots; i++)
 	{
 		timeCost.push_back(vector<double>());
@@ -507,4 +567,18 @@ void Params::decomposeRoutes(Params *params, int *serieVisites, Vehicle **serieV
 	// ils ont toujours les anciens num�ros
 	for (int i = 0; i < nbDepots + nbClients; i++)
 		cli.push_back(params->cli[correspondanceTable[i]]);
+}
+
+void Params::computeConstant_stockout()
+{
+	objectiveConstant_stockout = 0.;
+
+	if (isInventoryRouting)
+	{
+		// Adding the total cost for supplier inventory over the planning horizon (CONSTANT IN OBJECTIVE)
+		for (int k = 1; k <= ancienNbDays; k++)
+			objectiveConstant_stockout += availableSupply[k] * (ancienNbDays + 1 - k) * inventoryCostSupplier;
+
+	}
+	
 }

@@ -18,6 +18,8 @@ private:
 
     // seed
     int seed;
+    int rou;
+    bool stockout;
 
     // instance type, if given
     int type;
@@ -76,7 +78,8 @@ public:
 
     // renvoie le type de l'instance
     int get_type();
-
+    int get_stockout();
+    int get_rou();
     // renvoie le nombre de clients
     int get_nbCli();
 
