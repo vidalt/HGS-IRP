@@ -4,7 +4,9 @@ CCC = g++
 CCFLAGS = -g -std=gnu++14
 # LIBS= -lconcert -lilocplex -lcplex -lm -lpthread -ldl
 LIBS= -lm -lpthread -ldl
-
+#LIBS += -L/Users/jingyi/anaconda3/lib -lpython3.11
+#CPPFLAGS += -I/Users/jingyi/anaconda3/include/python3.11
+#CPPFLAGS += -I/Users/jingyi/anaconda3/lib/python3.11/site-packages/numpy/core/include/
 # PATHLIBS = -L/opt/ibm/ILOG/CPLEX_Studio128/cplex/lib/x86-64_linux/static_pic -L/opt/ibm/ILOG/CPLEX_Studio128/concert/lib/x86-64_linux/static_pic
 PATHLIBS=
 TARGETDIR=.

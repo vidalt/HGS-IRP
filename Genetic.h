@@ -1,5 +1,5 @@
 /*                       Algorithme - HGSADC                         */
-/*                    Propriété de Thibaut VIDAL                     */
+/*                    Propriï¿½tï¿½ de Thibaut VIDAL                     */
 /*                    thibaut.vidal@cirrelt.ca                       */
 
 #ifndef GENETIC_H
@@ -40,7 +40,7 @@ private:
 	// traces d'execution ou non
 	bool traces ;
 
-	// exportation régulière des solutions ou non
+	// exportation rï¿½guliï¿½re des solutions ou non
 	bool writeProgress ;
 
 	// Population
@@ -54,19 +54,19 @@ private:
 
 	// effectue la mutation
 	void muter ();
-
+	void muter1 ();
 	// eventuellement effectue une reparation de la solution
 	void reparer ();
 
 	// procedure de crossover OX
-	// retourne -1 si l'individu ainsi créé n'est pas valide
+	// retourne -1 si l'individu ainsi crï¿½ï¿½ n'est pas valide
 	int crossOX ();
 
 	// procedure de crossover POX 2
-	// retourne -1 si l'individu ainsi créé n'est pas valide
+	// retourne -1 si l'individu ainsi crï¿½ï¿½ n'est pas valide
 	int crossPOX2 ();
 
-	// tableau utilisé lors des crossovers
+	// tableau utilisï¿½ lors des crossovers
 	vector < int > freqClient ;
 
 	// positions pour le crossover
@@ -79,9 +79,9 @@ private:
 	void gererPenalites ();
 
 	// Part of UHGS 2014.
-	// Séparation du VRP en groupes de routes, résolution séparée de sous-problèmes
-	// pour l'instant, approche basique en prenant les routes dans l'ordre des pétales.
-	// on regroupe des routes jusque avoir plus de 100 clients par sous-problème.
+	// Sï¿½paration du VRP en groupes de routes, rï¿½solution sï¿½parï¿½e de sous-problï¿½mes
+	// pour l'instant, approche basique en prenant les routes dans l'ordre des pï¿½tales.
+	// on regroupe des routes jusque avoir plus de 100 clients par sous-problï¿½me.
 	// on se sert de la population pour avoir la population initiale
 	void improve_decompRoutes (int maxIter , int maxIterNonProd, Individu * indiv, int grainSize, int decal, Population * pop, int nbRec);
 
@@ -89,8 +89,8 @@ private:
 public:
 
     // lancement de l'algorithme sur les parametres "params" et la population "population"
-	// la boucle s'arrete lorsque l'on a effectué maxIterProd itérations productives
-	// ou maxIterNonProd itérations non productives 
+	// la boucle s'arrete lorsque l'on a effectuï¿½ maxIterProd itï¿½rations productives
+	// ou maxIterNonProd itï¿½rations non productives 
     void evolve (int maxIter , int maxIterNonProd, int nbRec) ;
 
 	// constructeur du solveur genetique

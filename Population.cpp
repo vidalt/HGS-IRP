@@ -1,16 +1,19 @@
 #include "Population.h"
-
+#include <fstream>
+#include <string>
+#include <sstream>
 // constructeur
 Population::Population(Params *params) : params(params)
 {
 	Individu *randomIndiv;
-	trainer = new Individu(params, 1.0);
-	delete trainer->localSearch;
-	trainer->localSearch = new LocalSearch(params, trainer);
+	trainer = new Individu(params, 1.0);  //初始化一个实例，包括所有split要用到的数组。
+	delete trainer->localSearch;   		 //
+	trainer->localSearch = new LocalSearch(params, trainer); //为本地搜索过程初始化所需的数据结构，并为后续的操作做好准备。
 
 	double temp = params->penalityCapa;
 	double temp2 = params->penalityLength;
-	valides = new SousPop();
+	//SousPop结构为基于种群的优化方法提供了一个简单的子种群表示，其中包含了子种群中的个体、子种群的大小和子种群经历的世代数量。
+	valides = new SousPop(); 
 	invalides = new SousPop();
 	valides->nbIndiv = 0;
 	invalides->nbIndiv = 0;
@@ -18,13 +21,13 @@ Population::Population(Params *params) : params(params)
 	invalides->nbGenerations = 0;
 	bool compter = true;
 
-	// TODO -- for testing for now
+	// TODO -- for testing for now  生成2*mu的个体
 	/*randomIndiv = new Individu (params,1.0);
 	recopieIndividu(trainer,randomIndiv);
 	trainer->generalSplit();
 	trainer->updateLS();
 	trainer->localSearch->runILS(false,100);
-	return ;*/
+	return ;*/ 
 
 	for (int i = 0; i < params->mu * 2; i++)
 	{
@@ -34,7 +37,9 @@ Population::Population(Params *params) : params(params)
 			params->penalityLength *= 50;
 			compter = false;
 		}
-		randomIndiv = new Individu(params, 1.0);
+		randomIndiv = new Individu(params, 1.0);  
+		//chromT是一个二维向量，它的外部维度是天数（nbDays），内部维度是在每一天要访问的客户的顺序。这个客户顺序最初是基于“Just In Time”策略确定的，然后被随机化。
+		
 		education(randomIndiv);
 		if (compter)
 			updateNbValides(randomIndiv);
@@ -44,7 +49,8 @@ Population::Population(Params *params) : params(params)
 
 	// on initialise par d�faut � 100, comme si tout �tait valide au d�but
 	// mais c'est arbitraire
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 100; i++) 
+    // 默认初始化列表，假设100个体在开始时都是有效的
 	{
 		listeValiditeCharge.push_back(true);
 		listeValiditeTemps.push_back(true);
@@ -65,7 +71,7 @@ Population::~Population()
 
 	delete trainer;
 }
-
+//此函数的目的是更新给定子种群中所有个体与新个体的邻近度或相似度。
 void Population::evalExtFit(SousPop *pop)
 {
 	int temp;
@@ -95,7 +101,7 @@ void Population::evalExtFit(SousPop *pop)
 		pop->individus[classement[i]]->fitnessEtendu = pop->individus[classement[i]]->fitRank + ((float)1.0 - (float)params->el / (float)pop->nbIndiv) * pop->individus[classement[i]]->divRank;
 	}
 }
-
+//此函数的目的是更新给定子种群中所有个体与新个体的邻近度或相似度。
 int Population::addIndividu(Individu *indiv)
 {
 	SousPop *souspop;
@@ -107,7 +113,7 @@ int Population::addIndividu(Individu *indiv)
 		souspop = invalides;
 
 	result = placeIndividu(souspop, indiv);
-	// il faut �ventuellement enlever la moiti� de la pop
+	// il faut �ventuellement enlever la moiti� de la pop 我们需要最终移除一半的 pop。
 	if (result != -1 && souspop->nbIndiv > params->mu + params->lambda)
 	{
 
@@ -125,6 +131,7 @@ int Population::addIndividu(Individu *indiv)
 
 // met � jour les individus les plus proches d'une population
 // en fonction de l'arrivant
+
 void Population::updateProximity(SousPop *pop, Individu *indiv)
 {
 	for (int k = 0; k < pop->nbIndiv; k++)
@@ -136,6 +143,7 @@ void Population::updateProximity(SousPop *pop, Individu *indiv)
 }
 
 // fonction booleenne verifiant si le fitness n'existe pas d�ja
+
 bool Population::fitExist(SousPop *pop, Individu *indiv)
 {
 	double fitness = indiv->coutSol.evaluation;
@@ -161,7 +169,10 @@ void Population::diversify()
 		valides->individus.pop_back();
 		valides->nbIndiv--;
 	}
+	/*移除低适应度的解决方案:
 
+对于有效的解决方案，如果它们的数量超过了预定的阈值(params->rho * params->mu)，则从列表的尾部删除它们。这里，尾部可能存储了适应度较低的解决方案。
+对于无效的解决方案，执行相同的操作*/
 	while (invalides->nbIndiv > (int)(params->rho * (double)params->mu))
 	{
 		delete invalides->individus[invalides->nbIndiv - 1];
@@ -368,7 +379,7 @@ Individu *Population::getIndividu(int p)
 	return valides->individus[p];
 }
 // recopie un Individu dans un autre
-// ATTENTION !!! ne recopie que le chromP, chromT et les attributs du fitness
+// ATTENTION !!! ne recopie que le chromP, chromT et les attributs du fitness只能复制 chromP、chromT 和健康属性
 void Population::recopieIndividu(Individu *destination, Individu *source)
 {
 	destination->chromT = source->chromT;
@@ -381,9 +392,10 @@ void Population::recopieIndividu(Individu *destination, Individu *source)
 	destination->precedents = source->precedents;
 }
 
-void Population::ExportPop(string nomFichier)
+void Population::ExportPop(string nomFichier,bool add)
 {
-	// exporte les solutions actuelles des individus dans un dossier
+	
+	// exporte les solutions actuelles des individus dans un dossier exports current individual solutions to a folder 将当前的解决方案导出到文件夹中
 	vector<int> rout;
 	vector<double> routTime;
 	int compteur;
@@ -393,37 +405,44 @@ void Population::ExportPop(string nomFichier)
 	double cost;
 	double temp, temp2;
 	char *myBuff;
-
 	Individu *bestValide = getIndividuBestValide();
+	//cout <<"in";
+	//int q;cin>>q;
 
 	if (bestValide != NULL)
 	{
 
-		// on met � jour la structure de recherche locale pour bien avoir acces aux routes
-		// oblig� de mettre des p�nalit�s tr�s forte , pour que le split n'aie pas l'id�e de cr�er une
-		// solution invalide � partir de la meilleure solution valide
+		// We will update the local search structure for paths.
+		// We are obliged to set very strong parameters so that the splitting does not produce a from the best valid solution
+		// so that the splitting does not produce a from the best valid solution
 		temp = params->penalityCapa;
 		temp2 = params->penalityLength;
 		params->penalityCapa = 10000;
 		params->penalityLength = 10000;
+		//cout <<"edu begin";cin>>q;
 		education(bestValide);
+		//cout <<"edu";cin>>q;
 		// le trainer a gard� les infos des routes de bestValide
 		loc = trainer->localSearch;
 		params->penalityCapa = temp;
 		params->penalityLength = temp2;
 
-		loc->printInventoryLevels();
-
+		
+		//cout <<"print";cin>>q;
 		myfile.precision(10);
 		cout.precision(10);
-
-		cout << "ecriture de la solution du meilleur : fitness " << trainer->coutSol.evaluation << " dans : " << nomFichier.c_str() << endl;
-		myfile.open(nomFichier.data());
-
-		// 1: export cost
+		ofstream myfile;
+		if (add) myfile.open(nomFichier.data(), std::ios::app);//add on previous
+		else myfile.open(nomFichier.data()); // 
+			
+		//cout << "writing the best solution: fitness " << trainer->coutSol.evaluation << " in : " << nomFichier.c_str() << endl;
+		
+		myfile<<endl<<endl;
+		loc->printInventoryLevels(myfile,add);
+		// export cost
 		myfile << trainer->coutSol.evaluation << endl;
 
-		// 2: exporting the number of routes
+		// exporting the number of routes
 		compteur = 0;
 		for (int k = 1; k <= params->nbDays; k++)
 			for (int i = 0; i < (int)loc->routes[k].size(); i++)
@@ -433,21 +452,13 @@ void Population::ExportPop(string nomFichier)
 
 		// exporting the total CPU time (ms)
 		myBuff = new char[100];
-
-		int cpuTime = (int)(clock() / 1000);
-		cout << "cpu time: " << cpuTime << " size: " << sizeof(cpuTime) << endl;
-
-		sprintf(myBuff, "%d", (int)(clock() / 1000));
-		// strncpy(myBuff, "%d", (int)(clock() / 1000));
+		myfile <<"Total Time: ";sprintf(myBuff, "%d", (int)(clock() / 1000000));
 		myfile << myBuff << endl;
 
 		// exporting the time to best solution
 		myBuff = new char[100];
-		int bestTime = (int)(timeBest / 1000);
-		cout << "best time: " << bestTime << " size: " << sizeof(bestTime) << endl;
-
-		sprintf(myBuff, "%d", (int)(timeBest / 1000));
-		// strncpy(myBuff, "%d", (int)(timeBest / 1000));
+		myfile <<"Best Solution Time: ";sprintf(myBuff, "%d", (int)(timeBest / 1000000));
+		//strncpy(myBuff, "%d", (int)(timeBest / 1000));
 		myfile << myBuff << endl;
 
 		for (int k = 1; k <= params->nbDays; k++)
@@ -496,29 +507,60 @@ void Population::ExportPop(string nomFichier)
 	}
 	else
 	{
-		cout << " impossible de trouver un individu valide " << endl;
+		cout << " impossible to find a valid individual " << endl;
 	}
 }
 
 void Population::ExportBKS(string nomFichier)
 {
-	double fit;
+	double fit,tim,pri;
 	ifstream fichier;
+    std::string line;
 	fichier.open(nomFichier.c_str());
 	if (fichier.is_open())
 	{
-		fichier >> fit;
+		while (getline(fichier, line)) {
+            std::size_t found = line.find("COST SUMMARY : OVERALL");
+            if (found != std::string::npos) {
+				//cout<<"~!";
+                std::stringstream ss(line.substr(found));
+                std::string temp;
+			
+                ss >> temp >> temp>> temp >> temp>>fit;
+               
+            }
+			found = line.find("Total Time:");
+            if (found != std::string::npos) {
+				//cout<<"~!";
+                std::stringstream ss(line.substr(found));
+                std::string temp;
+			
+                ss >> temp >> temp>>tim;
+                break; 
+            }
+        }
 		fichier.close();
+		timeBest = clock();
+		//cout <<"  fot ===   "<<fit<<endl;
+		//cout<<"pri > tim"<<pri <<" "<< tim<<endl;
+		//cout <<"   this "<<getIndividuBestValide()->coutSol.evaluation ;
 		if (getIndividuBestValide() != NULL && getIndividuBestValide()->coutSol.evaluation < fit - 0.01)
 		{
 			cout << "!!! new BKS !!! : " << getIndividuBestValide()->coutSol.evaluation << endl;
-			ExportPop(nomFichier);
+			ExportPop(nomFichier,false);
 		}
+		else if (getIndividuBestValide() != NULL && std::fabs(getIndividuBestValide()->coutSol.evaluation - fit) < 0.01 &&  tim > (int)(timeBest / 1000000))
+		{
+			cout << "!!! new time !!! : " << getIndividuBestValide()->coutSol.evaluation << endl;
+			
+			ExportPop(nomFichier,false);
+		}
+		
 	}
 	else
 	{
-		cout << " Fichier de BKS introuvable " << endl;
-		ExportPop(nomFichier);
+		cout << " BKS file not found " << endl;
+		ExportPop(nomFichier,false);
 	}
 }
 // retourne la fraction d'individus valides en terme de charge
@@ -618,6 +660,15 @@ void Population::education(Individu *indiv)
 	trainer->generalSplit();
 	trainer->updateLS();
 	trainer->localSearch->runSearchTotal(false);
+	trainer->updateIndiv();
+	recopieIndividu(indiv, trainer);
+}
+void Population::educationprint(Individu *indiv)
+{
+	recopieIndividu(trainer, indiv);
+	trainer->generalSplit();
+	trainer->updateLS();
+	trainer->localSearch->runSearchTotalprint(false);
 	trainer->updateIndiv();
 	recopieIndividu(indiv, trainer);
 }

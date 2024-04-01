@@ -22,43 +22,49 @@ int mainIRP(int argc, char *argv[])
 
   commandline c(argc, argv);
 
-  // string instance_data = "./Data/Small/Istanze0105h3/abs1n10_1.dat";
-  string instance_data = "Data/Small/Istanze001005h3/abs5n50_4.dat";
-  c.set_debug_prams(instance_data);
-
   if (c.is_valid())
   {
-    // Nombre de ticks horloge que le programme est autorise a durer
-    clock_t nb_ticks_allowed;
-    nb_ticks_allowed = c.get_cpu_time() * CLOCKS_PER_SEC;
+    // Nombre de ticks horloge que le programme est autorise a durer，允许程序运行的时钟刻度数
+    clock_t nb_ticks_allowed; 
+    nb_ticks_allowed =  CLOCKS_PER_SEC;
 
-    // initialisation des Parametres � partir du fichier d'instance et du chemin
-    // de la solution
+    // initialisation des Parametres � partir du fichier d'instance et du chemin  初始化参数。从实例文件和解决方案的路径中。
+    // de la solution 这个对象是通过Params类的构造函数来初始化的，构造函数接收了多个参数。
+    
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
-        c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
+        c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed(),c.get_rou(), c.get_stockout());
+        
 
-    cout << "init population" << endl;
-    // on cree la population
+    //cout << "init population" << endl;
+
+    // initial population 
     Population *population = new Population(mesParametres);
 
-    cout << "init solver" << endl;
-    // on cree le solver
+    //cout << "init solver" << endl;
+  
+    // on cree le solver we create the solver,we create the solver we create the solver
+    //我们创建求解器
     Genetic solver(mesParametres, population, nb_ticks_allowed, true, true);
 
-    // on lance l'evolution
-    cout << "######### Phase de descente principale : "
-         << mesParametres->nbVehiculesPerDep << endl;
-    cout << "  " << endl;
-    int max_iter = 100000000;
+    // on lance l'evolution   launch evolution  开始进化
+    //cout << "######### Main descent phase : "
+    //     << mesParametres->nbVehiculesPerDep << endl;
+    //cout << "  " << endl;
 
-    cout << "solver running..." << endl;
-    solver.evolve(max_iter, 1000, 1);
-    cout << "  " << endl;
+    
+    int max_iter = 100000;
+    int maxIterNonProd = 20000;
+    //cout << "solver running..." << endl;
+    solver.evolve(max_iter, maxIterNonProd, 1);
+    //cout <<c.get_path_to_solution()<<endl;
+    //cout << "Export Population : " << endl;
 
-    population->ExportPop(c.get_path_to_solution());
+    population->ExportPop(c.get_path_to_solution(),true);
+    
+    //cout <<"Export BKS:"<<endl;
     population->ExportBKS(c.get_path_to_BKS());
-
+  
     // on desalloue la memoire
     delete mesParametres;
     return 0;
@@ -129,6 +135,7 @@ int mainTest1(int argc, char *argv[])
 
     vector<double> quantities = vector<double>(3);
     vector<Insertion *> breakpoints = vector<Insertion *>(3);
+    //这个vector的初始大小也是3，这意味着它可以存储3个指向Insertion对象的指针。
     double objective;
 
     LotSizingSolver *lotSizingSolver =
@@ -231,10 +238,6 @@ int mainTest3(int argc, char *argv[])
   // try
   //{
   commandline c(argc, argv);
-  string instance_data = "/Users/anvita/Projects/IRP/Data/Small/Istanze0105h3/abs3n10_1.dat";
-
-  c.set_debug_prams(instance_data);
-
   if (c.is_valid())
   {
     // Nombre de ticks horloge que le programme est autorise a durer
@@ -302,122 +305,6 @@ int mainTest3(int argc, char *argv[])
   //}
 }
 
-int mainTest4(int argc, char *argv[])
-{
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
-  commandline c(argc, argv);
-  if (c.is_valid())
-  {
-    // Nombre de ticks horloge que le programme est autorise a durer
-    clock_t nb_ticks_allowed;
-    nb_ticks_allowed = c.get_cpu_time() * CLOCKS_PER_SEC;
-
-    // initialisation des Parametres � partir du fichier d'instance et du chemin
-    // de la solution
-    Params *mesParametres = new Params(
-        c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
-        c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    //        PLFunction *plf = new PLFunction(mesParametres);
-    //        plf->testBasicFuncs(50);
-    //        plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        insertion 0: detour:470 load: 435
-
-        insertion 1: detour:0 load: 27
-        detour:470 load: 435
-
-        insertion 2: detour:24 load: 33
-        detour:470 load: 435
-
-        insertion 3: detour:24 load: 21
-        detour:81 load: 92
-        detour:470 load: 435
-
-        insertion 4: detour:24 load: 71
-        detour:129 load: 248
-        detour:470 load: 435
-
-        insertion 5: detour:470 load: 435
-
-        CPXPARAM_Threads                                 1
-        CPXPARAM_MIP_Display                             0
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7client: 2 re-obj: 2.7
-        day: 2 quantity: 27 route: 9 in route: 1
-
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
-       29.34myCost 3: 29.34client: 2 re-obj: 29.34
-        day: 3 quantity: 33 route: 8 in route: 1
-
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
-       29.34myCost 3: 29.34myCost 1: 30.6myCost 2: 54.6myCost 3: 54.6client: 2
-       re-obj: 54.6
-        day: 4 quantity: 21 route: 8 in route: 0
-
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
-       29.34myCost 3: 29.34myCost 1: 30.6myCost 2: 54.6myCost 3: 54.6myCost 1:
-       56.76myCost 2: 80.76myCost 3: 80.76client: 2 re-obj: 80.76
-        day: 5 quantity: 54 route: 8 in route: 1
-
-        Best cost: 80.76
-
-     */
-
-    vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
-    insertions[0].push_back(Insertion(470, 435, NULL));
-
-    insertions[1].push_back(Insertion(0, 27, NULL));
-    insertions[1].push_back(Insertion(470, 435, NULL));
-
-    insertions[2].push_back(Insertion(24, 33, NULL));
-    insertions[2].push_back(Insertion(470, 435, NULL));
-
-    insertions[3].push_back(Insertion(24, 21, NULL));
-    insertions[3].push_back(Insertion(81, 92, NULL));
-    insertions[3].push_back(Insertion(470, 435, NULL));
-
-    insertions[4].push_back(Insertion(24, 71, NULL));
-    insertions[4].push_back(Insertion(129, 248, NULL));
-    insertions[4].push_back(Insertion(470, 435, NULL));
-
-    insertions[5].push_back(Insertion(470, 435, NULL));
-
-    vector<double> quantities = vector<double>(6);
-    //        vector<Insertion *> breakpoints = vector<Insertion *>(6);
-    //        double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 2,
-    //        quantities,
-    //                                           breakpoints, objective, true);
-
-    LotSizingSolver *lotSizingSolver =
-        new LotSizingSolver(mesParametres, insertions, 2);
-    lotSizingSolver->solve();
-
-    // on desalloue la memoire
-    delete mesParametres;
-    delete lotSizingSolver;
-    return 0;
-  }
-  else
-    throw string(
-        "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
-        "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
-}
 
 int mainTest5(int argc, char *argv[])
 {
@@ -1537,9 +1424,133 @@ int mainTest50(int argc, char *argv[])
         "[-sol solution]");
 }
 
+
+int mainTest4(int argc, char *argv[])
+{
+  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type 38
+
+  // try
+  //{
+  commandline c(argc, argv);
+  if (c.is_valid())
+  {
+    // Nombre de ticks horloge que le programme est autorise a durer
+    clock_t nb_ticks_allowed;
+    nb_ticks_allowed = c.get_cpu_time() * CLOCKS_PER_SEC;
+
+    // initialisation des Parametres � partir du fichier d'instance et du chemin
+    // de la solution/]
+    bool trace = true;
+    //cout<<"initial parmas"<<endl;
+    Params *mesParametres = new Params(
+        c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
+        c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed(),c.get_rou(), c.get_stockout());
+   
+    // mesParametres->endTime = 0;
+    // for (int i = 0; i < mesParametres->cli.size(); i++)
+    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
+    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
+    //        PLFunction *plf = new PLFunction(mesParametres);
+    //        plf->testBasicFuncs(50);
+    //        plf->testSuperposition();
+    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
+
+    /* Data
+        insertion 0: detour:470 load: 435
+
+        insertion 1: detour:0 load: 27
+        detour:470 load: 435
+
+        insertion 2: detour:24 load: 33
+        detour:470 load: 435
+
+        insertion 3: detour:24 load: 21
+        detour:81 load: 92
+        detour:470 load: 435
+
+        insertion 4: detour:24 load: 71
+        detour:129 load: 248
+        detour:470 load: 435
+
+        insertion 5: detour:470 load: 435
+
+        CPXPARAM_Threads                                 1
+        CPXPARAM_MIP_Display                             0
+        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7client: 2 re-obj: 2.7
+        day: 2 quantity: 27 route: 9 in route: 1
+
+        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
+       29.34myCost 3: 29.34client: 2 re-obj: 29.34
+        day: 3 quantity: 33 route: 8 in route: 1
+
+        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
+       29.34myCost 3: 29.34myCost 1: 30.6myCost 2: 54.6myCost 3: 54.6client: 2
+       re-obj: 54.6
+        day: 4 quantity: 21 route: 8 in route: 0
+
+        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
+       29.34myCost 3: 29.34myCost 1: 30.6myCost 2: 54.6myCost 3: 54.6myCost 1:
+       56.76myCost 2: 80.76myCost 3: 80.76client: 2 re-obj: 80.76
+        day: 5 quantity: 54 route: 8 in route: 1
+
+        Best cost: 80.76
+        insertion 0:  detour:366 load: 476 detour:366 load: 476
+        insertion 1:  detour:366 load: 476 detour:33 load: 93
+        insertion 2:  detour:33 load: 56 detour:366 load: 476
+
+     */
+
+    vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
+    insertions[0].push_back(Insertion(470, 435, NULL));
+
+    insertions[1].push_back(Insertion(100, 27, NULL));
+    insertions[1].push_back(Insertion(470, 435, NULL));
+
+    insertions[2].push_back(Insertion(240, 33, NULL));
+    insertions[2].push_back(Insertion(470, 435, NULL));
+
+    insertions[3].push_back(Insertion(27, 21, NULL));
+    insertions[3].push_back(Insertion(81, 92, NULL));
+    insertions[3].push_back(Insertion(470, 435, NULL));
+
+    insertions[4].push_back(Insertion(24, 71, NULL));
+    insertions[4].push_back(Insertion(129, 248, NULL));
+    insertions[4].push_back(Insertion(470, 435, NULL));
+
+    insertions[5].push_back(Insertion(470, 435, NULL));
+
+    vector<double> quantities = vector<double>(6);
+    //        vector<Insertion *> breakpoints = vector<Insertion *>(6);
+    //        double objective;
+    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 2,
+    //        quantities,
+    //                                           breakpoints, objective, true);
+    //cout<<"before lotsizing"<<endl;
+    LotSizingSolver *lotSizingSolver =  new LotSizingSolver(mesParametres, insertions, 2);
+    cout<<"solve:"<<endl;
+    if(mesParametres->isstockout)lotSizingSolver->solve_stockout();
+    else
+      lotSizingSolver->solve();
+    // on desalloue la memoire
+    delete mesParametres;
+    delete lotSizingSolver;
+    return 0;
+  }
+  else
+    throw string(
+        "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
+        "[-sol solution]");
+  //}
+  // catch(const string& e)  // Catching and printing any thrown string
+  //{
+  // cout << e << endl ;
+  // return 0 ;
+  //}
+}
+
 int main(int argc, char *argv[])
 {
-  //   mainTest4(argc, argv);
-  // mainTest3(argc, argv);
+  //  mainTest4(argc, argv);
+  //  mainTest3(argc, argv);
   mainIRP(argc, argv);
 }

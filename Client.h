@@ -1,5 +1,5 @@
 /*                       Algorithme - HGSADC                         */
-/*                    Propriété de Thibaut VIDAL                     */
+/*                    Propriï¿½tï¿½ de Thibaut VIDAL                     */
 /*                    thibaut.vidal@cirrelt.ca                       */
 
 #ifndef CLIENT_H
@@ -30,13 +30,13 @@ public:
 	// customer number
     int custNum ;
 
-    // coordonnées des points
+    // coordonnï¿½es des points
     couple coord ;
 
-	// delai à un sommet
+	// delai ï¿½ un sommet
 	double serviceDuration ;
 
-	// demande associée à un sommet
+	// demande associï¿½e ï¿½ un sommet
 	double demand ;
 
 	// DATA STRUCTURES USED FOR THE PVRP //
@@ -44,7 +44,7 @@ public:
 	// frequence de visite
 	int freq ;
 
-	// variable globale à la classe utilisée dans la fonction de remplissage
+	// variable globale ï¿½ la classe utilisï¿½e dans la fonction de remplissage
 	int codeTravail ;
 
 	// list of all possible visit combinations (PVRP)
@@ -55,26 +55,26 @@ public:
     // numbered from left to right.)
     vector <pattern> visits ;
 
-	// list of all possible visit combinations copiées pour qui n'est pas
-	// modifiée lors des set_pattern etc...
+	// list of all possible visit combinations copiï¿½es pour qui n'est pas
+	// modifiï¿½e lors des set_pattern etc...
 	vector <pattern> visitsOrigin ;
 
-	// vecteur de programmation dynamique, dimensionné à 2^(OldnbJours+1) (PVRP)
-	// visitsDyn[code] donne l'indice du pattern en question dans la liste de pattern du problème
+	// vecteur de programmation dynamique, dimensionnï¿½ ï¿½ 2^(OldnbJours+1) (PVRP)
+	// visitsDyn[code] donne l'indice du pattern en question dans la liste de pattern du problï¿½me
 	vector <int> visitsDyn ;
 
 	// calcul de visitsDyn (PVRP)
 	void computeVisitsDyn () ;
 
-	// programmation dynamique, calculé lors de l'initialisation des structures
+	// programmation dynamique, calculï¿½ lors de l'initialisation des structures
 	// pour les crossPOX (PVRP)
-	// jourSuiv[code][jour] dit à quel jour suivant doit etre placé le client qui est
-	// déja placé conformément au code actuel
-	// **** n'est utilisé que dans les crossover
+	// jourSuiv[code][jour] dit ï¿½ quel jour suivant doit etre placï¿½ le client qui est
+	// dï¿½ja placï¿½ conformï¿½ment au code actuel
+	// **** n'est utilisï¿½ que dans les crossover
 	vector < vector < int > > jourSuiv ;
 
-	// liste des jours ou l'on peut rajouter l'individu pour un code donné (PVRP)
-	// **** n'est utilisé que dans les crossover
+	// liste des jours ou l'on peut rajouter l'individu pour un code donnï¿½ (PVRP)
+	// **** n'est utilisï¿½ que dans les crossover
 	vector < vector < int > > jourAccept ;
 
 	// calcul de JourSuiv et de jourAccept (PVRP)
@@ -83,8 +83,8 @@ public:
 	// fonction recursive impliquee dans le calcul de computeJourSuiv (PVRP)
 	void frec (int y, int z,int n) ;
 
-	// fonction impliquée dans le calcul de computeJourSuiv
-	// ajoute la représentation binaire de z à la ligne y
+	// fonction impliquï¿½e dans le calcul de computeJourSuiv
+	// ajoute la reprï¿½sentation binaire de z ï¿½ la ligne y
 	// du tableau JourSuiv (PVRP)
 	void ajoute (int y,int z) ;
 
@@ -104,11 +104,11 @@ public:
 
 	// daily inventory cost of the customer
 	double inventoryCost ;
-
-	// ordre des sommets et depots, par proximité
+	double stockoutCost;
+	// ordre des sommets et depots, par proximitï¿½
 	vector <int> ordreProximite ;
 
-	// les sommets les plus proches selon le critere de proximite
+	// les sommets les plus proches selon le critere de proximiteæ ¹æ®é‚»è¿‘åº¦æ ‡å‡†çš„æœ€è¿‘é¡¶ç‚¹ä»¬
 	vector <int> sommetsVoisins ;
 
 	Client(void);
