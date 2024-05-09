@@ -171,7 +171,7 @@ void Population::diversify()
 	}
 	/*移除低适应度的解决方案:
 
-对于有效的解决方案，如果它们的数量超过了预定的阈值(params->rho * params->mu)，则从列表的尾部删除它们。这里，尾部可能存储了适应度较低的解决方案。
+对于有效的解决方案，如果它们的数量超过了预定的阈值(params->rho * params->mu)，则从列表的尾部删除它们。这里，尾部适应度较低的解决方案。
 对于无效的解决方案，执行相同的操作*/
 	while (invalides->nbIndiv > (int)(params->rho * (double)params->mu))
 	{
@@ -663,15 +663,7 @@ void Population::education(Individu *indiv)
 	trainer->updateIndiv();
 	recopieIndividu(indiv, trainer);
 }
-void Population::educationprint(Individu *indiv)
-{
-	recopieIndividu(trainer, indiv);
-	trainer->generalSplit();
-	trainer->updateLS();
-	trainer->localSearch->runSearchTotalprint(false);
-	trainer->updateIndiv();
-	recopieIndividu(indiv, trainer);
-}
+
 
 // met a jour le compte des valides
 void Population::updateNbValides(Individu *indiv)
