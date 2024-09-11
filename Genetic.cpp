@@ -13,7 +13,7 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 	string temp;
 
 	//while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && (clock() - params->debut <= ticks))
-	while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && clock() - params->debut <= 4 * 60 * 60 * CLOCKS_PER_SEC)
+	while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && clock() - params->debut <= 30 * 60 * CLOCKS_PER_SEC)
 	{
 		//cout <<"nbIter: "<<nbIter<<endl;
 				
