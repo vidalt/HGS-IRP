@@ -288,7 +288,7 @@ int Genetic::crossPOX2()
 
 	// Inheriting the data from rejeton1.
 	// For each day, we will keep a sequence going from debut to fin
-	for (int k = 0; k < params->nbDays; k++)
+	for (int k = 1; k <= params->nbDays; k++)
 	{
 		day = joursPerturb[k];
 		// on recopie un segment复制一个片段
@@ -334,7 +334,7 @@ int Genetic::crossPOX2()
 	}
 	
 	// completing with rejeton 2
-	for (int k = 0; k < params->nbDays; k++)
+	for (int k = 1; k <= params->nbDays; k++)
 	{
 		day = joursPerturb[k];
 		fin = tableauFin[k];
