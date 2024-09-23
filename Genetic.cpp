@@ -288,7 +288,7 @@ int Genetic::crossPOX2()
 
 	// Inheriting the data from rejeton1.
 	// For each day, we will keep a sequence going from debut to fin
-	for (int k = 1; k <= params->nbDays; k++)
+	for (int k = 0; k < params->nbDays; k++)
 	{
 		day = joursPerturb[k];
 		// on recopie un segment复制一个片段
@@ -334,7 +334,7 @@ int Genetic::crossPOX2()
 	}
 	
 	// completing with rejeton 2
-	for (int k = 1; k <= params->nbDays; k++)
+	for (int k = 0; k < params->nbDays; k++)
 	{
 		day = joursPerturb[k];
 		fin = tableauFin[k];
@@ -346,7 +346,7 @@ int Genetic::crossPOX2()
 				if (!hasBeenInserted[day][ii]) // it has not been inserted yet
 				{
 					// computing maximum possible delivery quantity
-					quantity = std::min<double>(rejeton->maxFeasibleDeliveryQuantity(day, ii), rejeton2->chromL[day][ii]);
+					quantity = rejeton2->chromL[day][ii];
 					if (quantity > 0.0001)
 					{
 						rejeton->chromT[day].push_back(ii);
@@ -359,6 +359,9 @@ int Genetic::crossPOX2()
 	}
 	
 	vector<vector<double>> I_end(params->nbDays+2, vector<double>(params->nbDepots + params->nbClients));
+	//vector<double> sum(params->nbDepots + params->nbClients);
+	//for(int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++) sum[i] = params->cli[i].startingInventory;
+
 	for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++){
 		I_end[0][i] = params->cli[i].startingInventory;
 		//if(i == 157)cout<<"day0 cus = "<<i<<" "<<I_end[0][i]<<endl;	
@@ -367,6 +370,8 @@ int Genetic::crossPOX2()
 	for (int k = 1; k <= params->nbDays; k++){
 		for (int cus = params->nbDepots; cus < params->nbDepots + params->nbClients; cus++){
 			//if(cus == 157)cout<<"cus = "<<cus<<endl;
+			//if(sum[cus]+rejeton->chromL[k][cus] >params->cli[cus].maxInventory) rejeton->chromL[k][cus]=params->cli[cus].maxInventory-sum[cus];
+
 			rejeton->chromL[k][cus] = std::min<double>(rejeton->chromL[k][cus],params->cli[cus].maxInventory-I_end[k-1][cus]);
 			
 			//if(cus == 157)cout<<"yesterday "<<I_end[k-1][cus]<<" today "<<rejeton->chromL[k][cus]<<" maxIn "<<params->cli[cus].maxInventory<<endl;
