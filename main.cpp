@@ -54,7 +54,7 @@ int mainIRP(int argc, char *argv[])
 
     
     int max_iter = 100000;
-    int maxIterNonProd = 20000;
+    int maxIterNonProd = 10000;
     //cout << "solver running..." << endl;
     solver.evolve(max_iter, maxIterNonProd, 1);
     //cout <<c.get_path_to_solution()<<endl;
