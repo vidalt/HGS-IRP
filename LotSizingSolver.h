@@ -50,7 +50,6 @@ public:
     std::shared_ptr<PLFunction> supperposition(std::shared_ptr<PLFunction> fromC, std::shared_ptr<PLFunction> fromF);
     bool backtracking();
     bool backtracking_stockout();
-    bool backtracking_stockoutprint();
     bool compareY(const Point& a, const Point& b) ;
     void  Firstday(vector<std::shared_ptr<PLFunction>> &C);
     void  Firstdayp(vector<std::shared_ptr<PLFunction>> &C);
@@ -63,7 +62,6 @@ public:
     
     bool solve();
     bool solve_stockout();
-    bool solve_stockoutp();
     ~LotSizingSolver();
 };
 

@@ -576,6 +576,7 @@ bool PLFunction::intersect(shared_ptr<LinearPiece> lp1, shared_ptr<LinearPiece> 
 }
 
 void PLFunction::append(shared_ptr<LinearPiece> lp){
+    if(!lp) return;
     double minNum = std::min(lp->p1->x, lp->p2->x);
     double maxNum = std::max(lp->p1->x, lp->p2->x);
     if(ceil(minNum) >floor(maxNum)) return;
@@ -592,7 +593,6 @@ void PLFunction::append(shared_ptr<LinearPiece> lp){
     if(fabs(lp->p1->x*1000-ceil(lp->p1->x*1000))<=exp) lp->p1->x=ceil(lp->p1->x*1000)/1000;  
     if(fabs(lp->p2->x*1000-floor(lp->p2->x*1000))<=exp) lp->p2->x=floor(lp->p2->x*1000)/1000;  
     if(fabs(lp->p2->x*1000-ceil(lp->p2->x*1000))<=exp) lp->p2->x=ceil(lp->p2->x*1000)/1000;
-    if(!lp) return;
     shared_ptr<LinearPiece> newPiece = lp->clone();
     if(newPiece)    newPiece->updateLinearPiece(newPiece->p1->x, newPiece->p1->y,newPiece->p2->x, newPiece->p2->y);
         

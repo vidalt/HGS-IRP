@@ -16,6 +16,7 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 	pathToBKS = nomBKS;
 
 	debut = clock();
+	//PItime = 0;
 	nbVehiculesPerDep = nbVeh;
 
 	// ouverture du fichier en lecture
@@ -29,7 +30,7 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 		cout << "Unable to open file : " << nomInstance << endl;
 		throw string(" Unable to open file ");
 	}
-	cout << "read file done" << endl;
+	cout << "Read file done" << endl;
 
 	// Setting the parameters
 	setMethodParams();
@@ -164,6 +165,7 @@ void Params::setMethodParams()
 	el = 3;					// ***
 	mu = 12;				// *
 	lambda = 25;			// *
+	//PItime=0;
 	nbCountDistMeasure = 5; // o
 	rho = 0.30;				// o
 	delta = 0.001;			// o

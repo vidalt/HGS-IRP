@@ -102,6 +102,7 @@ public:
     bool eqDeep(const shared_ptr<LinearPiece> rhs);
 
     std::shared_ptr<LinearPiece> clone();
+    std::shared_ptr<LinearPiece> cloneWithout();
     std::shared_ptr<LinearPiece> clone_addHolding(double InventoryCost, double daily);
     std::shared_ptr<LinearPiece> clone_addStockout(double stockout, double daily);
     void update(double left_x, double left_y, double right_x, double right_y);

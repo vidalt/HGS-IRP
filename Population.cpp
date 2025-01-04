@@ -1,6 +1,7 @@
 #include "Population.h"
 #include <fstream>
 #include <string>
+#include <cmath>
 #include <sstream>
 // constructeur
 Population::Population(Params *params) : params(params)
@@ -453,6 +454,10 @@ void Population::ExportPop(string nomFichier,bool add)
 		// exporting the total CPU time (ms)
 		myBuff = new char[100];
 		myfile <<"Total Time: ";sprintf(myBuff, "%d", (int)(clock() / 1000000));
+		myfile << myBuff << endl;
+
+		myBuff = new char[100];
+		myfile <<"PITime: ";sprintf(myBuff, "%d", (int)(params->debut / 1000000));
 		myfile << myBuff << endl;
 
 		// exporting the time to best solution

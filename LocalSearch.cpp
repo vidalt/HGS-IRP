@@ -38,8 +38,10 @@ void LocalSearch::runSearchTotal(bool isRepPhase)
   // reorganisation des jours
   if (nbPhases < params->maxLSPhases)
   {
-    
+    clock_t start=clock();
     nbMoves = mutationDifferentDay();
+    clock_t end=clock();
+    params->debut += (end-start);
     nbTotal += nbMoves;
     nbPhases++;
     if (traces){
@@ -64,8 +66,11 @@ void LocalSearch::runSearchTotal(bool isRepPhase)
 
     if (nbMoves > 0 && nbPhases < params->maxLSPhases)
     {
-  
-      nbMoves += mutationDifferentDay();
+      clock_t start=clock();
+    nbMoves += mutationDifferentDay();
+    clock_t end=clock();
+    params->debut += (end-start);
+      //cout <<params->debut<<endl;
       nbTotal += nbMoves;
       nbPhases++;
       if (traces)
@@ -87,107 +92,6 @@ void LocalSearch::runSearchTotal(bool isRepPhase)
 
 
 
-
-void LocalSearch::runSearchTotalprint(bool isRepPhase)
-{
- 
-  this->isRepPhase = isRepPhase;
-  int nbMoves = 0;
-  int nbTotal = 0;
-  int nbPhases = 0;
-  bool traces = false;
-
-  // LANCEMENT DE LA RECHERCHE
-  if (traces)cout << "COST INITIAL " << evaluateSolutionCost() << endl;
-
-  // reorganisation des plans de transport pour chaque jour
-  updateMoves();
-  for (int day = 1; day <= params->nbDays; day++)
-    nbMoves += mutationSameDay(day);
-  nbTotal += nbMoves;
-  nbPhases++;
-  if (traces)
-    cout << "COST AFTER RI 1. " << (nbPhases + 1) / 2 << " : "
-         << evaluateSolutionCost() << endl;
-  
-  // reorganisation des jours
-  if (nbPhases < params->maxLSPhases)
-  {
-    
-    nbMoves = mutationDifferentDayprint();
-    nbTotal += nbMoves;
-    nbPhases++;
-    if (traces){
-      cout << "COST AFTER PI 1. " << (nbPhases + 1) / 2 << " : "
-           << evaluateSolutionCost() << endl;
-    }
-   
-  }
-  if(traces)  cout <<"nbMoves "<<nbMoves<<" phases "<<nbPhases<<" mazls " <<params->maxLSPhases<<endl;
-
-  while (nbMoves > 0 && nbPhases < params->maxLSPhases)
-  {
-    //cout <<"nbMOves"<< nbMoves;
-    nbMoves = 0;
-    updateMoves();
-    for (int day = 1; day <= params->nbDays; day++)
-      nbMoves += mutationSameDay(day);
-    nbPhases++;
-    if (traces)
-      cout << "COST AFTER RI " << (nbPhases + 1) / 2 << " : "
-           << evaluateSolutionCost() << endl;
-
-    if (nbMoves > 0 && nbPhases < params->maxLSPhases)
-    {
-      //cout <<"before"<<endl;
-      nbMoves += mutationDifferentDayprint();
-     // cout <<"after"<<endl;
-      nbTotal += nbMoves;
-      nbPhases++;
-      if (traces)
-        cout << "COST AFTER PI2 " << (nbPhases + 1) / 2 << " : "
-             << evaluateSolutionCost() << endl;
-
-     // int a;cin>>a;
-    }
-  }
-
-  if (traces)
-    cout << "COST FINAL : " << evaluateSolutionCost() << endl
-         << endl;
-
-  // cout << endl << endl ;
-  //printInventoryLevels();
-  // cout << endl << endl ;
-}
-
-
-// les tableaux ordreParcours de tous les jours sont r�organis�s al�atoirement是混合路线
-//将每天的ordreParcours数组以及ordreJours数组进行随机混洗。我们可以将此视为随机化搜索过程的方法，以探索不同的客户顺序和天数，从而有机会找到更好的解决方案。
-int LocalSearch::mutationDifferentDayprint()
-{
-  //çcout <<"mutation";
-  bool traces = false;
-  rechercheTerminee = false;
-  int nbMoves = 0;
-  
-    if(traces){
-       cout<<"nbClients "<<params->nbClients<<endl;
-      for (size_t i = 0; i < ordreParcours.size(); ++i) { // Iterate through each day
-        for (size_t j = 0; j < ordreParcours[i].size(); ++j) { // Iterate through each customer
-            std::cout <<"!!!!!!!day "<<i<<" client "<<j<< ordreParcours[i][j] << " ";
-        }
-        std::cout << endl<<endl;
-      }
-    }
-      cout <<"params->nbClients"<<endl;
-    for (int posU = 0; posU < params->nbClients; posU++)
-      nbMoves += mutation11(ordreParcours[0][posU]);//random每一个client
-      
-  
-  return nbMoves;
-}
-// change the choices of visit periods and quantity for "client"
 
 
 void LocalSearch::melangeParcours()
@@ -431,12 +335,12 @@ int LocalSearch::mutationDifferentDay()
      rechercheTerminee = true;
     
     for (int posU = 0; posU < params->nbClients; posU++){
-      times++;
+      //times++;
       //cout << "client: "<<ordreParcours[0][posU]<<endl;
       //int a;cin>>a;
       nbMoves += mutation11(ordreParcours[0][posU]);//random每一个client
     }
-    if(times >= params->nbClients*10) break;
+    //if(times >= params->nbClients*10) break;
   }
   return nbMoves;
 }
@@ -707,6 +611,8 @@ void LocalSearch::printInventoryLevels(std::ostream& file,bool add)
 {
   double inventoryClientCosts = 0.;
   double inventorySupplyCosts = 0.;
+  double stockClientCosts = 0;
+  double stockClientAmount=0;
   double routeCosts = 0.;
   double loadCosts = 0.;
 
@@ -750,7 +656,8 @@ void LocalSearch::printInventoryLevels(std::ostream& file,bool add)
         if(!add) file  << ", everning: " << inventoryClient << "] ";
 
         inventoryClientCosts += inventoryClient * params->cli[i].inventoryCost ;
-        inventoryClientCosts += stock*params->cli[i].stockoutCost;
+        stockClientCosts += stock*params->cli[i].stockoutCost;
+        stockClientAmount += stock;
       }
       if(!add) file  << endl;
     }
@@ -796,11 +703,13 @@ void LocalSearch::printInventoryLevels(std::ostream& file,bool add)
   }
   if(!add) file  << endl;
 
-  file  << "COST SUMMARY : ROUTE " << routeCosts << " | LOAD " << loadCosts
-       << " | SUPPLY " << inventorySupplyCosts << " | CLIENT "
-       << inventoryClientCosts << endl;
+  file  << "ROUTE: " << routeCosts << endl;
+  file << "LOAD: " << loadCosts << "SUPPLY: " << inventorySupplyCosts << endl;
+  file << "CLIENT INVENTORY: " << inventoryClientCosts << endl;
+  file << "CLIENT STOCKOUT: " << stockClientCosts<<endl;
+  file << "CLIENT STOCKOUT Amount: " << stockClientAmount<<endl;
   file  << "COST SUMMARY : OVERALL "
-       << routeCosts + loadCosts + inventorySupplyCosts + inventoryClientCosts
+       << routeCosts + loadCosts + inventorySupplyCosts + inventoryClientCosts+stockClientCosts
        << endl;
 }
 
@@ -947,106 +856,6 @@ double LocalSearch::evaluateCurrentCost_stockout(int client)
      if(trace) cout <<"mycost: "<<myCost<<endl;
   }
   return myCost;
-}
-
-double LocalSearch::evaluateCurrentCost_p(int client)
-{
-  bool trace = true;
-  Noeud *noeudClient;
-  double myCost = 0.;
-  double I = params->cli[client].startingInventory;
-  // Sum up the detour cost, inventory cost, and eventual excess of capacity
-  for (int k = 1; k <= params->ancienNbDays; k++)
-  {
-        if(trace) cout <<"->day "<<k<<endl;
-    noeudClient = clients[k][client];
-    if (noeudClient->estPresent){
-      // adding the inventory cost库存成本:根据公式计算库存成本并累加到myCost。
-          if(trace) cout <<"holding cost: "<<params->cli[client].inventoryCost <<" I= "<< I<<" q="<<demandPerDay[k][client]<<" demand = "<<params->cli[client].dailyDemand[k]<<endl;
-        double h1 = I+demandPerDay[k][client]-params->cli[client].dailyDemand[k];
-        if(eq(h1,0))  h1 = 0;
-        myCost +=  params->cli[client].inventoryCost *   std::max<double> (0.,h1 );
-      //stockout
-          if(trace) cout <<"stckout cost: "<<params->cli[client].stockoutCost * std::max<double> (0., -I-demandPerDay[k][client]+params->cli[client].dailyDemand[k])<<endl;
-        double s1=-I-demandPerDay[k][client]+params->cli[client].dailyDemand[k];
-        if( eq(s1,0))  s1=0;
-        myCost +=   params->cli[client].stockoutCost * std::max<double> (0., s1);
-      
-      //-supplier *q[]
-            if(trace) cout <<"supplier minus"<<params->inventoryCostSupplier *
-                  (double)(params->ancienNbDays + 1 - k) * demandPerDay[k][client]<<endl;
-      
-      myCost -=  params->inventoryCostSupplier *
-            (double)(params->ancienNbDays + 1 - k) * demandPerDay[k][client];
-      // cout << "myCost 1: " << myCost;
-
-      // the detour cost
-      cout<<"oo mycost "<<myCost<<endl;
-        myCost +=  (params->timeCost[noeudClient->cour][noeudClient->suiv->cour] +
-            params->timeCost[noeudClient->pred->cour][noeudClient->cour] -
-            params->timeCost[noeudClient->pred->cour][noeudClient->suiv->cour]);
-        if(trace) cout<<"detour : "<< params->timeCost[noeudClient->cour][noeudClient->suiv->cour] +
-            params->timeCost[noeudClient->pred->cour][noeudClient->cour] -
-            params->timeCost[noeudClient->pred->cour][noeudClient->suiv->cour]<<"myCost = "<<myCost<<endl;
-      // cout << "myCost 2: " << myCost;
-      // and the possible excess capacity, the privous penalty are calculated already.
-      double x1 = noeudClient->route->charge -  noeudClient->route->vehicleCapacity;
-      if(eq(x1,0)) x1 = 0;
-      double x2=noeudClient->route->charge -
-                noeudClient->route->vehicleCapacity - demandPerDay[k][client];
-      if(eq(x2,0)) x2 = 0;
-        myCost += params->penalityCapa *(std::max<double>(0., x1) - std::max<double>(0., x2));
-        if(trace) cout<<"possible penalty : "<< params->penalityCapa <<"  "<<
-                std::max<double>(0., x1) <<"  "<< std::max<double>(0., x2)<<endl;
-        I = std::max<double> (0., I+demandPerDay[k][client]-params->cli[client].dailyDemand[k]);
-        // cout << "myCost 3: " << myCost;
-      }
-      else{ 
-        double y1 = I-params->cli[client].dailyDemand[k];
-        double y2 = -I+params->cli[client].dailyDemand[k];
-        if(eq(y1,0))y1=0;
-        if(eq(y2,0))y2=0;
-        myCost += params->cli[client].inventoryCost *  std::max<double>(0., y1);
-        myCost += params->cli[client].stockoutCost * std::max<double>  (0., y2);
-        if(trace) cout<<"stockout "<<-I+params->cli[client].dailyDemand[k]<<"  coststockout "<<params->cli[client].stockoutCost * std::max<double>  (0., -I+params->cli[client].dailyDemand[k])<<endl;
-        
-        I = std::max<double> (0., I-params->cli[client].dailyDemand[k]);
-        
-      }
-     if(trace) cout <<"mycost: "<<myCost<<endl;
-  }
-  return myCost;
-}
-
-void LocalSearch::computeCoutInsertionp(Noeud *client)
-{
-  /*这个函数为给定的客户和给定的天计算在不同路线中的插入成本。
-  首先，清除所有的插入。对于当天的每条路线，计算最佳插入点及其负载。
-  之后，从列表中消除被支配的插入。*/
-  bool traces = false;//true;
-  Route *myRoute;
-  client->allInsertions.clear();
-  //cout<<"client->jour"<<client->jour<<endl;
-  // for each route of this day
-  for (int r = 0; r < (int)routes[client->jour].size(); r++){
-    // later on we can simply retrieve
-    // calculate the best insertion point as well as its load
-
-    myRoute = routes[client->jour][r];
-    myRoute->evalInsertClientp(client); //估将客户节点 client 插入到路线 myRoute 中的最佳位置。
-    //bestInsertion 是一个映射（或数组），它为每个客户节点 U 存储了最佳插入信息。
-    //这包括插入的成本（detour）、插入位置的节点（place）以及插入的负载（load）。
-    client->allInsertions.push_back(myRoute->bestInsertion[client->cour]);
-    if(traces)
-    { cout<<"detour,load"<<endl;
-      cout << myRoute->bestInsertion[client->cour].detour << " "<<myRoute->bestInsertion[client->cour].load <<endl<<endl<<endl;
-    }
-    
-  }
-
-  // eliminate dominated insertions
-  client->removeDominatedInsertions(params->penalityCapa);
-  //evaluateCurrentCost_p(3);
 }
 
 

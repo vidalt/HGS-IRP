@@ -621,12 +621,14 @@ double Individu::maxFeasibleDeliveryQuantity(int day, int client)
 	// Printing customer inventory and computing customer inventory cost
 	double inventoryClient;
 	double minSlack = 1.e30;
-
+	//cout <<"start = "<<params->cli[client].startingInventory<<endl;
 	inventoryClient = params->cli[client].startingInventory;
 	for (int k = 1; k <= params->nbDays; k++)
 	{
 		// here level in the morning
 		inventoryClient += chromL[k][client];
+		//cout <<"chromL["<<k<<"]["<<client<<" ] = "<<chromL[k][client]<<endl;
+		//cout<<inventoryClient<<endl;
 		// level after receiving inventory
 
 		// updating the residual capacity if k is greater than the day

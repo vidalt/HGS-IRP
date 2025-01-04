@@ -20,7 +20,7 @@ void commandline::set_default_sorties_name(string to_parse)
 
   if (position != -1)
   {
-    string directory = to_parse.substr(0, position + 1) + "result/";
+    string directory = to_parse.substr(0, position + 1) + "diff/";
     string filename = to_parse.substr(position + 1, to_parse.length() - position - 1-4);
 
     sortie_name = directory + "STsol-" + filename+ "_veh-" + std::to_string(nbVeh) + "_rou-" + std::to_string(rou);

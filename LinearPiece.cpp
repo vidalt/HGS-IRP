@@ -300,6 +300,21 @@ std::shared_ptr<LinearPiece> LinearPiece::clone()
     
     return lp;
 }
+
+std::shared_ptr<LinearPiece> LinearPiece::cloneWithout()
+{
+    shared_ptr<LinearPiece> lp(make_shared<LinearPiece>(this->p1->x, this->p1->y, this->p2->x, this->p2->y));
+    lp->slope = this->slope;
+    lp->next = this->next;
+    lp->fromC = nullptr;
+    lp->fromF = nullptr;
+    lp->fromInst = nullptr;
+    lp->fromC_pre = nullptr;  
+    lp->replenishment_loss=this->replenishment_loss;
+    
+    return lp;
+}
+
 void LinearPiece::print()
 {   
     cout << "(" << p1->x << ", " << p1->y << ", " << p2->x

@@ -1,5 +1,7 @@
 //
-// Created by pta on 16/08/2018.
+// //
+// Created by zjy on 13/05/2024 (SOA).
+//
 //
 
 #include "LotSizingSolver.h"
@@ -46,7 +48,7 @@ LotSizingSolver::LotSizingSolver(Params *params, vector<vector<Insertion>> inst,
 
     if(params-> isstockout){
       for (int i = 0; i < F1[t]->nbPieces; i++){
-          F1[t]->pieces[i]->fromF = F1[t]->pieces[i]->clone();
+          F1[t]->pieces[i]->fromF = F1[t]->pieces[i]->cloneWithout();
           F1[t]->pieces[i]->replenishment_loss = 0;
           F1[t]->pieces[i]->fromC = nullptr;
           F1[t]->pieces[i]->fromC_pre = nullptr;
@@ -56,7 +58,7 @@ LotSizingSolver::LotSizingSolver(Params *params, vector<vector<Insertion>> inst,
               F1[t]->pieces[i]->fromInst->place);
       }
       for (int i = 0; i < F2[t]->nbPieces; i++){
-          F2[t]->pieces[i]->fromF = F2[t]->pieces[i]->clone(); 
+          F2[t]->pieces[i]->fromF = F2[t]->pieces[i]->cloneWithout(); 
           F2[t]->pieces[i]->replenishment_loss = -1;
           F2[t]->pieces[i]->fromC = nullptr;
           F2[t]->pieces[i]->fromC_pre = nullptr;
@@ -340,7 +342,8 @@ std::shared_ptr<PLFunction> LotSizingSolver::min_final(std::shared_ptr<PLFunctio
   std::shared_ptr<PLFunction> f = std::make_shared<PLFunction>(params);
    bool trace=false;
   //if ( f1->nbPieces>0 && f2->nbPieces>1 && eq(f1->pieces[0]->p1->x,-85)&& eq(f1->pieces[0]->p2->x,-1)&& eq(f2->pieces[1]->p1->x,-1) && eq(f2->pieces[1]->p2->x,62)) trace = true;
-    
+    // if (!f1) exit(0);
+    // if (!f2) exit(0);
     if (f1->nbPieces == 0 && f2->nbPieces == 0) return f;
     if (f1->nbPieces == 0 && f2->nbPieces > 0) return copyPLFunction(f2);
     if (f1->nbPieces > 0 && f2->nbPieces == 0) return copyPLFunction(f1);
@@ -1044,7 +1047,7 @@ bool LotSizingSolver::solve()
     f2 = f2->getInBound(minInventory, maxInventory, true);
 
     // calculate f_3syste
-    f3 = std::make_shared<PLFunction>(new PLFunction(params));
+    f3 = std::make_shared<PLFunction>(params);
 
     fromF = copyPLFunction(F[t]);
     fromC = copyPLFunction(C[t - 1]);
@@ -1324,252 +1327,8 @@ bool LotSizingSolver::backtracking_stockout(){
 
   return true;
 }
-
-bool LotSizingSolver::backtracking_stockoutprint(){
-  // initialization
-  bool traces = true;
-  for (int i = 0; i < horizon; i++){
-    quantities[i] = 0.0;
-    breakpoints[i] = nullptr;
-    I[i] = 0;
-  }
-  // backtracking
-  int day = horizon - 1;
-  
-  if (C[day]->nbPieces == 0)
-    return false;
-  std::shared_ptr<LinearPiece> tmp = 
-      C[day]->getMinimalPiece_stockout(client, I[day], objective); //Iday:两个端点之一 x; minValue:两个端点之一 y
-    
-  if(traces){
-    cout <<"I[ "<<day+1<<" ] = "<<I[day]<<endl;
-    cout <<"objective: "<<objective<<endl;
-     cout<<"now picked piece"<<endl;tmp->print();cout <<"while begin"<<endl;
-  }
-
-  
-  while (tmp != nullptr){
-    //int a;cin>>a;
-    if(traces){
-      cout<<endl<<endl<<"day "<<day+1<<"  ";
-      cout <<"loss?"<< tmp->replenishment_loss<<endl;
-      cout<<"now picked piece"<<endl;tmp->print();
-      cout<<"loss"<<endl;
-      if(tmp->fromF) cout<<"fromF"<<endl,tmp->fromF->print();
-      //if(!tmp->fromF) cout <<"nuu"<<endl;
-      if(tmp->fromC) cout<<"fromC"<<endl,tmp->fromC->print();
-      if(tmp->fromC_pre) cout<<"fromCpre"<<endl,tmp->fromC_pre->print();
-      if(tmp->fromInst) cout<<"fromInst"<<endl,tmp->fromF->fromInst->print();
-    }
-
-    // if do not delivery any thing, then inventory at the end of previous day
-    // equals this day demand
-    if (eq(tmp->replenishment_loss,-1) && !tmp->fromF ) //f1 q = 0
-    {
-      //if(traces) cout <<"daily "<< params->cli[client].dailyDemand[day]<<endl;
-      I[day - 1] = I[day] + params->cli[client].dailyDemand[day];
-      if(traces)  cout <<"f1 : I[day-1]= "<<I[day-1]<<" quant["<<day+1<<
-      "]= "<<quantities[day]<<endl;
-    }
-    
-    else if (neq(tmp->replenishment_loss,-1) && !tmp->fromF) //f2  q= 0, not enough
-    { 
-      
-      if(neq(I[day],0)){
-        cout <<"lotsizing :: line 1076 f2 error!!!!Iday: "<<I[day] <<endl;
-        int a=0;
-        cin >>a;
-      }
-      //cout <<"day"<<day<<endl;
-      double loss = tmp->replenishment_loss;
-      I[day-1] = params->cli[client].dailyDemand[day]-loss;
-      
-      if(traces)  cout <<"f2 : I[day-1]= "<<I[day-1]<<" quant["<<day+1<<
-      "]= "<<quantities[day]<<endl;
-    }
-    
-    else if (eq(tmp->replenishment_loss,-1) && tmp->fromF ) //f3
-    {
-      //cout <<"in 3L"<<endl;
-      if(traces)cout<<"day "<<day+1<<"  "<<"f3: "<<endl;
-      if(traces)cout <<"I["<<day+1<<"] = "<<I[day]<<endl;
-      std::shared_ptr<LinearPiece> fromC = tmp->fromC->clone();
-      std::shared_ptr<LinearPiece> fromF = tmp->fromF->clone();
-      std::shared_ptr<LinearPiece> Cpre = tmp->fromC_pre->clone();
-      solveEquationSystem_holding(tmp, fromC, fromF, I[day],
-                            params->cli[client].dailyDemand[day], I[day - 1],
-                            quantities[day],Cpre,params->cli[client].inventoryCost);
-                            
-      shared_ptr<LinearPiece> tmpF = tmp->fromF;
-      breakpoints[day] = tmpF->fromInst;
-      if(traces) cout <<"day "<<day+1<<" ",breakpoints[day]->print();
-      if(traces)  cout <<"f3 : I[day-1]= "<<I[day-1]<<" quant["<<day+1<<
-      "]= "<<quantities[day]<<endl;
-
-      //cout <<"3333"<<endl;
-    }
-    else if (neq(tmp->replenishment_loss,-1) && tmp->fromF )//f4
-    {
-      if(traces)cout<<"day "<<day+1<<"  "<<"f4: "<<endl;
-      std::shared_ptr<LinearPiece> fromC = tmp->fromC->clone();
-      std::shared_ptr<LinearPiece> fromF = tmp->fromF->clone();
-      std::shared_ptr<LinearPiece> Cpre = tmp->fromC_pre->clone();
-      if(traces) {tmp->print(),fromC->print(),fromF->print(),cout<<tmp->replenishment_loss;}
-      //cout <<"before sokve"<<endl;
-      solveEquationSystem_stockout(tmp, fromC, fromF, -tmp->replenishment_loss,
-                            params->cli[client].dailyDemand[day], I[day - 1],
-                            quantities[day],Cpre,params->cli[client].stockoutCost);
-      
-      if(neq(I[day],0) ){
-          cout <<"error:  1092 f4 , I[day-1]: "<<I[day]<<endl;
-      }
-      shared_ptr<LinearPiece> tmpF = tmp->fromF;
-      breakpoints[day] = tmpF->fromInst;
-      
-      if(traces) cout <<"day "<<day+1<<" ",breakpoints[day]->print();
-      if(traces)  cout <<"f4 : I[day-1]= "<<I[day-1]<<" quant["<<day+1<<
-      "]= "<<quantities[day]<<endl;
-      
-    }
-    tmp = tmp->fromC_pre;
-    cout <<"fromC_prepre: ";tmp->print();
-
-    day = day - 1;
-    if(day == 0) break;
-  }
-  if(eq(tmp->replenishment_loss,-1)){
-    quantities[0] = I[0]+params->cli[client].dailyDemand[0]-params->cli[client].startingInventory;
-    breakpoints[day] = tmp->fromInst;
-  }
-
-  else{
-      quantities[0] = -tmp->replenishment_loss+params->cli[client].dailyDemand[0]-params->cli[client].startingInventory;
-      
-      breakpoints[day] = tmp->fromInst;
-  }
-
-  return true;
-}
-
 void  LotSizingSolver::Firstday(vector<std::shared_ptr<PLFunction>> &C){//for the first day
   bool traces = false;
-  std::shared_ptr<PLFunction> Cnew,Cn1;
-  double I = params->cli[client].startingInventory - params->cli[client].dailyDemand[0], tmpcost = 100000000000000;
-  
-  double current_min = 10000000000;
-  int piece_idx=0;
-  //1 !!!!!!!!! modify C0[0] q!=0, replenishment not enough ->piece/;p-[0]   Istart+q-daily <=0 ->>>>>> q<=daily-Istart
-  if(I<0){
-      Cn1 = copyPLFunction(F1[0]);
-      Cn1->moveUp( - params->cli[client].stockoutCost*params->cli[client].startingInventory); //I_initial -daily =  I_it
-      for (int i = 0; i < Cn1->nbPieces; i++){
-            Cn1->pieces[i]->fromF = F1[0]->pieces[i];
-            Cn1->pieces[i]->fromInst = F1[0]->pieces[i]->fromInst;}
-      Cn1 = Cn1->getInBound(0, std::min<double>(params->cli[client].maxInventory,
-            params->cli[client].dailyDemand[0]-1)-params->cli[client].startingInventory, false);
-      Cn1->shiftLeft(params->cli[client].dailyDemand[0]-params->cli[client].startingInventory);
-      if(traces){
-        cout <<"f1 shift:"<<endl;
-        Cn1->print();
-      }   
-      for (int i = 0; i < Cn1->nbPieces; i++){
-        double tmp_min = std::min<double>(Cn1->pieces[i]->p1->y,Cn1->pieces[i]->p2->y);
-        if( gt(current_min, tmp_min ) ){
-            current_min = tmp_min;
-            piece_idx = i;
-            Cn1->pieces[i]->fromC = nullptr;
-            Cn1->pieces[i]->fromC_pre = nullptr;
-            Cn1->pieces[i]->replenishment_loss = - ((gt(Cn1->pieces[i]->p1->y,Cn1->pieces[i]->p2->y))?Cn1->pieces[i]->p2->x:Cn1->pieces[i]->p1->x);
-        } 
-    } 
-    //2!!!..........   q ==0 replenishment not enough
-    tmpcost= params->cli[client].stockoutCost*(-I);
-    if(traces) cout <<" no delivery cost on stockout   "<<tmpcost<<endl;
-    if(gt(current_min,tmpcost)){
-      current_min = tmpcost;
-      Cn1->pieces[piece_idx]->fromC = nullptr;
-      Cn1->pieces[piece_idx]->fromC_pre = nullptr;
-      Cn1->pieces[piece_idx]->replenishment_loss = -I;
-      Cn1->pieces[piece_idx]->fromF = nullptr;
-      Cn1->pieces[piece_idx]->fromInst = nullptr;
-    }
-
-    if(Cn1->nbPieces!=0){
-      Cn1->pieces[piece_idx]->updateLinearPiece(0,current_min,0.000000001,current_min);
-      C[0]->append(Cn1->pieces[piece_idx]);//minvalue update inside 
-      if(traces){
-        cout <<"C_0[0]"<<endl;
-        C[0]->print();
-        cout <<"fromF "<<endl;
-        C[0]->pieces[0]->fromF->print();
-        cout <<"fromInst" <<endl;
-        C[0]->pieces[0]->fromInst->print();
-        cout <<"replenishment"<<C[0]->pieces[0]->replenishment_loss<<endl;
-      }  
-    }
-  }
-  
-  
- 
-  
-  // 3!!!!!!!!!! q!=0, replenishment enough delivery enough
-  // I_start(6)+q-daily(5) >=0     I_start+q<=maxinventory    =====>   q<=max-Istart && q>=daily-Istart
-  
-  Cnew.reset();
-  Cnew =copyPLFunction(F2[0]);
-  //cout <<"F2[0] "; F2[0]->print();
-  Cnew->moveUp(params->cli[client].inventoryCost*params->cli[client].startingInventory);
-  for (int i = 0; i < Cnew->nbPieces; i++){    Cnew->pieces[i]->fromF = F2[0]->pieces[i];
-      Cnew->pieces[i]->fromInst = F2[0]->pieces[i]->fromInst;}
-  Cnew= Cnew->getInBound(std::max<double>(0,params->cli[client].dailyDemand[0]-params->cli[client].startingInventory), 
-                  params->cli[client].maxInventory - params->cli[client].startingInventory,  false);
-  
-  Cnew->shiftLeft(params->cli[client].dailyDemand[0] -  params->cli[client].startingInventory);
-  
-  if(traces){
-    cout <<"f2 shift: "<<endl;
-    Cnew->print();
-  }  
-  for (int i = 0; i < Cnew->nbPieces; i++){
-    //3!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!q != 0, have inventory cost
-      Cnew->pieces[i]->replenishment_loss = -1;
-      Cnew->pieces[i]->fromC = nullptr;
-      Cnew->pieces[i]->fromC_pre = nullptr;
-      //cout <<" pieces [" <<i<<" ] ";Cnew->pieces[i]->print();Cnew->pieces[i]->fromInst->print();F2[0]->pieces[i]->print();
-    //4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!q == 0, no delivery,but enough
-    if( i==0 && I>=0){ 
-      double costtt= params->cli[client].inventoryCost*(I);
-      if(traces)  cout <<"Costttt "<<costtt<<" i =  "<<I<<" ("<<Cnew->pieces[i]->p1->x<<"  "<<Cnew->pieces[i]->p1->y<<" )" <<endl;
-      
-      std::shared_ptr<LinearPiece> Cn2 = std::make_shared<LinearPiece>(I, costtt, I+0.000000001, costtt);
-      Cn2->fromC = nullptr;
-      Cn2->fromC_pre = nullptr;
-      Cn2->replenishment_loss = -1;
-      Cn2->fromF = nullptr;
-      Cn2->fromInst = nullptr;
-      
-      
-        //Cnew->pieces[i]->updateLinearPiece(I+0.00000001,Cnew->pieces[i]->cost(I+0.00000001),Cnew->pieces[i]->p2->x,Cnew->pieces[i]->p2->y);
-        C[0]->append(Cn2);
-        if(traces){
-          cout <<"C_q=0[*]"<<endl;
-          C[0]->print();
-        }  
-      
-    }  
-    C[0]->append(Cnew->pieces[i]); //minvalue update
-    if(traces){
-          cout <<"C_q!=0[**]"<<endl;
-          C[0]->print();
-    } 
-  }
-  //C[0]->print();
-  //int a;
-  //cin>>a;
-}
-
-void  LotSizingSolver::Firstdayp(vector<std::shared_ptr<PLFunction>> &C){//for the first day
-  bool traces = true;
   std::shared_ptr<PLFunction> Cnew,Cn1;
   double I = params->cli[client].startingInventory - params->cli[client].dailyDemand[0], tmpcost = 100000000000000;
   
@@ -1799,7 +1558,7 @@ bool LotSizingSolver::solve_stockout()
 
     // q != 0, I(t-1)+q-daily > 0     ==> I(t)>0
     // C(t)(It) <----- C(t-1)(It-1) + holdingCost(It-1) + F2function (qt)
-    f3 = std::make_shared<PLFunction>(new PLFunction(params));
+    f3 = std::make_shared<PLFunction>(params);
     fromF2 = copyPLFunction(F2[t]);
     //fromF2 = fromF2->getInBound(0,maxInventory,false);
     fromF2 = fromF2->getInBound(0,params->cli[client].maxInventory,false);
@@ -1849,7 +1608,7 @@ bool LotSizingSolver::solve_stockout()
 
     // q != 0, I(t-1)+q-daily < 0     ==> I(t)=0
     // C(t)(It) <----- C(t-1)(It-1) + stockoutCost(It-1) + F1function (qt)
-    f4 = std::make_shared<PLFunction>(new PLFunction(params));
+    f4 = std::make_shared<PLFunction>(params);
     fromF1 = copyPLFunction(F1[t]);
     //fromF1 = fromF1->getInBound(1,std::min<double>(params->cli[client].maxInventory,params->cli[client].dailyDemand[t]),false);
     //cout<<"fromf1"<<endl;
@@ -2000,336 +1759,12 @@ bool LotSizingSolver::solve_stockout()
   return true;
 }
 
-bool LotSizingSolver::solve_stockoutp()
-{
-  bool traces = true;
-  bool answer = true;//true;
-  if (traces)
-  {
-    cout << "initial inventory: " << params->cli[client].startingInventory
-         << endl;
-    cout << "daily demand: " << params->cli[client].dailyDemand[0] << endl;
-    cout << "inventory cost: " << params->cli[client].inventoryCost << endl;
-    cout << "supplier inventory cost: " << params->inventoryCostSupplier
-         << endl;
-    cout << "max inventory: " << params->cli[client].maxInventory << endl;
-    cout << "min inventory: " << params->cli[client].minInventory << endl;
-  }
-
-  double minInventory, maxInventory;
-
-  C = vector<std::shared_ptr<PLFunction>>(horizon);
-  //我们创建了一个大小为 horizon 的 vector，其中每个元素都是一个指向PLFunction (picewiselienar, variable: I^t) 对象
-
-  I = vector<double>(horizon);
-  // final inventory at the end of each period
-
-  quantities = vector<double>(horizon);
-  // replinishment at each period
-
-  breakpoints = vector<std::shared_ptr<Insertion>>(horizon);
-//我们创建了一个大小为 horizon 的 vector，其中每个元素都是一个指向 Insertion (detour load place) 对象的 shared_ptr。
-
-  exceptionalPieces = vector<std::shared_ptr<LinearPiece>>(horizon);
-  //我们创建了一个大小为 horizon 的 vector，其中每个元素都是一个指向 LinearPiece (slope, p1,p2) 对象
-  
-  for (int i = 0; i < horizon; i++)
-  {
-    exceptionalPieces[i] = std::make_shared<LinearPiece>(); //std::make_shared 
-    C[i] = std::make_shared<PLFunction>(params); // a piecewise linear function in each period
-  }
-  
-  Firstday(C);
-  
-  if(traces){
-    cout << endl<<endl<<"day: 1 "<<endl;
-    C[0]->print();
-    cout <<"next "<<horizon-1<<" days:"<<endl;
-  }
-  // initialazition end***************************************************************************
-  
-  for (int t = 1; t < horizon; t++)
-  {
-    if(t == 2) {return false;}
-    if (traces){
-      cout << endl<< "day: " << t+1 << endl; 
-    }
-    
-    //picewise linear functions
-    std::shared_ptr<PLFunction> f1;
-    std::shared_ptr<PLFunction> f2; //(std::make_shared<PLFunction>(params));
-    std::shared_ptr<PLFunction> f3;
-    std::shared_ptr<PLFunction> f4;
-    std::shared_ptr<PLFunction>  fromF; //(std::make_shared<PLFunction>(params));
-    std::shared_ptr<PLFunction>  fromF1;
-    std::shared_ptr<PLFunction>  fromF2;
-    std::shared_ptr<PLFunction>  fromC; //(std::make_shared<PLFunction>(params));
-    minInventory = params->cli[client].minInventory;
-    maxInventory = params->cli[client].maxInventory - params->cli[client].dailyDemand[t];
-  //cout <<"max§in"<<maxInventory<<endl;
-   
-
-    //(1). q(t) = 0,  I(t-1) > daily ==> I(t) > 0 
-    //dp <--- C(t-1)(I) + inventoryCost (I-daily)
-    f1 = copyPLFunction(C[t-1]);
-    f1->addHolding(params->cli[client].inventoryCost,params->cli[client].dailyDemand[t]);
-    for (int i = 0; i < f1->nbPieces; i++)
-    {
-      f1->pieces[i]->fromC_pre = C[t - 1]->pieces[i]->clone();
-      f1->pieces[i]->replenishment_loss = -1; 
-      f1->pieces[i]->fromF = nullptr;
-      f1->pieces[i]->fromC = f1->pieces[i]->clone();
-      f1->pieces[i]->fromInst = nullptr;
-    }
-    f1->shiftLeft(params->cli[client].dailyDemand[t]);
-    f1 = f1->getInBound(0, maxInventory, false);
-    if(traces){
-      cout <<"f1: q= 0&& I(t-1) is enough"<<endl;
-      if(f1) f1->print();
-    }
-
-    //(2) q(t) == 0,  I(t-1) < daily ==> I(t) ->>> 0 
-    //dp <--- C(t-1)(I) + stockoutCost (daily-I)
-    f2 = copyPLFunction(C[t - 1]);
-    
-    //cout <<"      f2 aftercopy  ";f2->print();
-    f2->addStockout(params->cli[client].stockoutCost,params->cli[client].dailyDemand[t]); 
-    //cout <<"      f2 afterss  ";f2->print();
-    f2->shiftLeft(params->cli[client].dailyDemand[t]);
-    //cout <<"      f2 shift  ";f2->print();
-    
-    for (int i = 0; i < f2->nbPieces; i++){
-      f2->pieces[i]->fromC_pre = C[t - 1]->pieces[i]->clone();
-      //cout<<"f2 ";f2->pieces[i]->print();cout<<"f2fromCpre ";f2->pieces[i]->fromC_pre ->print();
-      f2->pieces[i]->replenishment_loss = 0; 
-      f2->pieces[i]->fromC = nullptr;//f2->pieces[i]->getInpiece(-params->cli[client].dailyDemand[t] , 0);
-
-      f2->pieces[i]->fromF = nullptr;
-      f2->pieces[i]->fromInst = nullptr;
-    }
-    if(traces) cout <<"f2f2f2f2f2 ", f2->print();
-    f2 = f2->getInBound( -params->cli[client].dailyDemand[t] , 0, false);
-    if(traces){
-      cout <<"f2: q= 0&& I(t-1) is not enough ";
-      if(f2)f2->print();
-    }
-    ///////************************** C[0] = f2->minValue;
-
-    // q != 0, I(t-1)+q-daily > 0     ==> I(t)>0
-    // C(t)(It) <----- C(t-1)(It-1) + holdingCost(It-1) + F2function (qt)
-    f3 = std::make_shared<PLFunction>(new PLFunction(params));
-    fromF2 = copyPLFunction(F2[t]);
-    //fromF2 = fromF2->getInBound(0,maxInventory,false);
-    fromF2 = fromF2->getInBound(0,params->cli[client].maxInventory,false);
-    cout <<"fromf2 ";fromF2->print();
-    
-    fromC = copyPLFunction(C[t - 1]);
-    fromC->addHoldingf(params->cli[client].inventoryCost);
-    fromC->shiftLeft(params->cli[client].dailyDemand[t]);
-    cout <<"fromc "; fromC->print();
-
-    for (int i = 0; i < fromC->nbPieces; i++){
-      fromC->pieces[i]->fromC_pre = C[t - 1]->pieces[i]->clone();
-    } 
-    //*
-    if (t == 8){
-    cout <<"before super:"<<endl;
-    cout <<"C ";fromC->print();
-    cout <<"F ";fromF2->print();
-    }  
-    //*/
-    f3 = supperposition(fromC, fromF2);
-    //cout <<"before bound:"<<endl;
-    //f3->print();
-    for (int i = 0; i < f3->nbPieces; i++){
-      f3->pieces[i]->replenishment_loss = -1; 
-      f3->pieces[i]->fromC_pre = f3->pieces[i]->fromC->fromC_pre;
-      if (t ==8){cout <<"         f3 " ;f3->pieces[i]->print();
-      cout <<"       fromF ";f3->pieces[i]->fromF->print();
-      cout <<"       fromC ";f3->pieces[i]->fromC->print();
-       cout <<"       fromCpre ";f3->pieces[i]->fromC_pre->print();}
-      //*/
-    } 
-    //cout <<"~~~~f3: q != 0&& I(t) today is  enough";f3->print();
-    f3 = f3->getInBound(0,maxInventory, false);
-    if (t == 8)
-      for (int i = 0; i < f3->nbPieces; i++){
-        cout <<"         f3 " ;f3->pieces[i]->print();
-        cout <<"       fromF ";f3->pieces[i]->fromF->print();
-        cout <<"       fromC ";f3->pieces[i]->fromC->print();
-        cout <<"       fromCpre ";f3->pieces[i]->fromC_pre->print();
-    } 
-
-    
-    if(traces){
-      cout <<"f3: q != 0&& I(t) today is  enough   ";
-      f3->print();
-    }
-//if(t ==1){int a ;cin>>a;}
-    // q != 0, I(t-1)+q-daily < 0     ==> I(t)=0
-    // C(t)(It) <----- C(t-1)(It-1) + stockoutCost(It-1) + F1function (qt)
-    f4 = std::make_shared<PLFunction>(new PLFunction(params));
-    fromF1 = copyPLFunction(F1[t]);
-    //fromF1 = fromF1->getInBound(1,std::min<double>(params->cli[client].maxInventory,params->cli[client].dailyDemand[t]),false);
-    //cout<<"fromf1"<<endl;
-    //fromF1->print();
-    //int a;cin>>a;
-    fromC = copyPLFunction(C[t - 1]);
-    fromC->addStockoutf(params->cli[client].stockoutCost);
-    fromC->shiftLeft(params->cli[client].dailyDemand[t]);
-     for (int i = 0; i < fromC->nbPieces; i++){
-      fromC->pieces[i]->fromC_pre = C[t - 1]->pieces[i]->clone();
-     }
-    fromC = fromC->getInBound(-params->cli[client].dailyDemand[t],-1,false);
-    
-
-    if (t ==1){
-          cout <<"      before supper " ;
-          cout <<"       fromF ";fromF1->print();
-          cout <<"       fromC ";fromC->print();}
-    f4 = supperposition(fromC, fromF1);
-    for (int i = 0; i < f4->nbPieces; i++){
-      f4->pieces[i]->replenishment_loss = 0; 
-      f4->pieces[i]->fromC_pre = f4->pieces[i]->fromC->fromC_pre; 
-        if (t ==1){
-          cout <<"         f4 " ;f4->pieces[i]->print();
-          cout <<"       fromF ";f4->pieces[i]->fromF->print();
-          cout <<"       fromC ";f4->pieces[i]->fromC->print();
-          cout <<"       fromCpre ";f4->pieces[i]->fromC_pre->print();}
-      
-      //if(f4->pieces[i]->fromC_pre != nullptr){cout <<"!!!!!!!!"<< endl;f4->pieces[i]->fromC_pre ->print();}
-    }
-    f4 = f4->getInBound(-params->cli[client].dailyDemand[t], 0, false);
-    //cout <<"f40"<<f4->nbPieces<<endl;f4->pieces[0]->fromC_pre->print();
-    if (traces){
-      cout <<"f4: q != 0&& I(t) today is not enough  ";
-      f4->print();
-    }
-    
-    cout <<"    f1&f3"<<endl;
-    C[t] = min_final(f1,f3);
-   
-    if(traces){
-      //cout<<"f1:    ";f1->print();
-      //cout<<"f3:    "; f3->print();
-      cout <<endl<<"f1&f3: "<<endl<< "C[t]   ";
-      C[t]->print();
-    }
-    double rep2=0.,rep4=0.,t2=10000000.,t4=10000000.;
-    
-    if(f2->nbPieces) {f2->update_minValue(rep2);  t2 = f2->minValue; }
-    if(f4->nbPieces) {f4->update_minValue(rep4); t4 = f4->minValue;}
-    //cout <<"rep2 "<<rep2 <<"  rep4 "<<rep4<<endl;
-    if(f4->nbPieces&&gt(t2,t4)){  
-      C[t]=C[t]->update0 (f4->minValue); 
-      if(eq(C[t]->pieces[0]->p2->x,0) && eq(C[t]->pieces[0]->p2->y,f4->minValue) ){
-        C[t]->pieces[0]->fromF = f4->minimalPiece->fromF; 
-        C[t]->pieces[0]->fromC = f4->minimalPiece->fromC;
-        C[t]->pieces[0]->fromC_pre = f4->minimalPiece->fromC_pre;
-        C[t]->pieces[0]->fromInst = f4->minimalPiece->fromInst;
-        C[t]->pieces[0]->replenishment_loss =rep4;
-        if(traces){cout <<"!!rep4: "<<rep4<<" ! "<< C[t]->pieces[0]->replenishment_loss<<endl;}
-      } 
-      
-      if(traces){
-        cout <<"f4 : --> C[0]"<<endl;
-        C[t]->pieces[0]->print();
-        C[t]->pieces[0]->fromC_pre ->print();
-      }
-      
-    }
-    
-    else if(f2->nbPieces){
-      C[t]=C[t]->update0(f2->minValue);
-      if(eq(C[t]->pieces[0]->p2->x,0) && eq(C[t]->pieces[0]->p2->y,f2->minValue) ){
-        C[t]->pieces[0]->fromF = f2->minimalPiece->fromF;
-        C[t]->pieces[0]->fromC = f2->minimalPiece->fromC;
-        C[t]->pieces[0]->fromC_pre = f2->minimalPiece->fromC_pre;
-        C[t]->pieces[0]->fromInst = f2->minimalPiece->fromInst;
-        C[t]->pieces[0]->replenishment_loss = rep2;
-        if(traces){cout <<"!!rep2 "<<rep2<<"  "<< C[t]->pieces[0]->replenishment_loss<<endl;C[t]->pieces[0]->fromC_pre->print();}
-      }
-      
-      if(traces){
-        cout <<"f2 : --> C[0]"<<endl;
-        f2->minimalPiece->print();
-        cout <<f2->minValue<<endl;
-        C[t]->pieces[0]->print();
-      }
-    }
-     
-    if(traces){ cout <<"after f2 f4:"<<endl;
-      C[t]->pieces[0]->print();cout <<"rep"<<C[t]->pieces[0]->replenishment_loss<<endl;}
-    
-    C[t] = C[t]->getInBound(minInventory, maxInventory, false);
-    //cout <<minInventory<<"  "<<maxInventory<<endl;
-
-    if(traces){
-      cout<<endl<<"day "<< t+1<<" end updated:"<<endl<< "C[t]:  ";
-      C[t]->print();
-      cout <<"rep"<<C[t]->pieces[0]->replenishment_loss<<endl;
- 
-      /*
-      for(int i = 0 ; i < C[t]->nbPieces;i++){
-            C[t]->pieces[i]->print();
-           //cout <<"loss?: "<<C[t]->pieces[i]->replenishment_loss<<"  F"<<endl;
-           //if(C[t]->pieces[i]->fromF)C[t]->pieces[i]->fromF->print();
-           //cout <<"C,pre,Inst   "<<endl;
-          //C[t]->pieces[i]->fromC->print();
-          //C[t]->pieces[i]->fromC_pre->print();
-          //if(C[t]->pieces[i]->fromInst) C[t]->pieces[i]->fromInst->print();
-      } 
-      */     
-    }
-  }
-  //return false;
-  // get solution
-  if(traces){
-    cout<<endl<<endl<<endl <<"backtracking"<<endl;
-    //cout <<"rep"<<C[horizon-1]->pieces[0]->replenishment_loss;
-  }
-  bool ok = backtracking_stockoutprint();
-
-  if (!ok)
-  {
-    //        cout << "ERROR: Backtracking result" << endl;
-    return false;
-  }
-
-  if (traces)
-  {
-    cout << "backtracking done, Objective: " << objective <<"  "<<params->objectiveConstant_stockout<< endl;
-  }
-
-  if (answer)
-  {
-    cout << "objective: " << objective << endl;
-    for (int t = 0; t < horizon; t++)
-    {
-      cout << "day " << t + 1 << ": ";
-      cout << "quantity: " << quantities[t];
-      cout <<"    I_remain: "<<I[t]<< endl;
-      
-        double tt = quantities[t]+params->cli[client].startingInventory;
-        if(t==0 &&gt(params->cli[client].dailyDemand[t],tt) )
-          cout <<"stockout day0: "<< params->cli[client].dailyDemand[t]-tt<<endl;
-        else if(t>=1&&lt(I[t-1]+quantities[t],params->cli[client].dailyDemand[t]) )
-         cout <<"stockout: "<<params->cli[client].dailyDemand[t]-quantities[t]-I[t-1]<<endl;
-      
-    }
-    cout <<"print done"<<endl;
-  }
-  // free memory
-  //int a;
-  //cin >>a;
-  return true;
-}
 LotSizingSolver::~LotSizingSolver()
 {
   //    for (int i = 0; i < horizon; i++) {
   //        delete C[i];
   //        delete F[i];
-  //        delete exceptionalPieces[i];
+  //        delete exception——————alPieces[i];
   //        delete breakpoints[i];
   //    }
 }

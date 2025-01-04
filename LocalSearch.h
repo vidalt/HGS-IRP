@@ -124,7 +124,6 @@ public:
   // lance la recherche locale avec changement de jours
   // 运行完整的局部搜索方法，可以更改天数。
   void runSearchTotal(bool isRepPhase);
-  void runSearchTotalprint(bool isRepPhase);
   // effectue une parcours complet de toutes les mutations possibles
   // retourne le nombre de mouvements effectu�s
   // 在同一天内执行完整的可能变异。对所有可能的突变进行完整扫描  返回所做移动的次数/
@@ -143,7 +142,6 @@ public:
   // 日内可能
   // 返回移动次数
   int mutationDifferentDay();
-  int mutationDifferentDayprint();
   // Neighborhoods
 
   /* RELOCATE */
@@ -191,7 +189,7 @@ public:
   // Evaluates the current objective function from the model
   double evaluateCurrentCost(int client);
   double evaluateCurrentCost_stockout (int client);
-  double evaluateCurrentCost_p (int client);
+
   // Evaluates the current objective function of the whole solution
   double evaluateSolutionCost();
 
@@ -215,7 +213,6 @@ public:
   // calcule pour un jour donn� et un client donn� (repr�sent� par un noeud)
   // les couts d'insertion dans les differentes routes constituant ce jour
   void computeCoutInsertion(Noeud *client);
-  void computeCoutInsertionp(Noeud *client);
 
   // performs a basic shaking for the problem
   // only for testing

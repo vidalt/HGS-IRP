@@ -1,5 +1,31 @@
 #include "Genetic.h"
 #include <algorithm> 
+#include <unistd.h>
+
+inline double GetMemoryUsage(int pid, int flag=true) {
+	std::ifstream status("/proc/" + std::to_string(pid) + "/status");
+	std::string line;
+	long long vm_size_kb = 0, vm_rss_kb = 0; // 使用long long以支持更大的数值
+
+	while (std::getline(status, line)) {
+		if (line.find("VmSize:") != std::string::npos) {
+			vm_size_kb = std::stoll(line.substr(line.find(":") + 1));
+		} else if (line.find("VmRSS:") != std::string::npos) {
+			vm_rss_kb = std::stoll(line.substr(line.find(":") + 1));
+		}
+	}
+
+	double vm_size_mb = vm_size_kb / 1024.0;
+	double vm_rss_mb = vm_rss_kb / 1024.0;
+
+	if (flag) {
+		std::cout << "Virtual Memory Size: " << vm_size_mb << " MB\n";
+		std::cout << "Resident Set Size (RSS): " << vm_rss_mb << " MB\n";
+	}
+
+	return vm_size_mb;
+}
+
 void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 {
 	Individu *parent1;
@@ -12,11 +38,10 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 	int measure = 0;
 	string temp;
 
-	//while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && (clock() - params->debut <= ticks))
-	while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && clock() - params->debut <= 30 * 60 * CLOCKS_PER_SEC)
+	
+	while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && clock() <=  2400 * CLOCKS_PER_SEC)
 	{
 		//cout <<"nbIter: "<<nbIter<<endl;
-				
 		// on demande deux individus � la population 我们要求人口中的两个个体
 		population->recopieIndividu(rejeton, population->getIndividuBinT(rangRelatif));
 		population->recopieIndividu(rejeton2, population->getIndividuBinT(rangRelatif));
@@ -76,16 +101,17 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 		nbIter++;
 		//cout <<"see"<<endl;
 		//cout <<nbIter << maxIter << nbIterNonProd << maxIterNonProd << (clock() - params->debut) << ticks<<endl;
+
+	
 	}
 	
-		
-	//int a;cin>>a;
 	// fin de l'algorithme , diverses informations affich�es
 	if (traces)
 	{
 		cout << "time passes : " << clock() << endl;
 		cout << "number of iterations : " << nbIter << endl;
 	}
+	
 }
 
 // effectue la mutation
@@ -108,12 +134,7 @@ void Genetic::reparer()
 	temp = params->penalityCapa;
 	temp2 = params->penalityLength;
 
-	/*First tentative尝试修复（第一次尝试）：
-
-首先，提高容量和长度的罚分，使其变为原来的10倍。
-如果一个随机数小于某个阈值 params->pRep（可能是进行修复尝试的概率），则尝试更新和修复解决方案。
-运行局部搜索，尝试找到一个更好的、可能是合规范的解决方案。
-更新rejeton以反映局部搜索的结果。*/
+	/*First tentative尝试修复（第一次尝试）：*/
 	params->penalityCapa *= 10;
 	params->penalityLength *= 10;
 	if (params->rng->genrand64_real1() < params->pRep)
@@ -122,11 +143,7 @@ void Genetic::reparer()
 		rejeton->localSearch->runSearchTotal(true);
 		rejeton->updateIndiv();
 
-		/* Second tentative尝试修复（第二次尝试）：
-如果rejeton仍然不合规范，则进行第二次修复尝试。
-这次，容量和长度的罚分被提高了500倍，这意味着算法将更加重视解决这些不合规范的方面。
-再次运行局部搜索并更新解决方案。
-恢复原始罚分值：*/
+		/* Second tentative尝试修复（第二次尝试）：：*/
 		if (!rejeton->estValide)
 		{
 			//cout <<"second"<<endl;
@@ -346,7 +363,7 @@ int Genetic::crossPOX2()
 				if (!hasBeenInserted[day][ii]) // it has not been inserted yet
 				{
 					// computing maximum possible delivery quantity
-					quantity = rejeton2->chromL[day][ii];
+					quantity = std::min<double>(rejeton->maxFeasibleDeliveryQuantity(day, ii), rejeton2->chromL[day][ii]);
 					if (quantity > 0.0001)
 					{
 						rejeton->chromT[day].push_back(ii);
@@ -359,9 +376,6 @@ int Genetic::crossPOX2()
 	}
 	
 	vector<vector<double>> I_end(params->nbDays+2, vector<double>(params->nbDepots + params->nbClients));
-	//vector<double> sum(params->nbDepots + params->nbClients);
-	//for(int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++) sum[i] = params->cli[i].startingInventory;
-
 	for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++){
 		I_end[0][i] = params->cli[i].startingInventory;
 		//if(i == 157)cout<<"day0 cus = "<<i<<" "<<I_end[0][i]<<endl;	
@@ -369,29 +383,10 @@ int Genetic::crossPOX2()
 
 	for (int k = 1; k <= params->nbDays; k++){
 		for (int cus = params->nbDepots; cus < params->nbDepots + params->nbClients; cus++){
-			//if(cus == 157)cout<<"cus = "<<cus<<endl;
-			//if(sum[cus]+rejeton->chromL[k][cus] >params->cli[cus].maxInventory) rejeton->chromL[k][cus]=params->cli[cus].maxInventory-sum[cus];
-
 			rejeton->chromL[k][cus] = std::min<double>(rejeton->chromL[k][cus],params->cli[cus].maxInventory-I_end[k-1][cus]);
-			
-			//if(cus == 157)cout<<"yesterday "<<I_end[k-1][cus]<<" today "<<rejeton->chromL[k][cus]<<" maxIn "<<params->cli[cus].maxInventory<<endl;
-
 			I_end[k][cus] = std::max<double>(0,I_end[k-1][cus] + rejeton->chromL[k][cus] - params->cli[cus].dailyDemand[k]);
-			
-			//if(cus == 157) cout<<"Iend "<<I_end[k][cus]<<endl;
 		}	
 	}
-
-	
-	/*
-	for (int k = 1; k <= params->nbDays; k++){
-		cout <<"rejeton->chromT["<<k<<"]: (";
-		for (int i = 0; i < (int)rejeton->chromT[k].size(); i++){
-				cout<<rejeton->chromT[k][i]<<" ";
-		}
-		cout<<")"<<endl;
-	}
-		*/
 	return 0;
 }
 
