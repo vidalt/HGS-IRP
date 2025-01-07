@@ -43,7 +43,6 @@ public:
     std::shared_ptr<PLFunction> min(std::shared_ptr<PLFunction> f1, std::shared_ptr<PLFunction> f2);
     std::shared_ptr<PLFunction> min_stockout(std::shared_ptr<PLFunction> f1, std::shared_ptr<PLFunction> f2);
     std::shared_ptr<PLFunction> min_final(std::shared_ptr<PLFunction> f1, std::shared_ptr<PLFunction> f2);
-     std::shared_ptr<PLFunction> min_finalp(std::shared_ptr<PLFunction> f1, std::shared_ptr<PLFunction> f2);
     std::shared_ptr<LinearPiece> createPieceFromLowerY(std::shared_ptr<LinearPiece> &chosenPiece,
          double x1, double y1, double x2, double y2);
     std::shared_ptr<PLFunction> supperpositionl(std::shared_ptr<LinearPiece> fromPieceC, std::shared_ptr<LinearPiece> fromPieceF);
@@ -52,7 +51,6 @@ public:
     bool backtracking_stockout();
     bool compareY(const Point& a, const Point& b) ;
     void  Firstday(vector<std::shared_ptr<PLFunction>> &C);
-    void  Firstdayp(vector<std::shared_ptr<PLFunction>> &C);
     void solveEquationSystem(std::shared_ptr<LinearPiece> C, std::shared_ptr<LinearPiece> fromC,
         std::shared_ptr<LinearPiece> fromF, double I, double demand, double &fromI, double &quantity);
     void solveEquationSystem_stockout(std::shared_ptr<LinearPiece> C, std::shared_ptr<LinearPiece> fromC,
