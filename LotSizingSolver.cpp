@@ -48,7 +48,7 @@ LotSizingSolver::LotSizingSolver(Params *params, vector<vector<Insertion>> inst,
 
     if(params-> isstockout){
       for (int i = 0; i < F1[t]->nbPieces; i++){
-          F1[t]->pieces[i]->fromF = F1[t]->pieces[i]->cloneWithout();
+          F1[t]->pieces[i]->fromF = F1[t]->pieces[i]->clone();
           F1[t]->pieces[i]->replenishment_loss = 0;
           F1[t]->pieces[i]->fromC = nullptr;
           F1[t]->pieces[i]->fromC_pre = nullptr;
@@ -58,7 +58,7 @@ LotSizingSolver::LotSizingSolver(Params *params, vector<vector<Insertion>> inst,
               F1[t]->pieces[i]->fromInst->place);
       }
       for (int i = 0; i < F2[t]->nbPieces; i++){
-          F2[t]->pieces[i]->fromF = F2[t]->pieces[i]->cloneWithout(); 
+          F2[t]->pieces[i]->fromF = F2[t]->pieces[i]->clone(); 
           F2[t]->pieces[i]->replenishment_loss = -1;
           F2[t]->pieces[i]->fromC = nullptr;
           F2[t]->pieces[i]->fromC_pre = nullptr;
@@ -827,16 +827,11 @@ void LotSizingSolver::    solveEquationSystem_holding(std::shared_ptr<LinearPiec
         quantity = std::floor(upperbound);
         fromI = round(I + demand - quantity);
         if(trace)cout<<"01 quantity : "<<quantity <<"  fromI : "<<fromI<<endl;
-    }else if(fabs(upperbound -lowerbound)<0.01){
+    }
+    else{
        quantity = std::round(upperbound);
         fromI = round(I + demand - quantity);
         if(trace)cout<<"02 quantity : "<<quantity <<"  fromI : "<<fromI<<endl;
-    }
-    else {
-        cout <<"I: "<<I<<" fromC: ";fromC->print();
-        cout <<"fromF: ";fromF->print();
-        cout <<"customer "<<client<<" ";
-        std::cout << "No integers between upperbound and lowerbound." << upperbound<<" "<<lowerbound<<std::endl;int a;cin>>a;
     }
     return;
   } 
@@ -901,7 +896,7 @@ void LotSizingSolver::solveEquationSystem_stockout(std::shared_ptr<LinearPiece> 
         quantity = std::floor(upperbound);
         fromI = round(I + demand - quantity);
     }else {
-        std::cout << "No integers between upperbound and lowerbound:" << upperbound <<"  "<<lowerbound<<std::endl;int a;cin>>a;
+        std::cout << "No integers between upperbound and lowerbound:" << upperbound <<"  "<<lowerbound<<std::endl;
     }
     return;
   }
@@ -1335,59 +1330,61 @@ void  LotSizingSolver::Firstday(vector<std::shared_ptr<PLFunction>> &C){//for th
   double current_min = 10000000000;
   int piece_idx=0;
   //1 !!!!!!!!! modify C0[0] q!=0, replenishment not enough ->piece/;p-[0]   Istart+q-daily <=0 ->>>>>> q<=daily-Istart
-  if(I<0){
-      Cn1 = copyPLFunction(F1[0]);
-      Cn1->moveUp( - params->cli[client].stockoutCost*params->cli[client].startingInventory); //I_initial -daily =  I_it
-      for (int i = 0; i < Cn1->nbPieces; i++){
-            Cn1->pieces[i]->fromF = F1[0]->pieces[i];
-            Cn1->pieces[i]->fromInst = F1[0]->pieces[i]->fromInst;}
-      Cn1 = Cn1->getInBound(0, std::min<double>(params->cli[client].maxInventory,
-            params->cli[client].dailyDemand[0]-1)-params->cli[client].startingInventory, false);
-      Cn1->shiftLeft(params->cli[client].dailyDemand[0]-params->cli[client].startingInventory);
-      if(traces){
-        cout <<"f1 shift:"<<endl;
-        Cn1->print();
-      }   
-      for (int i = 0; i < Cn1->nbPieces; i++){
-        double tmp_min = std::min<double>(Cn1->pieces[i]->p1->y,Cn1->pieces[i]->p2->y);
-        if( gt(current_min, tmp_min ) ){
-            current_min = tmp_min;
-            piece_idx = i;
-            Cn1->pieces[i]->fromC = nullptr;
-            Cn1->pieces[i]->fromC_pre = nullptr;
-            Cn1->pieces[i]->replenishment_loss = - ((gt(Cn1->pieces[i]->p1->y,Cn1->pieces[i]->p2->y))?Cn1->pieces[i]->p2->x:Cn1->pieces[i]->p1->x);
-        } 
-    } 
-    //2!!!..........   q ==0 replenishment not enough
-    tmpcost= params->cli[client].stockoutCost*(-I);
-    if(traces) cout <<" no delivery cost on stockout   "<<tmpcost<<endl;
-    if(gt(current_min,tmpcost)){
-      current_min = tmpcost;
-      Cn1->pieces[piece_idx]->fromC = nullptr;
-      Cn1->pieces[piece_idx]->fromC_pre = nullptr;
-      Cn1->pieces[piece_idx]->replenishment_loss = -I;
-      Cn1->pieces[piece_idx]->fromF = nullptr;
-      Cn1->pieces[piece_idx]->fromInst = nullptr;
+  if (I < 0)
+  {
+    Cn1 = copyPLFunction(F1[0]);
+    Cn1->moveUp(-params->cli[client].stockoutCost * params->cli[client].startingInventory); // I_initial -daily =  I_it
+    for (int i = 0; i < Cn1->nbPieces; i++)
+    {
+      Cn1->pieces[i]->fromF = F1[0]->pieces[i];
+      Cn1->pieces[i]->fromInst = F1[0]->pieces[i]->fromInst;
+    }
+    Cn1 = Cn1->getInBound(0, std::min<double>(params->cli[client].maxInventory, params->cli[client].dailyDemand[0] - 1) - params->cli[client].startingInventory, false);
+    Cn1->shiftLeft(params->cli[client].dailyDemand[0] - params->cli[client].startingInventory);
+    if (traces)
+    {
+      cout << "f1 shift:" << endl;
+      Cn1->print();
+    }
+    for (int i = 0; i < Cn1->nbPieces; i++)
+    {
+      double tmp_min = std::min<double>(Cn1->pieces[i]->p1->y, Cn1->pieces[i]->p2->y);
+      if (gt(current_min, tmp_min))
+      {
+        current_min = tmp_min;
+        piece_idx = i;
+        Cn1->pieces[i]->fromC = nullptr;
+        Cn1->pieces[i]->fromC_pre = nullptr;
+        Cn1->pieces[i]->replenishment_loss = -((gt(Cn1->pieces[i]->p1->y, Cn1->pieces[i]->p2->y)) ? Cn1->pieces[i]->p2->x : Cn1->pieces[i]->p1->x);
+      }
+    }
+    // 2!!!..........   q ==0 replenishment not enough
+    tmpcost = params->cli[client].stockoutCost * (-I);
+    if (Cn1->nbPieces == 0){
+       std::shared_ptr<LinearPiece> tmptmp = std::make_shared<LinearPiece>(0, tmpcost, 0.000000001, tmpcost);
+       tmptmp->fromC = nullptr;
+       tmptmp->fromC_pre = nullptr;
+       tmptmp->replenishment_loss = -I;
+       tmptmp->fromF = nullptr;
+       tmptmp->fromInst = nullptr;
+       C[0]->append(tmptmp); 
     }
 
-    if(Cn1->nbPieces!=0){
-      Cn1->pieces[piece_idx]->updateLinearPiece(0,current_min,0.000000001,current_min);
-      C[0]->append(Cn1->pieces[piece_idx]);//minvalue update inside 
-      if(traces){
-        cout <<"C_0[0]"<<endl;
-        C[0]->print();
-        cout <<"fromF "<<endl;
-        C[0]->pieces[0]->fromF->print();
-        cout <<"fromInst" <<endl;
-        C[0]->pieces[0]->fromInst->print();
-        cout <<"replenishment"<<C[0]->pieces[0]->replenishment_loss<<endl;
-      }  
-    }
+      else{
+        if (gt(current_min, tmpcost)){
+          current_min = tmpcost;
+          Cn1->pieces[piece_idx]->fromC = nullptr;
+          Cn1->pieces[piece_idx]->fromC_pre = nullptr;
+          Cn1->pieces[piece_idx]->replenishment_loss = -I;
+          Cn1->pieces[piece_idx]->fromF = nullptr;
+          Cn1->pieces[piece_idx]->fromInst = nullptr;
+        }
+
+        Cn1->pieces[piece_idx]->updateLinearPiece(0, current_min, 0.000000001, current_min);
+        C[0]->append(Cn1->pieces[piece_idx]); // minvalue update inside
+      }
   }
-  
-  
- 
-  
+
   // 3!!!!!!!!!! q!=0, replenishment enough delivery enough
   // I_start(6)+q-daily(5) >=0     I_start+q<=maxinventory    =====>   q<=max-Istart && q>=daily-Istart
   
@@ -1446,7 +1443,7 @@ void  LotSizingSolver::Firstday(vector<std::shared_ptr<PLFunction>> &C){//for th
 
 bool LotSizingSolver::solve_stockout()
 {
-  bool traces = false;//true;
+  bool traces = false;
   bool answer = false;//true;//true;
   if (traces)
   {
@@ -1610,10 +1607,7 @@ bool LotSizingSolver::solve_stockout()
     // C(t)(It) <----- C(t-1)(It-1) + stockoutCost(It-1) + F1function (qt)
     f4 = std::make_shared<PLFunction>(params);
     fromF1 = copyPLFunction(F1[t]);
-    //fromF1 = fromF1->getInBound(1,std::min<double>(params->cli[client].maxInventory,params->cli[client].dailyDemand[t]),false);
-    //cout<<"fromf1"<<endl;
-    //fromF1->print();
-    //int a;cin>>a;
+  
     fromC = copyPLFunction(C[t - 1]);
     fromC->addStockoutf(params->cli[client].stockoutCost);
     fromC->shiftLeft(params->cli[client].dailyDemand[t]);
