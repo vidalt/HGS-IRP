@@ -387,6 +387,9 @@ int Genetic::crossPOX2()
 			I_end[k][cus] = std::max<double>(0,I_end[k-1][cus] + rejeton->chromL[k][cus] - params->cli[cus].dailyDemand[k]);
 		}	
 	}
+
+	rejeton->generalSplit();
+
 	return 0;
 }
 
