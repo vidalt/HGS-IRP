@@ -836,6 +836,8 @@ double LocalSearch::evaluateCurrentCost_stockout(int client)
                   noeudClient->route->vehicleCapacity - demandPerDay[k][client];
         if(eq(x2,0)) x2 = 0;
         myCost += params->penalityCapa *(std::max<double>(0., x1) - std::max<double>(0., x2));
+        myCost += 1000000*std::max<double> (0.,I+demandPerDay[k][client]-params->cli[client].maxInventory);
+       
         
         if(trace) cout<<"possible penalty : "<< params->penalityCapa *
                 (std::max<double>(0., noeudClient->route->charge -
