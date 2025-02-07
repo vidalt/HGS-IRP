@@ -375,18 +375,7 @@ int Genetic::crossPOX2()
 		}
 	}
 	
-	vector<vector<double>> I_end(params->nbDays+2, vector<double>(params->nbDepots + params->nbClients));
-	for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++){
-		I_end[0][i] = params->cli[i].startingInventory;
-		//if(i == 157)cout<<"day0 cus = "<<i<<" "<<I_end[0][i]<<endl;	
-	}
-
-	for (int k = 1; k <= params->nbDays; k++){
-		for (int cus = params->nbDepots; cus < params->nbDepots + params->nbClients; cus++){
-			rejeton->chromL[k][cus] = std::min<double>(rejeton->chromL[k][cus],params->cli[cus].maxInventory-I_end[k-1][cus]);
-			I_end[k][cus] = std::max<double>(0,I_end[k-1][cus] + rejeton->chromL[k][cus] - params->cli[cus].dailyDemand[k]);
-		}	
-	}
+	
 
 	rejeton->generalSplit();
 
