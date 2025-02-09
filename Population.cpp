@@ -41,10 +41,11 @@ Population::Population(Params *params) : params(params)
 		randomIndiv = new Individu(params, 1.0);  
 		//chromT是一个二维向量，它的外部维度是天数（nbDays），内部维度是在每一天要访问的客户的顺序。这个客户顺序最初是基于“Just In Time”策略确定的，然后被随机化。
 		
-		for(int k = 1; k <= params->nbDays; k++){
-			cout << randomIndiv->chromL[k][2] << ", ";
-		}
-		cout << endl;
+		// debug: print deliveries of a customer
+		// for(int k = 1; k <= params->nbDays; k++){
+		// 	cout << randomIndiv->chromL[k][2] << ", ";
+		// }
+		// cout << endl;
 
 		education(randomIndiv);
 		if (compter)

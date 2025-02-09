@@ -68,9 +68,12 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 			{
 				// enough initial inventory, no need to service
 				chromL[k][i] = 0;
+
+				// startInventory -= params->cli[i].dailyDemand[k];
+
 				bool isInventoryEnoughForNextDay = startInventory - currentDayClientDemand >= nextDayClientDemand;
 				if (k < params->nbDays && !isInventoryEnoughForNextDay) {
-					bool shouldDeliveryForNextDay = params->rng->genrand64_int64() % 100 <= 50; // 25%
+					bool shouldDeliveryForNextDay = params->rng->genrand64_real1() <= 0.3;
 					if (shouldDeliveryForNextDay) {
 						chromL[k][i] = nextDayClientDemand + startInventory - currentDayClientDemand;
 						chromT[k].push_back(i);
