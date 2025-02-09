@@ -178,9 +178,10 @@ void Params::setMethodParams()
 	pRep = 0.5;			 // probability of repair // o
 
 	// param�tres li�s aux p�nalit�s adaptatives  适应性参数
-	penalityCapa = max(10,seed*50);	// Initial penalty values // o
-	penalityLength = 1; // Initial penalty values // o
-	minValides = 0.15;	// Target range for the number of feasible solutions // **
+	// penalityCapa = max(10,seed*50);	// Initial penalty values // o
+	penalityCapa = 50;
+	penalityLength = 10; // Initial penalty values // o
+	minValides = 0.2;	// Target range for the number of feasible solutions // **
 	maxValides = 0.25;	// Target range for the number of feasible solutions // **
 	distMin = 0.01;		// Distance in terms of objective function under which the solutions are considered to be the same // o
 	borneSplit = 2.0;	// Split parameter (how far to search beyond the capacity limit) // o

@@ -11,6 +11,7 @@ void LocalSearch::insertNoeud(Noeud * U, Noeud * V)
 	U->suiv = V->suiv ;
 	V->suiv = U ;
 
+
 	U->route = routeV ;
 	routeU->updateRouteData();
 	routeV->updateRouteData();
@@ -54,8 +55,8 @@ int LocalSearch::mutation1 ()
 	- params->timeCost[noeudVCour][yCour]
 	+ params->cli[noeudUCour].serviceDuration ;
 
-	// dans le cas ou l'on est dans la meme route , le cout n'est pas calculé correctement en réalité
-	// tout ce qu'on sait c'est que si il est négatif c'est qu'il est bien réellement négatif
+	// dans le cas ou l'on est dans la meme route , le cout n'est pas calculï¿½ correctement en rï¿½alitï¿½
+	// tout ce qu'on sait c'est que si il est nï¿½gatif c'est qu'il est bien rï¿½ellement nï¿½gatif
 	// pas d'incidence pour l'instant mais attention
 	if (routeU != routeV)
 	{
@@ -81,7 +82,7 @@ int LocalSearch::mutation1 ()
 }
 
 // If noeudU and x are clients, remove them then insert (noeudU,x) after noeudV
-// teste si x n'est pas un depot , et si x different de noeudV, et si noeudU pas déja apres noeudV
+// teste si x n'est pas un depot , et si x different de noeudV, et si noeudU pas dï¿½ja apres noeudV
 int LocalSearch::mutation2 ()
 {
 	double costSuppU = params->timeCost[noeudUPredCour][xSuivCour] 
@@ -123,7 +124,7 @@ int LocalSearch::mutation2 ()
 }
 
 // If noeudU and x are clients, remove them then insert (x,noeudU) after noeudV
-// teste si x n'est pas un depot , et si x different de noeudV, et si noeudU pas déja apres noeudV
+// teste si x n'est pas un depot , et si x different de noeudV, et si noeudU pas dï¿½ja apres noeudV
 int LocalSearch::mutation3 ()
 {
 	double costSuppU = params->timeCost[noeudUPredCour][xSuivCour] 
@@ -410,7 +411,7 @@ int LocalSearch::mutation8 ()
 	x->suiv = y ;
 	y->pred = x ;
 
-	// mettre à jour les extrémités
+	// mettre ï¿½ jour les extrï¿½mitï¿½s
 	if (x->estUnDepot)
 	{
 		depotUFin->suiv = depotU ;
@@ -505,7 +506,7 @@ int LocalSearch::mutation9 ()
 	noeudV->suiv = x ;
 	x->pred = noeudV ;
 
-	// mettre à jour les extrémités
+	// mettre ï¿½ jour les extrï¿½mitï¿½s
 	if (x->estUnDepot)
 	{
 		depotUFin->pred = depotVFin->pred ;

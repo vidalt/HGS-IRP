@@ -18,6 +18,7 @@
 #include <vector>
 #include <list>
 #include <math.h>
+#include <random>
 using namespace std ;
 
 class Genetic

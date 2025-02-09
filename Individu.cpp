@@ -57,13 +57,27 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 	for (int i = params->nbDepots; i < params->nbClients + params->nbDepots; i++)
 	{
 		startInventory = params->cli[i].startingInventory;
+		
 		for (int k = 1; k <= params->nbDays; k++)
 		{
-			if (startInventory >= params->cli[i].dailyDemand[k])
+			double currentDayClientDemand = params->cli[i].dailyDemand[k];
+			double nextDayClientDemand = params->cli[i].dailyDemand[(k + 1) % params->nbDays];
+			// startInventory += chromL[k][i];
+
+			if (startInventory >= currentDayClientDemand)
 			{
 				// enough initial inventory, no need to service
-				startInventory -= params->cli[i].dailyDemand[k];
 				chromL[k][i] = 0;
+				bool isInventoryEnoughForNextDay = startInventory - currentDayClientDemand >= nextDayClientDemand;
+				if (k < params->nbDays && !isInventoryEnoughForNextDay) {
+					bool shouldDeliveryForNextDay = params->rng->genrand64_int64() % 100 <= 50; // 25%
+					if (shouldDeliveryForNextDay) {
+						chromL[k][i] = nextDayClientDemand + startInventory - currentDayClientDemand;
+						chromT[k].push_back(i);
+					}
+				}
+				startInventory = startInventory + chromL[k][i] - currentDayClientDemand;
+
 			}
 			else
 			{

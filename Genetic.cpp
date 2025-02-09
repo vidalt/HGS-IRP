@@ -95,7 +95,7 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 			gererPenalites();
 	
 		// TRACES
-		if (traces && nbIter % 100 == 0)
+		if (traces && nbIter % 500 == 0)
 			population->afficheEtat(nbIter);
 		
 		nbIter++;
@@ -291,7 +291,10 @@ int Genetic::crossPOX2()
 	for (int k = 1; k <= params->nbDays; k++)
 		joursPerturb.push_back(k);
 
-	std::random_shuffle(joursPerturb.begin(), joursPerturb.end());
+	// std::random_shuffle(joursPerturb.begin(), joursPerturb.end());
+	std::random_device rd;
+	std::mt19937 g(rd());
+	std::shuffle(joursPerturb.begin(), joursPerturb.end(), g);
 
 	// Picking j1 et j2
 	j1 = params->rng->genrand64_int64() % params->nbDays;
