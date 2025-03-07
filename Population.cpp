@@ -139,7 +139,7 @@ int Population::addIndividu(Individu *indiv)
 // met � jour les individus les plus proches d'une population
 // en fonction de l'arrivant
 
-void Population::updateProximity(SousPop *pop, Individu *indiv)
+void Population::updateProximity(SousPop *pop, Individu *indiv) //新indiv加入pop时，计算每个相似度
 {
 	for (int k = 0; k < pop->nbIndiv; k++)
 		if (pop->individus[k] != indiv)
@@ -222,7 +222,7 @@ int Population::placeIndividu(SousPop *pop, Individu *indiv)
 			pop->individus[i + 1] = pop->individus[i];
 			i--;
 		}
-		else
+		else // 找到pop中第一个比当前indv好的解，停下，找到了位置。
 		{
 			pop->individus[i + 1] = monIndiv;
 			placed = true;

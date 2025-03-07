@@ -19,73 +19,22 @@ void LocalSearch::runSearchTotal(bool isRepPhase)
   this->isRepPhase = isRepPhase;
   int nbMoves = 0;
   int nbTotal = 0;
-  int nbPhases = 0;
+ 
   bool traces = false;
-
-  // LANCEMENT DE LA RECHERCHE
-  if (traces)cout << "COST INITIAL " << evaluateSolutionCost() << endl;
 
   // reorganisation des plans de transport pour chaque jour
   updateMoves();
   for (int day = 1; day <= params->nbDays; day++)
     nbMoves += mutationSameDay(day);
   nbTotal += nbMoves;
-  nbPhases++;
-  if (traces)
-    cout << "COST AFTER RI 1. " << (nbPhases + 1) / 2 << " : "
-         << evaluateSolutionCost() << endl;
+
   
-  // reorganisation des jours
-  if (nbPhases < params->maxLSPhases)
-  {
-    clock_t start=clock();
-    nbMoves = mutationDifferentDay();
-    clock_t end=clock();
-    params->debut += (end-start);
-    nbTotal += nbMoves;
-    nbPhases++;
-    if (traces){
-      cout << "COST AFTER PI 1. " << (nbPhases + 1) / 2 << " : "
-           << evaluateSolutionCost() << endl;
-    }
-   
-  }
-  if(traces)  cout <<"nbMoves "<<nbMoves<<" phases "<<nbPhases<<" mazls " <<params->maxLSPhases<<endl;
+  nbMoves = mutationDifferentDay();
+  nbTotal += nbMoves;  
 
-  while (nbMoves > 0 && nbPhases < params->maxLSPhases)
-  {
-    //cout <<"nbMOves"<< nbMoves;
-    nbMoves = 0;
-    updateMoves();
-    for (int day = 1; day <= params->nbDays; day++)
+  updateMoves();
+  for (int day = 1; day <= params->nbDays; day++)
       nbMoves += mutationSameDay(day);
-    nbPhases++;
-    if (traces)
-      cout << "COST AFTER RI " << (nbPhases + 1) / 2 << " : "
-           << evaluateSolutionCost() << endl;
-
-    if (nbMoves > 0 && nbPhases < params->maxLSPhases)
-    {
-      clock_t start=clock();
-    nbMoves += mutationDifferentDay();
-    clock_t end=clock();
-    params->debut += (end-start);
-      //cout <<params->debut<<endl;
-      nbTotal += nbMoves;
-      nbPhases++;
-      if (traces)
-        cout << "COST AFTER PI " << (nbPhases + 1) / 2 << " : "
-             << evaluateSolutionCost() << endl;
-    }
-  }
-
-  if (traces)
-    cout << "COST FINAL : " << evaluateSolutionCost() << endl
-         << endl;
-
-  // cout << endl << endl ;
-  //printInventoryLevels();
-  // cout << endl << endl ;
 }
 
 
