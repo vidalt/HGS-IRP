@@ -28,7 +28,6 @@ Individu::Individu(Params *params) : params(params)
 }
 
 // constructeur d'un individu al�atoire avec toutes les structures de recherche (split)
-// 构建一个包含所有搜索结构的个体（分割）。
 Individu::Individu(Params *params, double facteurSurete) : params(params)
 {
 	vector<int> tempVect;
@@ -50,7 +49,7 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 	chromL = vector<vector<double>>(params->nbDays + 1, vector<double>(params->nbClients + params->nbDepots, 0.));
 	chromR = vector<vector<int>>(params->nbDays + 1, vector<int>(params->nombreVehicules[1], -1));
 
-	// OPTION 2 -- JUST IN TIME POLICY  这段代码首先考虑初始库存，然后决定是否需要提供服务，并且什么时间提供。
+	// OPTION 2 -- JUST IN TIME POLICY //
 
 	double startInventory;
 	double dailyDemand;
@@ -68,8 +67,6 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 			{
 				// enough initial inventory, no need to service
 				chromL[k][i] = 0;
-
-				// startInventory -= params->cli[i].dailyDemand[k];
 
 				bool isInventoryEnoughForNextDay = startInventory - currentDayClientDemand >= nextDayClientDemand;
 				if (k < params->nbDays && !isInventoryEnoughForNextDay) {
@@ -94,12 +91,11 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 	}
 
 	// And shuffle the whole solution
-	// 对chromT进行洗牌，使得路由中的客户订单随机化
 	for (int k = 1; k <= params->nbDays; k++)
 	{
 		for (int i = 0; i <= (int)chromT[k].size() - 1; i++)
 		{
-			j = i + params->rng->genrand64_int64() % ((int)chromT[k].size() - i); // i和chromT[k].size() - 1之间的随机整数j。
+			j = i + params->rng->genrand64_int64() % ((int)chromT[k].size() - i); 
 			// swap i,j
 			temp = chromT[k][i];
 			chromT[k][i] = chromT[k][j];
@@ -108,22 +104,18 @@ Individu::Individu(Params *params, double facteurSurete) : params(params)
 	}
 
 	// initialisation of the other structures
-	// 初始化其他数据结构: 初始化pred二维向量，它似乎与某种预测或排序机制有关。还初始化了potentiels, suivants, 和precedents向量。
 
 	for (int k = 0; k <= params->nbDays; k++)
 	{
 		pred.push_back(tempVect2);
 		for (int i = 0; i < params->nombreVehicules[k] + 1; i++)
 		{
-			// pred 是一个三维整数向量。它可能表示对于每一天、每辆卡车，每个点，其前一个访问的客户或节点是什么。
 			pred[k].push_back(tempVect);
 			pred[k][i].push_back(0);
 			for (int j = 0; j < (int)params->nbClients + params->nbDepots + 1; j++)
 				pred[k][i].push_back(0);
 		}
 	}
-	// potentiels 是一个二维浮点数向量。它用于在分割算法中运行，表示到达序列中的某个顶点的距离。
-	// 具体来说，potentiels[i+1] 表示dp
 	vector<double> potTemp;
 	for (int i = 0; i <= params->nombreVehicules[1]; i++)
 	{
@@ -151,7 +143,6 @@ Individu::~Individu()
 // Otherwise we call the Split version with limited fleet (which is a bit slower).
 void Individu::generalSplit()
 {
-	// cout <<"begin split"<<endl;
 	coutSol.evaluation = 0;
 
 	// lancement de la procedure split pour chaque jour
@@ -160,7 +151,6 @@ void Individu::generalSplit()
 		if (chromT[k].size() != 0)
 		{
 			int enoughVehicle = splitSimple(k);
-			// cout << "Enough Vehicle: " << enoughVehicle << endl;
 			if (enoughVehicle == 0)
 			{
 				splitLF(k);
@@ -169,9 +159,7 @@ void Individu::generalSplit()
 
 	// After Split
 	// we call a function that fills all other data structures and computes the cost
-	// cout <<"after split";
 	measureSol();
-	// cout <<"after measure";
 	isFitnessComputed = true;
 
 	if (params->borneSplit > 1000)
@@ -186,7 +174,6 @@ void Individu::generalSplit()
 		params->borneSplit *= 1.1;
 		generalSplit();
 	}
-	// cout <<"end split"<<endl;
 }
 
 // fonction split which does not consider a limit on the number of vehicles
@@ -451,7 +438,6 @@ void Individu::initPot(int day)
 	potentiels[0][0] = 0;
 }
 // mise a jour de l'objet localSearch, attention, split doit avoir ete calcule avant
-// 更新 localSearch 对象，但必须事先计算出分割值
 void Individu::updateLS()
 {
 	int depot;
@@ -494,7 +480,7 @@ void Individu::updateLS()
 			myDepotFin->suiv = myDepot;
 			myDepotFin->pred = myDepot;
 
-			// cas ou on a un seul sommet dans le cycle，一个点
+			// cas ou on a un seul sommet dans le cycle
 			if (j == i + 1)
 			{
 				myClient = localSearch->clients[kk][chromT[kk][i]];
@@ -580,8 +566,7 @@ void Individu::randomizedQuickSort(std::vector<Route *> &arr, int low, int high)
 	}
 }
 
-// mise � jour du chromT suite aux modification de localSearch，
-// 每天kk的route排序，重新chromT[kk]
+// mise � jour du chromT suite aux modification de localSearch
 void Individu::updateIndiv()
 {
 	// Don't forget to copy back the load delivered to each customer on each day
@@ -598,23 +583,6 @@ void Individu::updateIndiv()
 		for (int r = 0; r < (int)ordreRoutesAngle.size(); r++)
 			ordreRoutesAngle[r]->updateCentroidCoord();
 
-		/*/ on trie les routes dans l'ordre des centroides道路按中心点顺序排序
-		if (params->triCentroides)
-			for (int r = 0; r < (int)ordreRoutesAngle.size(); r++)
-				for (int rr = 1; rr < (int)ordreRoutesAngle.size() - r - 1; rr++)
-					if (ordreRoutesAngle[rr]->centroidAngle > ordreRoutesAngle[rr + 1]->centroidAngle)
-					{
-						temp = ordreRoutesAngle[rr + 1];
-						ordreRoutesAngle[rr + 1] = ordreRoutesAngle[rr];
-						ordreRoutesAngle[rr] = temp;
-					}
-		//static int callCount = 0;
-		//callCount++;
-		//out << "Function has been called " << callCount << " times." << std::endl;
-
-		//******************jingyi: on calcule les angles des centroides计算中心点的角度***************
-
-		*/
 		if (params->triCentroides)
 			randomizedQuickSort(ordreRoutesAngle, 0, ordreRoutesAngle.size() - 1);
 
@@ -642,14 +610,11 @@ double Individu::maxFeasibleDeliveryQuantity(int day, int client)
 	// Printing customer inventory and computing customer inventory cost
 	double inventoryClient;
 	double minSlack = 1.e30;
-	// cout <<"start = "<<params->cli[client].startingInventory<<endl;
 	inventoryClient = params->cli[client].startingInventory;
 	for (int k = 1; k <= params->nbDays; k++)
 	{
 		// here level in the morning
 		inventoryClient += chromL[k][client];
-		// cout <<"chromL["<<k<<"]["<<client<<" ] = "<<chromL[k][client]<<endl;
-		// cout<<inventoryClient<<endl;
 		//  level after receiving inventory
 
 		// updating the residual capacity if k is greater than the day

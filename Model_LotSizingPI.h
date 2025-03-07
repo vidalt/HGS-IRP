@@ -123,10 +123,8 @@ static bool solveCPLEX(const vector<double> & myA, const vector<double> & myB, c
 	}
 
 	IloCplex cplex(lotsizing_model);
-	//cplex.exportModel("lotsizing.lp");
 	cplex.setParam(IloCplex::Threads,1);
 	cplex.setParam(IloCplex::MIPDisplay,0);
-	//cplex.setParam(IloCplex::TiLim,120);
 	cplex.solve();
 
 	int status = cplex.getStatus();

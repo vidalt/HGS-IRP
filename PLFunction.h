@@ -46,7 +46,7 @@ public:
     double calculateDemandFromCost(int day, int client, double detour, double cost, double freeload);
     void clear();
 
-    // get piece that fits with time t 获取合适的线性片段。
+    // get piece that fits with time t
     std::shared_ptr<LinearPiece> getPiece(double t);
 
     std::shared_ptr<LinearPiece> getMinimalPiece(int client, double &minAt, double &minValue);
@@ -73,15 +73,11 @@ public:
     std::shared_ptr<PLFunction> update0(double min0);
     void reflection(double x_axis);
 
-    std::shared_ptr<PLFunction> getInBound(double lb, double ub, bool updateValueAt0); //在给定的边界内获取函数的部分。
+    std::shared_ptr<PLFunction> getInBound(double lb, double ub, bool updateValueAt0);
 
-    double calculateCost(int day, int client, double detour, double demand, double freeload); //根据给定的参数计算成本
+    double calculateCost(int day, int client, double detour, double demand, double freeload);
     double calculateCost_stockout(int day, int client, double detour, double replenishment, double freeload); 
-    //根据给定的参数stockout cost F1(q)
     double calculateCost_holding(int day, int client, double detour, double replenishment, double freeload); 
-    //根据给定的参数holding cost F2(q)
-
-    //    bool testBasicFuncs(int nbpoints);
 
     bool testSuperposition();
 

@@ -7,13 +7,12 @@
 Population::Population(Params *params) : params(params)
 {
 	Individu *randomIndiv;
-	trainer = new Individu(params, 1.0);  //初始化一个实例，包括所有split要用到的数组。
-	delete trainer->localSearch;   		 //
-	trainer->localSearch = new LocalSearch(params, trainer); //为本地搜索过程初始化所需的数据结构，并为后续的操作做好准备。
+	trainer = new Individu(params, 1.0);
+	delete trainer->localSearch;   	
+	trainer->localSearch = new LocalSearch(params, trainer);
 
 	double temp = params->penalityCapa;
 	double temp2 = params->penalityLength;
-	//SousPop结构为基于种群的优化方法提供了一个简单的子种群表示，其中包含了子种群中的个体、子种群的大小和子种群经历的世代数量。
 	valides = new SousPop(); 
 	invalides = new SousPop();
 	valides->nbIndiv = 0;
@@ -22,13 +21,7 @@ Population::Population(Params *params) : params(params)
 	invalides->nbGenerations = 0;
 	bool compter = true;
 
-	// TODO -- for testing for now  生成2*mu的个体
-	/*randomIndiv = new Individu (params,1.0);
-	recopieIndividu(trainer,randomIndiv);
-	trainer->generalSplit();
-	trainer->updateLS();
-	trainer->localSearch->runILS(false,100);
-	return ;*/ 
+	// TODO -- for testing for now
 
 	for (int i = 0; i < params->mu * 2; i++)
 	{
@@ -39,13 +32,6 @@ Population::Population(Params *params) : params(params)
 			compter = false;
 		}
 		randomIndiv = new Individu(params, 1.0);  
-		//chromT是一个二维向量，它的外部维度是天数（nbDays），内部维度是在每一天要访问的客户的顺序。这个客户顺序最初是基于“Just In Time”策略确定的，然后被随机化。
-		
-		// debug: print deliveries of a customer
-		// for(int k = 1; k <= params->nbDays; k++){
-		// 	cout << randomIndiv->chromL[k][2] << ", ";
-		// }
-		// cout << endl;
 
 		education(randomIndiv);
 		if (compter)
@@ -57,7 +43,6 @@ Population::Population(Params *params) : params(params)
 	// on initialise par d�faut � 100, comme si tout �tait valide au d�but
 	// mais c'est arbitraire
 	for (int i = 0; i < 100; i++) 
-    // 默认初始化列表，假设100个体在开始时都是有效的
 	{
 		listeValiditeCharge.push_back(true);
 		listeValiditeTemps.push_back(true);
@@ -78,7 +63,6 @@ Population::~Population()
 
 	delete trainer;
 }
-//此函数的目的是更新给定子种群中所有个体与新个体的邻近度或相似度。
 void Population::evalExtFit(SousPop *pop)
 {
 	int temp;
@@ -108,7 +92,6 @@ void Population::evalExtFit(SousPop *pop)
 		pop->individus[classement[i]]->fitnessEtendu = pop->individus[classement[i]]->fitRank + ((float)1.0 - (float)params->el / (float)pop->nbIndiv) * pop->individus[classement[i]]->divRank;
 	}
 }
-//此函数的目的是更新给定子种群中所有个体与新个体的邻近度或相似度。
 int Population::addIndividu(Individu *indiv)
 {
 	SousPop *souspop;
@@ -120,7 +103,7 @@ int Population::addIndividu(Individu *indiv)
 		souspop = invalides;
 
 	result = placeIndividu(souspop, indiv);
-	// il faut �ventuellement enlever la moiti� de la pop 我们需要最终移除一半的 pop。
+	// il faut �ventuellement enlever la moiti� de la pop
 	if (result != -1 && souspop->nbIndiv > params->mu + params->lambda)
 	{
 
@@ -139,7 +122,7 @@ int Population::addIndividu(Individu *indiv)
 // met � jour les individus les plus proches d'une population
 // en fonction de l'arrivant
 
-void Population::updateProximity(SousPop *pop, Individu *indiv) //新indiv加入pop时，计算每个相似度
+void Population::updateProximity(SousPop *pop, Individu *indiv)
 {
 	for (int k = 0; k < pop->nbIndiv; k++)
 		if (pop->individus[k] != indiv)
@@ -176,10 +159,6 @@ void Population::diversify()
 		valides->individus.pop_back();
 		valides->nbIndiv--;
 	}
-	/*移除低适应度的解决方案:
-
-对于有效的解决方案，如果它们的数量超过了预定的阈值(params->rho * params->mu)，则从列表的尾部删除它们。这里，尾部适应度较低的解决方案。
-对于无效的解决方案，执行相同的操作*/
 	while (invalides->nbIndiv > (int)(params->rho * (double)params->mu))
 	{
 		delete invalides->individus[invalides->nbIndiv - 1];
@@ -222,7 +201,7 @@ int Population::placeIndividu(SousPop *pop, Individu *indiv)
 			pop->individus[i + 1] = pop->individus[i];
 			i--;
 		}
-		else // 找到pop中第一个比当前indv好的解，停下，找到了位置。
+		else
 		{
 			pop->individus[i + 1] = monIndiv;
 			placed = true;
@@ -386,7 +365,7 @@ Individu *Population::getIndividu(int p)
 	return valides->individus[p];
 }
 // recopie un Individu dans un autre
-// ATTENTION !!! ne recopie que le chromP, chromT et les attributs du fitness只能复制 chromP、chromT 和健康属性
+// ATTENTION !!! ne recopie que le chromP, chromT et les attributs du fitness
 void Population::recopieIndividu(Individu *destination, Individu *source)
 {
 	destination->chromT = source->chromT;
@@ -402,7 +381,7 @@ void Population::recopieIndividu(Individu *destination, Individu *source)
 void Population::ExportPop(string nomFichier,bool add)
 {
 	
-	// exporte les solutions actuelles des individus dans un dossier exports current individual solutions to a folder 将当前的解决方案导出到文件夹中
+	// exporte les solutions actuelles des individus dans un dossier exports current individual solutions to a folder
 	vector<int> rout;
 	vector<double> routTime;
 	int compteur;
@@ -413,8 +392,6 @@ void Population::ExportPop(string nomFichier,bool add)
 	double temp, temp2;
 	char *myBuff;
 	Individu *bestValide = getIndividuBestValide();
-	//cout <<"in";
-	//int q;cin>>q;
 
 	if (bestValide != NULL)
 	{
@@ -426,23 +403,17 @@ void Population::ExportPop(string nomFichier,bool add)
 		temp2 = params->penalityLength;
 		params->penalityCapa = 10000;
 		params->penalityLength = 10000;
-		//cout <<"edu begin";cin>>q;
 		education(bestValide);
-		//cout <<"edu";cin>>q;
 		// le trainer a gard� les infos des routes de bestValide
 		loc = trainer->localSearch;
 		params->penalityCapa = temp;
 		params->penalityLength = temp2;
 
-		
-		//cout <<"print";cin>>q;
 		myfile.precision(10);
 		cout.precision(10);
 		ofstream myfile;
 		if (add) myfile.open(nomFichier.data(), std::ios::app);//add on previous
-		else myfile.open(nomFichier.data()); // 
-			
-		//cout << "writing the best solution: fitness " << trainer->coutSol.evaluation << " in : " << nomFichier.c_str() << endl;
+		else myfile.open(nomFichier.data()); 
 		
 		myfile<<endl<<endl;
 		loc->printInventoryLevels(myfile,add);
@@ -469,7 +440,6 @@ void Population::ExportPop(string nomFichier,bool add)
 		// exporting the time to best solution
 		myBuff = new char[100];
 		myfile <<"Best Solution Time: ";sprintf(myBuff, "%d", (int)(timeBest / 1000000));
-		//strncpy(myBuff, "%d", (int)(timeBest / 1000));
 		myfile << myBuff << endl;
 
 		for (int k = 1; k <= params->nbDays; k++)
@@ -533,7 +503,6 @@ void Population::ExportBKS(string nomFichier)
 		while (getline(fichier, line)) {
             std::size_t found = line.find("COST SUMMARY : OVERALL");
             if (found != std::string::npos) {
-				//cout<<"~!";
                 std::stringstream ss(line.substr(found));
                 std::string temp;
 			
@@ -542,7 +511,6 @@ void Population::ExportBKS(string nomFichier)
             }
 			found = line.find("Total Time:");
             if (found != std::string::npos) {
-				//cout<<"~!";
                 std::stringstream ss(line.substr(found));
                 std::string temp;
 			
@@ -552,9 +520,6 @@ void Population::ExportBKS(string nomFichier)
         }
 		fichier.close();
 		timeBest = clock();
-		//cout <<"  fot ===   "<<fit<<endl;
-		//cout<<"pri > tim"<<pri <<" "<< tim<<endl;
-		//cout <<"   this "<<getIndividuBestValide()->coutSol.evaluation ;
 		if (getIndividuBestValide() != NULL && getIndividuBestValide()->coutSol.evaluation < fit - 0.01)
 		{
 			cout << "!!! new BKS !!! : " << getIndividuBestValide()->coutSol.evaluation << endl;

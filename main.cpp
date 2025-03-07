@@ -24,45 +24,31 @@ int mainIRP(int argc, char *argv[])
 
   if (c.is_valid())
   {
-    // Nombre de ticks horloge que le programme est autorise a durer，允许程序运行的时钟刻度数
+    // Nombre de ticks horloge que le programme est autorise a durer
     clock_t nb_ticks_allowed; 
     nb_ticks_allowed =  CLOCKS_PER_SEC;
 
-    // initialisation des Parametres � partir du fichier d'instance et du chemin  初始化参数。从实例文件和解决方案的路径中。
-    // de la solution 这个对象是通过Params类的构造函数来初始化的，构造函数接收了多个参数。
+    // initialisation des Parametres � partir du fichier d'instance et du chemin
+    // de la solution
     
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed(),c.get_rou(), c.get_stockout());
         
-
-    //cout << "init population" << endl;
-
     // initial population 
     Population *population = new Population(mesParametres);
-
-    //cout << "init solver" << endl;
   
     // on cree le solver we create the solver,we create the solver we create the solver
-    //我们创建求解器
     Genetic solver(mesParametres, population, nb_ticks_allowed, true, true);
 
-    // on lance l'evolution   launch evolution  开始进化
-    //cout << "######### Main descent phase : "
-    //     << mesParametres->nbVehiculesPerDep << endl;
-    //cout << "  " << endl;
-
+    // on lance l'evolution   launch evolution
     
     int max_iter = 100000;
     int maxIterNonProd = 10000;
-    //cout << "solver running..." << endl;
     solver.evolve(max_iter, maxIterNonProd, 1);
-    //cout <<c.get_path_to_solution()<<endl;
-    //cout << "Export Population : " << endl;
 
     population->ExportPop(c.get_path_to_solution(),true);
     
-    //cout <<"Export BKS:"<<endl;
     population->ExportBKS(c.get_path_to_BKS());
   
     // on desalloue la memoire
@@ -73,18 +59,10 @@ int mainIRP(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest1(int argc, char *argv[])
 {
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -97,24 +75,8 @@ int mainTest1(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    // //        plf->testBasicFuncs(50);
-    // plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
 
     /*
-     * insertion 0: detour:698 load: 144
-        insertion 1: detour:298 load: 75, detour:698 load: 144
-        insertion 2: detour:175 load: 35, detour:698 load: 144
-        CPXPARAM_Threads                                 1
-        CPXPARAM_MIP_Display                             0
-        day: 3 quantity: 35 route: 8 in route: 5
-        Cost: 175.7
-
      solution fs[1]:
      for q = 0 => fs[1] = 0
      for q in (0, 75] => fs[1] = detour (298) + inventory cost
@@ -135,15 +97,11 @@ int mainTest1(int argc, char *argv[])
 
     vector<double> quantities = vector<double>(3);
     vector<Insertion *> breakpoints = vector<Insertion *>(3);
-    //这个vector的初始大小也是3，这意味着它可以存储3个指向Insertion对象的指针。
     double objective;
 
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 2);
     lotSizingSolver->solve();
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 2,
-    //        quantities,
-    //                                           breakpoints, objective, true);
 
     // on desalloue la memoire
     delete mesParametres;
@@ -153,18 +111,10 @@ int mainTest1(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest2(int argc, char *argv[])
 {
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -177,27 +127,6 @@ int mainTest2(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    // //        plf->testBasicFuncs(50);
-    // plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        insertion 0: detour:406 load: 144
-        insertion 1: detour:222 load: 87
-        detour:406 load: 144
-        insertion 2: detour:406 load: 144
-        CPXPARAM_Threads                                 1
-        CPXPARAM_MIP_Display                             0
-        myCost 1: -6.72myCost 2: 215.28myCost 3: 215.28client: 4 re-obj: 215.28
-        day: 2 quantity: 48 route: 9 in route: 2
-        Best cost: 215.28
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(3);
     insertions[0].push_back(Insertion(406, 144, NULL));
@@ -210,9 +139,6 @@ int mainTest2(int argc, char *argv[])
     vector<double> quantities = vector<double>(3);
     vector<Insertion *> breakpoints = vector<Insertion *>(3);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 4,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 2);
     lotSizingSolver->solve();
@@ -225,18 +151,10 @@ int mainTest2(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest3(int argc, char *argv[])
 {
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -249,27 +167,6 @@ int mainTest3(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    // //        plf->testBasicFuncs(50);
-    // plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        insertion 0: detour:34 load: 144
-        insertion 1: detour:21 load: 39
-        detour:34 load: 144
-        insertion 2: detour:34 load: 144
-        CPXPARAM_Threads                                 1
-        CPXPARAM_MIP_Display                             0
-        myCost 1: 6.96myCost 2: 40.96myCost 3: 40.96client: 3 re-obj: 40.96
-        day: 2 quantity: 116 route: 0 in route: 0
-        Best cost: 40.96
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(3);
     insertions[0].push_back(Insertion(34, 144, NULL));
@@ -282,9 +179,6 @@ int mainTest3(int argc, char *argv[])
     vector<double> quantities = vector<double>(3);
     vector<Insertion *> breakpoints = vector<Insertion *>(3);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 3,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 3);
     lotSizingSolver->solve();
@@ -297,22 +191,11 @@ int mainTest3(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 
 int mainTest5(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -325,49 +208,6 @@ int mainTest5(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    // //        plf->testBasicFuncs(50);
-    // plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        insertion 0: detour:860 load: 435
-
-        insertion 1: detour:135 load: 120
-        detour:860 load: 435
-
-        insertion 2: detour:82 load: 98
-        detour:385 load: 234
-        detour:860 load: 435
-
-        insertion 3: detour:144 load: 86
-        detour:327 load: 246
-        detour:860 load: 435
-
-        insertion 4: detour:82 load: 88
-        detour:385 load: 244
-        detour:860 load: 435
-
-        insertion 5: detour:82 load: 92
-        detour:542 load: 240
-        detour:860 load: 435
-
-        CPXPARAM_Threads                                 1
-        CPXPARAM_MIP_Display                             0
-        myCost 1: 41.28myCost 2: 123.28myCost 3: 123.28client: 8 re-obj: 123.28
-        day: 3 quantity: 86 route: 9 in route: 6
-
-        myCost 1: 41.28myCost 2: 123.28myCost 3: 123.28myCost 1: 143.92myCost 2:
-       225.92myCost 3: 225.92client: 8 re-obj: 225.92
-        day: 5 quantity: 86 route: 8 in route: 5
-
-        Best cost: 225.92
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(860, 435, NULL));
@@ -394,9 +234,6 @@ int mainTest5(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 8,
-    //        quantities,
-    //                                           breakpoints, objective, true);
 
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 8);
@@ -410,21 +247,10 @@ int mainTest5(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest6(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -437,28 +263,6 @@ int mainTest6(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    // //        plf->testBasicFuncs(50);
-    // plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-                insertion 0: [detour: 366 load: 435]
-                insertion 1: [detour: 41 load: 197] [detour: 366 load: 435]
-                insertion 2: [detour: 33 load: 345] [detour: 366 load: 435]
-                insertion 3: [detour: 33 load: 0] [detour: 201 load: 317]
-       [detour: 366 load: 435]
-                insertion 4: [detour: 33 load: 345] [detour: 366 load: 435]
-                insertion 5: [detour: 33 load: 128] [detour: 201 load: 317]
-       [detour: 366 load: 435]
-
-                objective: 23.84
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(366, 435, NULL));
@@ -468,7 +272,6 @@ int mainTest6(int argc, char *argv[])
 
     insertions[2].push_back(Insertion(33, 345, NULL));
     insertions[2].push_back(Insertion(366, 435, NULL));
-    // insertions[2].push_back(Insertion(860, 435, NULL));
 
     insertions[3].push_back(Insertion(33, 0, NULL));
     insertions[3].push_back(Insertion(201, 317, NULL));
@@ -476,7 +279,6 @@ int mainTest6(int argc, char *argv[])
 
     insertions[4].push_back(Insertion(33, 345, NULL));
     insertions[4].push_back(Insertion(366, 435, NULL));
-    // insertions[4].push_back(Insertion(860, 435, NULL));
 
     insertions[5].push_back(Insertion(33, 128, NULL));
     insertions[5].push_back(Insertion(201, 317, NULL));
@@ -485,9 +287,6 @@ int mainTest6(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 9,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 9);
     lotSizingSolver->solve();
@@ -500,21 +299,10 @@ int mainTest6(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest7(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -527,31 +315,6 @@ int mainTest7(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    // //        plf->testBasicFuncs(50);
-    // plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        //insertion 0: [detour: 94 load: 435]
-        //insertion 1: [detour: 24 load: 6] [detour: 73 load: 75] [detour: 94
-       load: 435]
-        //insertion 2: [detour: 60 load: 0] [detour: 94 load: 435]
-        //insertion 3: [detour: 24 load: 37] [detour: 64 load: 81] [detour: 94
-       load: 435]
-        //insertion 4: [detour: 60 load: 101] [detour: 94 load: 435]
-        //insertion 5: [detour: 94 load: 435]
-
-        day: 2 quantity: 110
-        day: 4 quantity: 81
-        day: 5 quantity: 84
-
-        Best cost: 150.73
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(94, 435, NULL));
@@ -575,9 +338,6 @@ int mainTest7(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 4,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 4);
     lotSizingSolver->solve();
@@ -590,21 +350,10 @@ int mainTest7(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest8(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -617,31 +366,6 @@ int mainTest8(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    // //        plf->testBasicFuncs(50);
-    // plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        //insertion 0: [detour: 270 load: 435]
-        //insertion 1: [detour: 0 load: 63] [detour: 236 load: 325] [detour: 270
-       load: 435]
-        //insertion 2: [detour: 19 load: 0] [detour: 49 load: 227] [detour: 270
-       load: 435]
-        //insertion 3: [detour: 19 load: 0] [detour: 270 load: 435]
-        //insertion 4: [detour: 49 load: 0] [detour: 76 load: 171] [detour: 270
-       load: 435]
-        //insertion 5: [detour: 49 load: 307] [detour: 270 load: 435]
-
-        //day: 3 quantity: 189
-        //day: 6 quantity: 63
-
-        //Best cost: 204.47
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(270, 435, NULL));
@@ -667,9 +391,6 @@ int mainTest8(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 10,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 10);
     lotSizingSolver->solve();
@@ -682,21 +403,10 @@ int mainTest8(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest9(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -709,33 +419,6 @@ int mainTest9(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    //        mesParametres->endTime = 0;
-    //        for (int i = 0; i < mesParametres->cli.size(); i++)
-    //            for (int j = 0; j < mesParametres->cli[i].dailyDemand.size();
-    //            j++)
-    //                mesParametres->endTime +=
-    //                mesParametres->cli[i].dailyDemand[j];
-    //        PLFunction *plf = new PLFunction(mesParametres);
-    //        plf->testBasicFuncs(50);
-    //        plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-           insertion 0: [detour: 470 load: 435]
-          insertion 1: [detour: 0 load: 0] [detour: 457 load: 325] [detour: 470
-         load: 435]
-          insertion 2: [detour: 24 load: 0] [detour: 81 load: 92] [detour: 470
-       load:
-         435]
-          insertion 3: [detour: 24 load: 0] [detour: 137 load: 309] [detour: 470
-         load: 435]
-          insertion 4: [detour: 24 load: 27] [detour: 457 load: 325] [detour:
-       470
-         load: 435]
-          insertion 5: [detour: 54 load: 279] [detour: 470 load: 435]
-
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(470, 435, NULL));
@@ -762,9 +445,6 @@ int mainTest9(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 2,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 2);
     lotSizingSolver->solve();
@@ -777,21 +457,10 @@ int mainTest9(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest10(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -804,32 +473,6 @@ int mainTest10(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    //        mesParametres->endTime = 0;
-    //        for (int i = 0; i < mesParametres->cli.size(); i++)
-    //            for (int j = 0; j < mesParametres->cli[i].dailyDemand.size();
-    //            j++)
-    //                mesParametres->endTime +=
-    //                mesParametres->cli[i].dailyDemand[j];
-    // PLFunction *plf = new PLFunction(mesParametres);
-    //        plf->testBasicFuncs(50);
-    //        plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        insertion 0: [detour: 270 load: 435]
-        insertion 1: [detour: 0 load: 55] [detour: 236 load: 325] [detour: 270
-       load: 435]
-        insertion 2: [detour: 19 load: 0] [detour: 49 load: 227] [detour: 270
-       load: 435]
-        insertion 3: [detour: 49 load: 0] [detour: 270 load: 435]
-        insertion 4: [detour: 19 load: 0] [detour: 270 load: 435]
-        insertion 5: [detour: 85 load: 51] [detour: 270 load: 435]
-
-         day: 3 quantity: 189
-        day: 6 quantity: 63
-        Best cost: 360.47
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(270, 435, NULL));
@@ -854,9 +497,6 @@ int mainTest10(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 10,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 10);
     lotSizingSolver->solve();
@@ -869,21 +509,10 @@ int mainTest10(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest11(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -896,35 +525,6 @@ int mainTest11(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    //        mesParametres->endTime = 0;
-    //        for (int i = 0; i < mesParametres->cli.size(); i++)
-    //            for (int j = 0; j < mesParametres->cli[i].dailyDemand.size();
-    //            j++)
-    //                mesParametres->endTime +=
-    //                mesParametres->cli[i].dailyDemand[j];
-    //        PLFunction *plf = new PLFunction(mesParametres);
-    //        plf->testBasicFuncs(50);
-    //        plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        insertion 0: [detour: 470 load: 435]
-        insertion 1: [detour: 0 load: 0] [detour: 457 load: 325] [detour: 470
-       load: 435]
-        insertion 2: [detour: 24 load: 0] [detour: 81 load: 92] [detour: 470
-       load: 435]
-        insertion 3: [detour: 24 load: 0] [detour: 470 load: 435]
-        insertion 4: [detour: 24 load: 0] [detour: 457 load: 325] [detour: 470
-       load: 435]
-        insertion 5: [detour: 0 load: 180] [detour: 470 load: 435]
-
-        day: 2 quantity: 27
-        day: 3 quantity: 54
-        day: 5 quantity: 27
-        day: 6 quantity: 27
-        Best cost: 653.64
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(470, 435, NULL));
@@ -950,9 +550,6 @@ int mainTest11(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 2,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 2);
     lotSizingSolver->solve();
@@ -965,21 +562,10 @@ int mainTest11(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest12(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -992,20 +578,6 @@ int mainTest12(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    //        mesParametres->endTime = 0;
-    //        for (int i = 0; i < mesParametres->cli.size(); i++)
-    //            for (int j = 0; j < mesParametres->cli[i].dailyDemand.size();
-    //            j++)
-    //                mesParametres->endTime +=
-    //                mesParametres->cli[i].dailyDemand[j];
-    //        PLFunction *plf = new PLFunction(mesParametres);
-    //        plf->testBasicFuncs(50);
-    //        plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(560, 435, NULL));
@@ -1030,9 +602,6 @@ int mainTest12(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 5,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 5);
     lotSizingSolver->solve();
@@ -1045,21 +614,10 @@ int mainTest12(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest13(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -1072,23 +630,6 @@ int mainTest13(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-    //        mesParametres->endTime = 0;
-    //        for (int i = 0; i < mesParametres->cli.size(); i++)
-    //            for (int j = 0; j < mesParametres->cli[i].dailyDemand.size();
-    //            j++)
-    //                mesParametres->endTime +=
-    //                mesParametres->cli[i].dailyDemand[j];
-    //        PLFunction *plf = new PLFunction(mesParametres);
-    //        plf->testBasicFuncs(50);
-    //        plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        objective: 512.5
-        day 2: quantity: 154 cost: 314.8
-        day 4: quantity: 154 cost: 173.28
-        day 6: quantity: 143 cost: 24.42
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(366, 435, NULL));
@@ -1113,9 +654,6 @@ int mainTest13(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 9,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 9);
     lotSizingSolver->solve();
@@ -1128,19 +666,10 @@ int mainTest13(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int mainTest14(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38 -seed 1000
-
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -1149,10 +678,6 @@ int mainTest14(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-
-    /* Data
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(752, 435, NULL));
@@ -1178,9 +703,6 @@ int mainTest14(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 6,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 6);
     lotSizingSolver->solve();
@@ -1197,9 +719,6 @@ int mainTest14(int argc, char *argv[])
 
 int mainTest15(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38 -seed 1000
-
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -1208,14 +727,6 @@ int mainTest15(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-
-    /* Data
-        day: 2 quantity: 154
-        day: 3 quantity: 77
-        day: 5 quantity: 154
-        Best cost: 60.84
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(72, 383, NULL));
@@ -1237,9 +748,6 @@ int mainTest15(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 9,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 9);
     lotSizingSolver->solve();
@@ -1256,9 +764,6 @@ int mainTest15(int argc, char *argv[])
 
 int mainTest16(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type
-  // 38 -seed 1000
-
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -1267,15 +772,6 @@ int mainTest16(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-
-    /* Data
-        day: 2 quantity: 134
-        day: 3 quantity: 39
-        day: 4 quantity: 135
-        day: 5 quantity: 77
-        Best cost: 48.9
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(366, 435, NULL));
@@ -1297,9 +793,6 @@ int mainTest16(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 9,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 9);
     lotSizingSolver->solve();
@@ -1316,7 +809,6 @@ int mainTest16(int argc, char *argv[])
 
 int mainTest17(int argc, char *argv[])
 {
-  //    argv[1] = "/home/pta/vrp/IRP/Data/Small/Istanze0105h3/abs1n10_1.dat";
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -1325,10 +817,6 @@ int mainTest17(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-
-    /* Data
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(3);
     insertions[0].push_back(Insertion(470, 476, NULL));
@@ -1344,9 +832,6 @@ int mainTest17(int argc, char *argv[])
     vector<double> quantities = vector<double>(3);
     vector<Insertion *> breakpoints = vector<Insertion *>(3);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 2,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 2);
     lotSizingSolver->solve();
@@ -1363,9 +848,6 @@ int mainTest17(int argc, char *argv[])
 
 int mainTest50(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs4n50_1.dat -type
-  // 38 -seed 1000
-
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -1374,17 +856,6 @@ int mainTest50(int argc, char *argv[])
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed());
-
-    /* Data
-        insertion 0: [detour: 386 load: 2022]
-        insertion 1: [detour: 2 load: 0.333333] [detour: 386 load: 2022]
-        insertion 2: [detour: 5 load: 195] [detour: 386 load: 2022]
-        insertion 3: [detour: 3 load: 98] [detour: 386 load: 2022]
-        insertion 4: [detour: 65 load: 856] [detour: 386 load: 2022]
-        insertion 5: [detour: 8 load: 1122] [detour: 386 load: 2022]
-
-        client: 32
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(386, 2022, NULL));
@@ -1407,9 +878,6 @@ int mainTest50(int argc, char *argv[])
     vector<double> quantities = vector<double>(6);
     vector<Insertion *> breakpoints = vector<Insertion *>(6);
     double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 32,
-    //        quantities,
-    //                                           breakpoints, objective, true);
     LotSizingSolver *lotSizingSolver =
         new LotSizingSolver(mesParametres, insertions, 32);
     lotSizingSolver->solve();
@@ -1427,10 +895,6 @@ int mainTest50(int argc, char *argv[])
 
 int mainTest4(int argc, char *argv[])
 {
-  // ./irpcplex /home/pta/vrp/IRP/Data/Small/Istanze0105h6/abs1n10_1.dat -type 38
-
-  // try
-  //{
   commandline c(argc, argv);
   if (c.is_valid())
   {
@@ -1441,64 +905,9 @@ int mainTest4(int argc, char *argv[])
     // initialisation des Parametres � partir du fichier d'instance et du chemin
     // de la solution/]
     bool trace = true;
-    //cout<<"initial parmas"<<endl;
     Params *mesParametres = new Params(
         c.get_path_to_instance(), c.get_path_to_solution(), c.get_type(),
         c.get_nbVeh(), c.get_path_to_BKS(), c.get_seed(),c.get_rou(), c.get_stockout());
-   
-    // mesParametres->endTime = 0;
-    // for (int i = 0; i < mesParametres->cli.size(); i++)
-    //     for (int j = 0; j < mesParametres->cli[i].dailyDemand.size(); j++)
-    //         mesParametres->endTime += mesParametres->cli[i].dailyDemand[j];
-    //        PLFunction *plf = new PLFunction(mesParametres);
-    //        plf->testBasicFuncs(50);
-    //        plf->testSuperposition();
-    //        ModelLotSizingPI::testDPLotSizing(mesParametres);
-
-    /* Data
-        insertion 0: detour:470 load: 435
-
-        insertion 1: detour:0 load: 27
-        detour:470 load: 435
-
-        insertion 2: detour:24 load: 33
-        detour:470 load: 435
-
-        insertion 3: detour:24 load: 21
-        detour:81 load: 92
-        detour:470 load: 435
-
-        insertion 4: detour:24 load: 71
-        detour:129 load: 248
-        detour:470 load: 435
-
-        insertion 5: detour:470 load: 435
-
-        CPXPARAM_Threads                                 1
-        CPXPARAM_MIP_Display                             0
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7client: 2 re-obj: 2.7
-        day: 2 quantity: 27 route: 9 in route: 1
-
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
-       29.34myCost 3: 29.34client: 2 re-obj: 29.34
-        day: 3 quantity: 33 route: 8 in route: 1
-
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
-       29.34myCost 3: 29.34myCost 1: 30.6myCost 2: 54.6myCost 3: 54.6client: 2
-       re-obj: 54.6
-        day: 4 quantity: 21 route: 8 in route: 0
-
-        myCost 1: 2.7myCost 2: 2.7myCost 3: 2.7myCost 1: 5.34myCost 2:
-       29.34myCost 3: 29.34myCost 1: 30.6myCost 2: 54.6myCost 3: 54.6myCost 1:
-       56.76myCost 2: 80.76myCost 3: 80.76client: 2 re-obj: 80.76
-        day: 5 quantity: 54 route: 8 in route: 1
-
-        Best cost: 80.76
-        insertion 0:  detour:366 load: 476 detour:366 load: 476
-        insertion 1:  detour:366 load: 476 detour:33 load: 93
-        insertion 2:  detour:33 load: 56 detour:366 load: 476
-
-     */
 
     vector<vector<Insertion>> insertions = vector<vector<Insertion>>(6);
     insertions[0].push_back(Insertion(470, 435, NULL));
@@ -1520,12 +929,6 @@ int mainTest4(int argc, char *argv[])
     insertions[5].push_back(Insertion(470, 435, NULL));
 
     vector<double> quantities = vector<double>(6);
-    //        vector<Insertion *> breakpoints = vector<Insertion *>(6);
-    //        double objective;
-    //        ModelLotSizingPI::solveDPLotSizing(mesParametres, insertions, 2,
-    //        quantities,
-    //                                           breakpoints, objective, true);
-    //cout<<"before lotsizing"<<endl;
     LotSizingSolver *lotSizingSolver =  new LotSizingSolver(mesParametres, insertions, 2);
     cout<<"solve:"<<endl;
     if(mesParametres->isstockout)lotSizingSolver->solve_stockout();
@@ -1540,17 +943,9 @@ int mainTest4(int argc, char *argv[])
     throw string(
         "ligne de commande non parsable, Usage : genvrp instance [-t cpu-time] "
         "[-sol solution]");
-  //}
-  // catch(const string& e)  // Catching and printing any thrown string
-  //{
-  // cout << e << endl ;
-  // return 0 ;
-  //}
 }
 
 int main(int argc, char *argv[])
 {
-  //  mainTest4(argc, argv);
-  //  mainTest3(argc, argv);
   mainIRP(argc, argv);
 }

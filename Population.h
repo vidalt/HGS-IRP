@@ -18,13 +18,13 @@ using namespace std ;
 
 struct SousPop
 {
-	// individus de la sous-population 简而言之，这个向量包含了子种群中所有的个体
+	// individus de la sous-population
 	vector <Individu *> individus ;
 
-	// nombre de ces individus应该等于individus向量的大小
+	// nombre de ces individus
 	int nbIndiv ;
 
-	// nombre de generations ecoul�es变量表示子种群经历的世代或迭代次数。
+	// nombre de generations ecoul�es
 	int nbGenerations ;
 };
 

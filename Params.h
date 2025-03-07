@@ -26,8 +26,6 @@ class Noeud;
 struct Insertion
 {
        double detour;
-       //detour: 表示插入操作所带来的路径偏离度或额外的路程。例如，如果我们在一条路线中添加一个新的客户，
-       //那么可能需要多走一段路，detour就表示了这段额外的路程。默认值为一个很大的数字1.e30，
        double load;
        //the remain load of this route
 
@@ -148,11 +146,9 @@ class Params {
   void computeConstant();
   void computeConstant_stockout();
   // pr�sence d'un probl�me MultiDepot ;
-  //表示是否存在多仓库问题 (Multi-Depot)。
   bool multiDepot;
 
   // pr�sence d'un probl�me P�riodique ;
-  //一个布尔值，表示问题是否是周期性的。
   bool periodique;
 
   // pr�sence d'un probl�me IRP ;
@@ -165,7 +161,7 @@ class Params {
   // nombre de jours
   int nbDays;
 
-  // ancien nombre de jours表示过去的天数，
+  // ancien nombre de jours
   int ancienNbDays;
 
   // nombre de vehicules par d�pot
@@ -180,27 +176,23 @@ class Params {
 
   // sequence des v�hicules utilisables chaque jour avec les contraintes et
   // d�pots associ�s
-  //它存储了每天可用的车辆序列以及与它们关联的约束和仓库。从名称来看，这可能用于规划每天应该使用哪些车辆。
   vector<vector<Vehicle> > ordreVehicules;
 
   // nombre de v�hicules utilisables par jour
-  //这是一个整数向量，存储了每天可用的车辆数量。每天的数量可能会有所不同
   vector<int> nombreVehicules;
 
   // vecteur des depots et clients 客户，depot向量
   //vector<Client> cli;
 
-       //这是一个向量，存储了客户和仓库的信息。从上下文来看，Client 类可能同时包含客户和仓库的信息。
   vector<Client> cli;
 
   // temps de trajet , calcul�s lors du parsing
-  //这是一个二维向量，存储了各点之间的行驶时间。这通常用于路径规划，以确定最短或最快的路径。
   vector<vector<double> > timeCost;
 
-  // crit�re de corr�lation用于确定两点之间是否有某种特定的关系或相似性。
+  // crit�re de corr�lation
   vector<vector<bool> > isCorrelated1;
 
-  // crit�re de corr�lation，代表了另一种判定标准。
+  // crit�re de corr�lation
   vector<vector<bool> > isCorrelated2;
 
   // SPECIFIC DATA FOR THE INVENTORY ROUTING PROBLEM //
@@ -230,7 +222,7 @@ class Params {
 
   // ROUTINES DE PARSING //
 
-  // flux d'entree du parser 解析器输入流
+  // flux d'entree du parser
   ifstream fichier;
 
   // initializes the parameters of the method

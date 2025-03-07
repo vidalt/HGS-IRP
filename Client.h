@@ -108,7 +108,7 @@ public:
 	// ordre des sommets et depots, par proximit�
 	vector <int> ordreProximite ;
 
-	// les sommets les plus proches selon le critere de proximite根据邻近度标准的最近顶点们
+	// les sommets les plus proches selon le critere de proximite
 	vector <int> sommetsVoisins ;
 
 	Client(void);

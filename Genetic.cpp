@@ -5,7 +5,7 @@
 inline double GetMemoryUsage(int pid, int flag=true) {
 	std::ifstream status("/proc/" + std::to_string(pid) + "/status");
 	std::string line;
-	long long vm_size_kb = 0, vm_rss_kb = 0; // 使用long long以支持更大的数值
+	long long vm_size_kb = 0, vm_rss_kb = 0;
 
 	while (std::getline(status, line)) {
 		if (line.find("VmSize:") != std::string::npos) {
@@ -41,12 +41,10 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 	
 	while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && clock() <=  2400 * CLOCKS_PER_SEC)
 	{
-		//cout <<"nbIter: "<<nbIter<<endl;
-		// on demande deux individus � la population 我们要求人口中的两个个体
+		// on demande deux individus � la population
 		population->recopieIndividu(rejeton, population->getIndividuBinT(rangRelatif));
 		population->recopieIndividu(rejeton2, population->getIndividuBinT(rangRelatif));
-		//cout <<"before: "<<endl;
-		// on choisit le crossover en fonction du probleme 我们根据问题选择分频器
+		// on choisit le crossover en fonction du probleme
 		if (!params->isInventoryRouting)
 			resultCross = crossOX();
 		else
@@ -57,21 +55,16 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 		// REPAIR IF NEEDED
 		if (!rejeton->estValide)
 		{
-			//cout <<"repairs: "<<nbIter<<endl;
 			place = population->addIndividu(rejeton);
 			reparer();
 		}
-		//cout <<"out"<<endl;
 		// ADD IN THE POPULATION IF IS FEASIBLE
 		if (rejeton->estValide)
 			place = population->addIndividu(rejeton);
-		//cout <<"d: "<<nbIter<<endl;
 		if (place == 0 && rejeton->estValide)
 			nbIterNonProd = 1;
 		else
 			nbIterNonProd++;
-		//out <<"p: "<<nbIter<<endl;
-		//cout <<"rejrton "<<rejeton->estValide<<" place "<<place<<endl;
 		if (place == 0 && rejeton->estValide)
 		{
 			cout << "NEW BEST FEASIBLE ";
@@ -82,7 +75,6 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 			cout << endl;
 			cout << endl;
 		}
-		//cout <<"k: "<<nbIter<<endl;
 		if (nbRec > 0 && nbIterNonProd % (maxIterNonProd / 3 + 1) == maxIterNonProd / 3)
 		{
 			if (traces)
@@ -99,8 +91,6 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 			population->afficheEtat(nbIter);
 		
 		nbIter++;
-		//cout <<"see"<<endl;
-		//cout <<nbIter << maxIter << nbIterNonProd << maxIterNonProd << (clock() - params->debut) << ticks<<endl;
 
 	
 	}
@@ -118,14 +108,13 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 void Genetic::muter()
 {
 	rejeton->updateLS();
-	//cout <<"run"<<endl;
 	rejeton->localSearch->runSearchTotal(false);
 	
 	rejeton->updateIndiv();
 	population->updateNbValides(rejeton);
 }
 
-// eventuellement effectue une reparation de la solution如有必要，修复解决方案
+// eventuellement effectue une reparation de la solution
 void Genetic::reparer()
 {
 	double temp, temp2;
@@ -134,7 +123,7 @@ void Genetic::reparer()
 	temp = params->penalityCapa;
 	temp2 = params->penalityLength;
 
-	/*First tentative尝试修复（第一次尝试）：*/
+	/*First tentative*/
 	params->penalityCapa *= 10;
 	params->penalityLength *= 10;
 	if (params->rng->genrand64_real1() < params->pRep)
@@ -143,16 +132,13 @@ void Genetic::reparer()
 		rejeton->localSearch->runSearchTotal(true);
 		rejeton->updateIndiv();
 
-		/* Second tentative尝试修复（第二次尝试）：：*/
+		/* Second tentative*/
 		if (!rejeton->estValide)
 		{
-			//cout <<"second"<<endl;
 			params->penalityCapa *= 500;
 			params->penalityLength *= 500;
 			rejeton->generalSplit();
-			//cout <<"general";
 			rejeton->updateLS();
-			//cout <<"localse";
 			rejeton->localSearch->runSearchTotal(true);
 			rejeton->updateIndiv();
 		}
@@ -179,19 +165,7 @@ void Genetic::gererPenalites()
 
 	population->validatePen();
 }
-/*
-这是`Genetic`类的构造函数的定义，它主要做了以下几件事情：
-1. **参数初始化**：通过构造函数的初始化列表，它将传入的参数值分别赋给类的成员变量。
-例如，传入的`params`参数的值被赋给了类的成员变量`params`。这样做主要是为了初始化这些成员变量。
 
-2. **局部变量初始化**：初始化了几个临时的变量`tempVect`（一个整数类型的向量）
-和`chromTRand`（一个整数向量的向量）以及`chromPRand`（一个`pattern`类型的向量）和`tempList`（一个整数类型的列表）。
-
-3. **`pattern`对象初始化**：创建了一个新的`pattern`对象`p`，并将其成员`dep`和`pat`初始化为0。
-
-4. **初始化`chromTRand`**：使用`tempVect`为`chromTRand`添加`params->nbDays + 1`个空的整数向量。
-
-*/
 Genetic::Genetic(Params *params, Population *population, clock_t ticks, bool traces, bool writeProgress) : params(params), population(population), ticks(ticks), traces(traces), writeProgress(writeProgress)
 {
 	
@@ -203,23 +177,14 @@ Genetic::Genetic(Params *params, Population *population, clock_t ticks, bool tra
 	p.dep = 0;
 	p.pat = 0;
 
-	//4. **初始化`chromTRand`**：使用`tempVect`为`chromTRand`添加`params->nbDays + 1`个空的整数向量。
 	for (int i = 0; i <= params->nbDays; i++)
 		chromTRand.push_back(tempVect);  
-
-	//5. **填充`freqClient`和`chromPRand`向量**：对于每一个客户和仓库，
-	// 将其频率添加到`freqClient`向量中，并在`chromPRand`中为每个客户和仓库添加一个`pattern`对象。
 
 	for (int i = 0; i < params->nbClients + params->nbDepots; i++)
 	{
 		freqClient.push_back(params->cli[i].freq);
 		chromPRand.push_back(p);
 	}
-	
-
-// **初始化`rejeton`和`rejeton2`**：为`rejeton`和`rejeton2`分配新的`Individu`对象。
-
-//**为`rejeton`配置`localSearch`**：删除`rejeton`的`localSearch`成员，然后为其分配一个新的`LocalSearch`对象。
 
 	rejeton = new Individu(params, 1.0);
 	rejeton2 = new Individu(params, 1.0);
@@ -230,7 +195,6 @@ Genetic::Genetic(Params *params, Population *population, clock_t ticks, bool tra
 int Genetic::crossOX()
 {
 	// on tire au hasard un debut et une fin pour la zone de crossover
-	//为交叉区域随机绘制起点和终点
 	int debut = params->rng->genrand64_int64() % params->nbClients;
 	int fin = params->rng->genrand64_int64() % params->nbClients;
 	while (fin == debut)
@@ -287,7 +251,7 @@ int Genetic::crossPOX2()
 	// Keeping a vector to remember if a delivery has alrady been inserted for on day k for customer i
 	vector<vector<bool>> hasBeenInserted = vector<vector<bool>>(params->nbDays + 1, vector<bool>(params->nbClients + params->nbDepots, false));
 
-	// choosing the type of inheritance for each day (nothing, all, or mixed) 根据随机顺序确定哪些天会被完全继承、哪些天会继承部分，以及哪些天不会继承任何内容。
+	// choosing the type of inheritance for each day (nothing, all, or mixed)
 	for (int k = 1; k <= params->nbDays; k++)
 		joursPerturb.push_back(k);
 
@@ -311,10 +275,10 @@ int Genetic::crossPOX2()
 	for (int k = 0; k < params->nbDays; k++)
 	{
 		day = joursPerturb[k];
-		// on recopie un segment复制一个片段
+		// on recopie un segment
 		if (k < j1 && !rejeton->chromT[day].empty())
 		{
-			debut = (int)(params->rng->genrand64_int64() % rejeton->chromT[day].size()); //定从第一个父代rejeton继承哪些数据。这可能是一个完整的序列、部分序列或没有数据。
+			debut = (int)(params->rng->genrand64_int64() % rejeton->chromT[day].size());
 			fin = (int)(params->rng->genrand64_int64() % rejeton->chromT[day].size());
 			tableauFin.push_back(fin);
 			int j = debut;
@@ -345,8 +309,6 @@ int Genetic::crossPOX2()
 				int ii = rejeton->chromT[day][j]; // getting the index to be inherited
 				garder.push_back(ii);
 				rejeton->chromL[day][ii] = chromLParent1[day][ii];
-				//rejeton->chromL[day][ii] = std::min<double>(rejeton->maxFeasibleDeliveryQuantity(day, ii),  
-														//				chromLParent1[day][ii]);
 				hasBeenInserted[day][ii] = true;
 				j = (j + 1) % rejeton->chromT[day].size();
 			}

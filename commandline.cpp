@@ -41,9 +41,6 @@ commandline::commandline(int argc, char *argv[])
   bool isOutput = false;
   bool isBKS = false;
 
-  cout << argc << endl;
-  cout << string(argv[0]) << endl;
-
   if (argc % 2 != 0 || argc > 24 || argc < 2)
   {
     cout << "incorrect command line" << endl;
@@ -62,11 +59,6 @@ commandline::commandline(int argc, char *argv[])
     relax = -1; // unknown
     rou = -1;
     stockout = false;
-
-    // afficher le lancement du programme :
-    // for ( int i = 0 ; i < argc ; i ++ )
-    // cout << string(argv[i]) << " " ;
-    // cout << endl ;
 
     // parameters
     for (int i = 2; i < argc; i += 2)

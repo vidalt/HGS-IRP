@@ -22,7 +22,7 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 	// ouverture du fichier en lecture
 	fichier.open(nomInstance.c_str());
 
-	// parsing des donn�es打开文件供读取
+	// parsing des donn�es
 	if (fichier.is_open())
 		preleveDonnees(nomInstance, rou, stockout);
 	else
@@ -38,7 +38,7 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 	// Simply compute the distances from the coordinates
 	computeDistancierFromCoords();
 
-	// calcul des structures 结构计算
+	// calcul des structures
 	calculeStructures();
 
 	// Compute the constant value in the objective function
@@ -67,7 +67,7 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 	// ouverture du fichier en lecture
 	fichier.open(nomInstance.c_str());
 
-	// parsing des donn�es打开文件供读取
+	// parsing des donn�es
 	if (fichier.is_open())
 		preleveDonnees(nomInstance, 0,0);
 	else
@@ -83,7 +83,7 @@ Params::Params(string nomInstance, string nomSolution, int type, int nbVeh, stri
 	// Simply compute the distances from the coordinates
 	computeDistancierFromCoords();
 
-	// calcul des structures 结构计算
+	// calcul des structures
 	calculeStructures();
 
 	// Compute the constant value in the objective function
@@ -161,7 +161,7 @@ void Params::setMethodParams()
 	isRoundingInteger = true; // using the rounding (for now set to true, because currently testing on the instances of Uchoa)
 	isRoundingTwoDigits = false;
 
-	// parameters of the population  //人口参数
+	// parameters of the population
 	el = 3;					// ***
 	mu = 12;				// *
 	lambda = 25;			// *
@@ -170,14 +170,14 @@ void Params::setMethodParams()
 	rho = 0.30;				// o
 	delta = 0.001;			// o
 
-	// parameters of the mutation	//  突变参数
+	// parameters of the mutation
 	maxLSPhases = 10000; // number of LS phases, here RI-PI-RI  // ***
 	prox = 40;			 // granularity parameter (expressed as a percentage of the problem size -- 35%) // ***
 	proxCst = 1000000;	 // granularity parameter (expressed as a fixed maximum)
 	prox2Cst = 1000000;	 // granularity parameter on PI
 	pRep = 0.5;			 // probability of repair // o
 
-	// param�tres li�s aux p�nalit�s adaptatives  适应性参数
+	// param�tres li�s aux p�nalit�s adaptatives
 	// penalityCapa = max(10,seed*50);	// Initial penalty values // o
 	penalityCapa = 50;
 	penalityLength = 10; // Initial penalty values // o
@@ -198,10 +198,10 @@ void Params::setMethodParams()
 
 Params::~Params(void) {}
 
-// effectue le prelevement des donnees du fichier 从文件中获取数据
+// effectue le prelevement des donnees du fichier
 void Params::preleveDonnees(string nomInstance, int rou, bool stockout)
 {
-	// variables temporaires utilisees dans la fonction //临时变量
+	// variables temporaires utilisees dans la fonction
 	vector<Client> cTemp;
 	vector<Vehicle> tempI;
 	Client client;
@@ -240,11 +240,11 @@ void Params::preleveDonnees(string nomInstance, int rou, bool stockout)
 		for (int kk = 1; kk <= nbDays; kk++)
 		{
 			ordreVehicules.push_back(tempI);
-			dayCapacity.push_back(0); //每天的车辆总容量。xxxz
-			nombreVehicules.push_back(nbDepots * nbVehiculesPerDep);  //仓库*每个仓库的车辆数
+			dayCapacity.push_back(0);
+			nombreVehicules.push_back(nbDepots * nbVehiculesPerDep);
 			for (int i = 0; i < nbDepots; i++)
-				for (int j = 0; j < nbVehiculesPerDep; j++) //规划每天应该使用哪些车辆。每个车都初始化
-					ordreVehicules[kk].push_back(Vehicle(-1, -1, -1)); //特定的仓库号、最大行驶时间和车辆容量。
+				for (int j = 0; j < nbVehiculesPerDep; j++)
+					ordreVehicules[kk].push_back(Vehicle(-1, -1, -1));
 		}
 
 		for (int kk = 1; kk <= nbDays; kk++)
@@ -262,7 +262,7 @@ void Params::preleveDonnees(string nomInstance, int rou, bool stockout)
 	// format classique de VRP Cordeau
 	else if (type == 0)
 	{
-		// premiere ligne: description du probleme，问题描述
+		// premiere ligne: description du probleme
 		fichier >> type >> nbVehiculesPerDep >> nbClients;
 		fichier >> nbDays;
 		nbDepots = 1;
@@ -312,10 +312,9 @@ void Params::preleveDonnees(string nomInstance, int rou, bool stockout)
 		
 		cli.push_back(client);
 	}
-	//cout <<"client["<<2<<"]"<<cli[2].maxInventory<<"   "<<cli[2].minInventory<<"   "<<cli[2].startingInventory<<endl;
 }
 
-// calcule les autres structures du programme  计算程序中的其他结构
+// calcule les autres structures du programme
 void Params::calculeStructures()
 {
 	int temp;
@@ -343,7 +342,6 @@ void Params::calculeStructures()
 	}
 
 	// on remplit la liste des plus proches pour chaque client
-	//根据客户与每个客户/仓库之间的时间距离对ordreProximite列表进行排序
 	for (int i = nbDepots; i < nbClients + nbDepots; i++)
 	{
 		for (int j = 0; j < nbClients + nbDepots; j++)
@@ -361,8 +359,6 @@ void Params::calculeStructures()
 				}
 
 		// on remplit les x% plus proches
-		//基于prox（可能表示要考虑的最近客户的百分比）和proxCst（可能表示要考虑的最近客户的固定数量）
-		//来确定哪些客户/仓库与当前客户最接近，并将它们添加到sommetsVoisins列表中。这也会在isCorrelated1中设置相应的值。
 		for (int j = 0; j < (prox * (int)cli[i].ordreProximite.size()) / 100 && j < proxCst; j++)
 		{
 			cli[i].sommetsVoisins.push_back(cli[i].ordreProximite[j]);
@@ -372,7 +368,7 @@ void Params::calculeStructures()
 			isCorrelated2[i][cli[i].ordreProximite[j]] = true;
 	}
 
-	// on melange les proches来随机化sommetsVoisins列表的顺序。
+	// on melange les proches
 	shuffleProches();
 
 	// on calcule les tableaux de pattern dynamiques
@@ -500,7 +496,7 @@ Params::Params(Params *params, int decom, int *serieVisites, Vehicle **serieVehi
 	if (decom == 1)
 		periodique = false;
 
-	// affectation des autres parametres  其他参数的分配
+	// affectation des autres parametres
 	setMethodParams();
 	penalityCapa = params->penalityCapa;
 	penalityLength = params->penalityLength;
@@ -510,8 +506,8 @@ Params::Params(Params *params, int decom, int *serieVisites, Vehicle **serieVehi
 	el = params->el;
 	nbCountDistMeasure = params->nbCountDistMeasure;
 
-	// calcul des distances 计算距离
-	// on remplit les distances dans timeCost 在 timeCost 中填写距离
+	// calcul des distances
+	// on remplit les distances dans timeCost
 	for (int i = 0; i < nbClients + nbDepots; i++)
 	{
 		timeCost.push_back(vector<double>());

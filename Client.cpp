@@ -1,4 +1,3 @@
-
 #include "Client.h"
 
 void Client::computeVisitsDyn () 

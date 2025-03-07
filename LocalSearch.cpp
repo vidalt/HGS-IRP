@@ -12,35 +12,18 @@ void LocalSearch::runILS(bool isRepPhase, int maxIterations)
   }
 }
 
-// lance la recherche locale启动本地搜索
 void LocalSearch::runSearchTotal(bool isRepPhase)
 {
- 
   this->isRepPhase = isRepPhase;
-  int nbMoves = 0;
-  int nbTotal = 0;
- 
-  bool traces = false;
-
-  // reorganisation des plans de transport pour chaque jour
   updateMoves();
   for (int day = 1; day <= params->nbDays; day++)
-    nbMoves += mutationSameDay(day);
-  nbTotal += nbMoves;
+    mutationSameDay(day);
 
-  
-  nbMoves = mutationDifferentDay();
-  nbTotal += nbMoves;  
-
+  mutationDifferentDay();
   updateMoves();
   for (int day = 1; day <= params->nbDays; day++)
-      nbMoves += mutationSameDay(day);
+      mutationSameDay(day);
 }
-
-
-
-
-
 
 
 void LocalSearch::melangeParcours()
@@ -57,13 +40,6 @@ void LocalSearch::melangeParcours()
       ordreParcours[k][j] = temp;
       
     }
-    /*
-    cout <<"day:"<<endl;
-    for(int i = 0 ; i < (int)ordreParcours[k].size(); i++)
-      cout << ordreParcours [k][i]<<' ';
-    int a ;
-    cin >>a;
-    */
   }
 
   for (int i = 0; i < (int)ordreJours.size() - 1; i++)
@@ -72,15 +48,10 @@ void LocalSearch::melangeParcours()
     temp = ordreJours[i];
     ordreJours[i] = ordreJours[j];
     ordreJours[j] = temp;
-
   }
-    
 }
 
 // updates the moves for each node which will be tried in mutationSameDay
-//目的是更新每个客户的可能移动的列表，即与该客户相邻的其他客户。
-//这是局部搜索策略的一部分，其中考虑了哪些客户可以与当前客户一起进行某种操作或移动。
-//最后，函数打乱了邻居和客户的遍历顺序，以增加搜索的随机性。
 void LocalSearch::updateMoves()
 {
   int client, client2;
@@ -88,7 +59,7 @@ void LocalSearch::updateMoves()
 
   for (int k = 1; k <= params->nbDays; k++)
   {
-    // pour chaque client present dans ce jour 这一天visit的每位顾客
+    // pour chaque client present dans ce jour
     for (int i = 0; i < (int)ordreParcours[k].size(); i++)
     {
       client = ordreParcours[k][i];
@@ -139,26 +110,19 @@ int LocalSearch::mutationSameDay(int day)
       xCour = x->cour;
 
       size2 = (int)noeudU->moves.size();
-      /*1. 处理与客户noeudU相关的所有可能的移动或变异
-首先遍历与客户noeudU相关的所有其他客户noeudV。
-对于每一个noeudV，检查是否已经对noeudU和noeudV进行了变异测试。
-如果没有进行变异测试或者是第一次循环，则尝试进行多种变异。
-变异尝试包括：mutation1()、mutation2()、mutation3()等。
-特定的变异如mutation4()和mutation6()只有在noeudU的cour属性小于或等于noeudV的cour属性时才会被尝试。
-如果某种变异成功（例如，如果moveEffectue被设置为1），则重置noeudU和noeudV的移动。*/
-      for (int posV = 0; posV < size2 && moveEffectue == 0; posV++) //会遍历与客户noeudU相关的所有可能的移动或变异。
+      for (int posV = 0; posV < size2 && moveEffectue == 0; posV++)
       {
-        noeudV = clients[day][noeudU->moves[posV]]; //选择一个与noeudU相关的客户noeudV进行可能的变异。
+        noeudV = clients[day][noeudU->moves[posV]];
         if (!noeudV->route->nodeAndRouteTested[noeudU->cour] ||
             !noeudU->route->nodeAndRouteTested[noeudU->cour] || firstLoop)
         {
-          noeudVPred = noeudV->pred;//表示节点noeudV的前一个节点。这通常是在双向链表结构中用来找到给定节点的前一个节点。
-          y = noeudV->suiv; //，表示节点noeudV的下一个节点。这通常是在链表结构中用来找到给定节点的下一个节点
-          noeudYSuiv = y->suiv; //y的下一个节点，并将其赋给变量noeudYSuiv。
-          ySuivCour = y->suiv->cour;//获取节点y的下一个节点的cour属性，并将其赋给ySuivCour。
-          routeV = noeudV->route;//获取noeudV的路线（可能是它所在的路径或集合）并将其赋给routeV
-          noeudVCour = noeudV->cour;//获取noeudV的cour属性，并将其赋给noeud
-          noeudVPredCour = noeudVPred->cour;//获取noeudVPred（即noeudV的前一个节点）的cour属性，并将其赋给noeudVPredCour。
+          noeudVPred = noeudV->pred;
+          y = noeudV->suiv;
+          noeudYSuiv = y->suiv;
+          ySuivCour = y->suiv->cour;
+          routeV = noeudV->route;
+          noeudVCour = noeudV->cour;
+          noeudVPredCour = noeudVPred->cour;
           yCour = y->cour;
 
           if (moveEffectue != 1)
@@ -195,18 +159,8 @@ int LocalSearch::mutationSameDay(int day)
         }
       }
 
-    
-      /*
-      2. 如果noeudU与当天的某个仓库存在关系，尝试进行其他变异
-检查noeudU与当天的第一个仓库之间是否存在关联。
-如果存在关联并且尚未进行移动，则遍历当天的所有仓库。
-对于每一个仓库，检查是否已经对noeudU和该仓库进行了变异测试。
-如果没有进行变异测试或者是第一次循环，则尝试进行mutation1()、mutation2()和mutation3()变异。
-特别地，如果noeudV的下一个节点不是仓库，还将尝试进行mutation8()和mutation9()。
-如果某种变异成功，则重置noeudU和仓库的移动。*/
-
   // c'est un d�pot on tente l'insertion derriere le depot de ce jour
-      // si il ya corr�lation检
+      // si il ya corr�lation
       if (params->isCorrelated1[noeudU->cour][depots[day][0]->cour] &&
           moveEffectue != 1)
         for (int route = 0; route < (int)depots[day].size(); route++)
@@ -246,7 +200,6 @@ int LocalSearch::mutationSameDay(int day)
             }
           }
         }
-      // if (moveEffectue != 1) nodeTestedForEachRoute(noeudU->cour,day); //
       // TODO -- check that memories are working
     }
     firstLoop = false;
@@ -265,31 +218,15 @@ void LocalSearch::nodeTestedForEachRoute(int cli, int day)
 // trying to change the delivery plan (lot sizing for a given customer)
 int LocalSearch::mutationDifferentDay()
 {
-
-  bool traces = false;
   rechercheTerminee = false;
   int nbMoves = 0;
   int times = 0;
   while(!rechercheTerminee){
-    
-    if(traces){
-       cout<<"nbClients "<<params->nbClients<<endl;
-      for (size_t i = 0; i < ordreParcours.size(); ++i) { // Iterate through each day
-        for (size_t j = 0; j < ordreParcours[i].size(); ++j) { // Iterate through each customer
-            std::cout <<"!!!!!!!day "<<i<<" client "<<j<< ordreParcours[i][j] << " ";
-        }
-        std::cout << endl<<endl;
-      }
-    }
-     rechercheTerminee = true;
+    rechercheTerminee = true;
     
     for (int posU = 0; posU < params->nbClients; posU++){
-      //times++;
-      //cout << "client: "<<ordreParcours[0][posU]<<endl;
-      //int a;cin>>a;
-      nbMoves += mutation11(ordreParcours[0][posU]);//random每一个client
+      nbMoves += mutation11(ordreParcours[0][posU]);
     }
-    //if(times >= params->nbClients*10) break;
   }
   return nbMoves;
 }
@@ -310,7 +247,6 @@ void LocalSearch::removeOP(int day, int client)
 // ajoute un client dans l'ordre de parcours
 void LocalSearch::addOP(int day, int client)
 {
-  bool trace = false;
   int it, temp2;
   if (ordreParcours[day].size() != 0)
   {
@@ -326,10 +262,6 @@ void LocalSearch::addOP(int day, int client)
 // change the choices of visit periods and quantity for "client"
 int LocalSearch::mutation11(int client)
 {
-  bool trace = false, traces = false;
-
-  if(traces) cout <<"client: "<<client<<endl;
-
   Noeud *noeudTravail;
   double currentCost;
   // First, make sure all insertion costs are computed
@@ -341,7 +273,6 @@ int LocalSearch::mutation11(int client)
   //before optimizatio  currentCost = evaluateCurrentCost(client);
   if(params -> isstockout){
     currentCost=evaluateCurrentCost_stockout(client);
-    if(traces)  cout <<"current: "<<currentCost<<endl;
   }
 
   else
@@ -357,13 +288,9 @@ int LocalSearch::mutation11(int client)
     insertions[k - 1] = clients[k][client]->allInsertions;
   }
   
-  
-
-  // using DP使用LotSizingSolver（批量调整求解器）对子问题进行求解。获取目标值和数量解决方案。
   unique_ptr<LotSizingSolver> lotsizingSolver(
       make_unique<LotSizingSolver>(params, insertions, client));
 
-  //int a;cin>>a;
   bool ok = true;
   if(params-> isstockout) ok = lotsizingSolver->solve_stockout();
 
@@ -385,7 +312,6 @@ int LocalSearch::mutation11(int client)
     if (noeudTravail->estPresent){
       
       removeNoeud(noeudTravail);
-      //if(trace) cout<<"which day,cli:( "<<k <<" "<<client<<endl;
     }
     demandPerDay[k][client] = 0.;
 
@@ -399,19 +325,9 @@ int LocalSearch::mutation11(int client)
       
       demandPerDay[k][client] = round(quantities[k - 1]);
       
-      if(trace){
-        //cout <<"day "<<k<<endl; lotsizingSolver->breakpoints[k - 1]->print();
-      }
       clients[k][client]->placeInsertion = lotsizingSolver->breakpoints[k - 1]->place;
-      // insertions[k - 1][breakpoints[k - 1]].place;
  
       addNoeud(clients[k][client]);
-      
-            // double re_obj = evaluateCurrentCost(client);
-      // // print solution
-      // cout << "client: " << client << " re-obj: " << re_obj << " obj: " << objective << endl;
-      if(trace)  cout << "!day: " << k << " quantity: " << quantities[k - 1] << " route: " << clients[k][client]->placeInsertion->route->cour;
-      if(trace)  cout << " !in route place: " << clients[k][client]->placeInsertion->cour << endl;
     }
   }
 
@@ -420,22 +336,17 @@ int LocalSearch::mutation11(int client)
      tmpCost = evaluateCurrentCost_stockout(client);
   else
     tmpCost = evaluateCurrentCost(client);
-  if(traces) cout <<tmpCost<<endl;
   if (fabs(tmpCost- objective)>0.01  )
     return 0;
   if ( currentCost-objective >=0.01 )// An improving move has been found,
                                         // the search is not finished.
   {
-    //cout <<"client "<<client<<endl;
-   // cout << "Objective: " << objective << "| current cost: " << currentCost << " | tmpCost"<<tmpCost<<endl;
     rechercheTerminee = false;
     return 1;
   }
   else
     return 0;
 }
-//的目的是为了计算特定客户的当前解决方案的成本
-//评估了特定客户当前解决方案的总成本，基于库存、绕行和超出容量的成本。
 
 double LocalSearch::evaluateCurrentCost(int client)
 {
@@ -448,18 +359,17 @@ double LocalSearch::evaluateCurrentCost(int client)
     noeudClient = clients[k][client];
     if (noeudClient->estPresent)
     {
-      // adding the inventory cost库存成本:根据公式计算库存成本并累加到myCost。
+      // adding the inventory cost
       myCost +=
           (params->cli[client].inventoryCost - params->inventoryCostSupplier) *
           (double)(params->ancienNbDays + 1 - k) * demandPerDay[k][client];
-      // cout << "myCost 1: " << myCost;
+
       // the detour cost
       myCost +=
           params->timeCost[noeudClient->cour][noeudClient->suiv->cour] +
           params->timeCost[noeudClient->pred->cour][noeudClient->cour] -
           params->timeCost[noeudClient->pred->cour][noeudClient->suiv->cour];
 
-      // cout << "myCost 2: " << myCost;
       // and the possible excess capacity
       myCost += params->penalityCapa *
                 (std::max<double>(0., noeudClient->route->charge -
@@ -467,7 +377,6 @@ double LocalSearch::evaluateCurrentCost(int client)
                  std::max<double>(0., noeudClient->route->charge -
                                           noeudClient->route->vehicleCapacity -
                                           demandPerDay[k][client]));
-      // cout << "myCost 3: " << myCost;
     }
   }
   return myCost;
@@ -478,11 +387,9 @@ double LocalSearch::evaluateCurrentCost(int client)
 double LocalSearch::evaluateSolutionCost()
 {
   double myCost = 0.;
-  bool trace =false; //true;
   if (params ->isstockout == true){
     for (int k = 1; k <= params->ancienNbDays; k++){
       for (int r = 0; r < params->nombreVehicules[k]; r++){
-        if(trace) cout <<" routes[k][r]->temps "<<routes[k][r]->vehicleCapacity<<" routes[k][r]->charge "<<routes[k][r]->charge<<endl;
         myCost += routes[k][r]->temps;
         myCost += params->penalityCapa * std::max<double>(
                       routes[k][r]->charge - routes[k][r]->vehicleCapacity, 0.);
@@ -490,11 +397,10 @@ double LocalSearch::evaluateSolutionCost()
     }
      // And the necessary constants (inventory cost on depot only )
     myCost += params->objectiveConstant_stockout;
-    if(trace) cout <<params->objectiveConstant_stockout<<endl;
         
     vector  <double> I(params->nbDepots + params->nbClients);
     for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++) {
-      I[i] = params->cli[i].startingInventory; if(trace) cout <<"Istart "<<I[i]<<endl;
+      I[i] = params->cli[i].startingInventory;
     }
       
     // Adding inventory cost
@@ -502,27 +408,18 @@ double LocalSearch::evaluateSolutionCost()
       for (int i = params->nbDepots; i < params->nbDepots + params->nbClients; i++) // all the customers
       {
         //inventory cost at customer i 
-        if(trace) cout <<"rest inventory "<<std::max<double>(0, I[i] + demandPerDay[k][i]- params->cli[i].dailyDemand[k]) <<endl;
         myCost += std::max<double>(0, I[i] + demandPerDay[k][i]- params->cli[i].dailyDemand[k]) 
                   * params->cli[i].inventoryCost;
         
         // minus depot holding cost from constant value 
-        if(trace) cout <<"  quantity "<<demandPerDay[k][i]  <<endl;
-        
         myCost -= demandPerDay[k][i] * (params->ancienNbDays + 1 - k) 
                   * params->inventoryCostSupplier;
         
         //stock-out penalty
-        if(trace) cout <<"stockout "<<std::max<double> (0,  params->cli[i].dailyDemand[k]-demandPerDay[k][i]-I[i])  <<endl;
-        
         myCost += std::max<double> (0,  params->cli[i].dailyDemand[k]-demandPerDay[k][i]-I[i]) 
                   * params->cli[i].stockoutCost;    
-         
-        if(trace) cout <<"I: "<<std::max<double>(0, I[i] + demandPerDay[k][i]- params->cli[i].dailyDemand[k])<<endl;
         I[i] = std::max<double>(0, I[i] + demandPerDay[k][i]- params->cli[i].dailyDemand[k]);
       }
-   
-    if(trace) cout <<"cost: "<<myCost<<endl;
     return myCost;
   }
   //******************************************************************************
@@ -662,7 +559,7 @@ void LocalSearch::printInventoryLevels(std::ostream& file,bool add)
        << endl;
 }
 
-// supprime le noeud删除节点 remove node
+// supprime le noeud
 void LocalSearch::removeNoeud(Noeud *U)
 {
   // mettre a jour les noeuds
@@ -686,11 +583,11 @@ void LocalSearch::removeNoeud(Noeud *U)
 }
 
 void LocalSearch::addNoeud(Noeud *U)
-{// 将节点 U 插入到其指定的插入位置。
-  U->placeInsertion->suiv->pred = U;// 将U的后继节点的前驱设置为U。
-  U->pred = U->placeInsertion;// 设置U的前驱为其插入位置的节点。
-  U->suiv = U->placeInsertion->suiv;// 将U的后继设置为插入位置后的节点。
-  U->placeInsertion->suiv = U;// 将插入位置的后继设置为U。
+{
+  U->placeInsertion->suiv->pred = U;
+  U->pred = U->placeInsertion;
+  U->suiv = U->placeInsertion->suiv;
+  U->placeInsertion->suiv = U;
 
   // et mettre a jour les routes
   U->route = U->placeInsertion->route;
@@ -712,28 +609,16 @@ void LocalSearch::addNoeud(Noeud *U)
 // les couts d'insertion dans les differentes routes constituant ce jour
 void LocalSearch::computeCoutInsertion(Noeud *client)
 {
-  /*这个函数为给定的客户和给定的天计算在不同路线中的插入成本。
-  首先，清除所有的插入。对于当天的每条路线，计算最佳插入点及其负载。
-  之后，从列表中消除被支配的插入。*/
-  bool traces = false;//true;
   Route *myRoute;
   client->allInsertions.clear();
-  //cout<<"client->jour"<<client->jour<<endl;
   // for each route of this day
   for (int r = 0; r < (int)routes[client->jour].size(); r++){
     // later on we can simply retrieve
     // calculate the best insertion point as well as its load
 
     myRoute = routes[client->jour][r];
-    myRoute->evalInsertClient(client); //估将客户节点 client 插入到路线 myRoute 中的最佳位置。
-    //bestInsertion 是一个映射（或数组），它为每个客户节点 U 存储了最佳插入信息。
-    //这包括插入的成本（detour）、插入位置的节点（place）以及插入的负载（load）。
+    myRoute->evalInsertClient(client);
     client->allInsertions.push_back(myRoute->bestInsertion[client->cour]);
-    if(traces)
-    { cout<<"detour,load"<<endl;
-      cout << myRoute->bestInsertion[client->cour].detour << " "<<myRoute->bestInsertion[client->cour].load <<endl<<endl<<endl;
-    }
-    
   }
 
   // eliminate dominated insertions
@@ -742,42 +627,32 @@ void LocalSearch::computeCoutInsertion(Noeud *client)
 
 double LocalSearch::evaluateCurrentCost_stockout(int client)
 {
-  bool trace = false;
   Noeud *noeudClient;
   double myCost = 0.;
   double I = params->cli[client].startingInventory;
   // Sum up the detour cost, inventory cost, and eventual excess of capacity
   for (int k = 1; k <= params->ancienNbDays; k++)
   {
-    if(trace) cout <<"->day "<<k<<endl;
     noeudClient = clients[k][client];
     if (noeudClient->estPresent){
-      // adding the inventory cost库存成本:根据公式计算库存成本并累加到myCost。
-        if(trace) cout <<"holding cost: "<<params->cli[client].inventoryCost <<" I= "<< I<<" q="<<demandPerDay[k][client]<<" demand = "<<params->cli[client].dailyDemand[k]<<endl;
+      // adding the inventory cost
         myCost +=
           params->cli[client].inventoryCost * 
           std::max<double> (0., I+demandPerDay[k][client]-params->cli[client].dailyDemand[k]);
       //stockout
-        if(trace) cout <<"stckout cost: "<<params->cli[client].stockoutCost * std::max<double> (0., -I-demandPerDay[k][client]+params->cli[client].dailyDemand[k])<<endl;
         myCost +=
           params->cli[client].stockoutCost * std::max<double> (0., -I-demandPerDay[k][client]+params->cli[client].dailyDemand[k]);
       
       //-supplier *q[]
-        if(trace) cout <<"supplier minus"<<params->inventoryCostSupplier *
-            (double)(params->ancienNbDays + 1 - k) * demandPerDay[k][client]<<endl;
         myCost -=  params->inventoryCostSupplier *
             (double)(params->ancienNbDays + 1 - k) * demandPerDay[k][client];
-      // cout << "myCost 1: " << myCost;
 
       // the detour cost
         myCost +=
             params->timeCost[noeudClient->cour][noeudClient->suiv->cour] +
             params->timeCost[noeudClient->pred->cour][noeudClient->cour] -
             params->timeCost[noeudClient->pred->cour][noeudClient->suiv->cour];
-        if(trace) cout<<"detour : "<< params->timeCost[noeudClient->cour][noeudClient->suiv->cour] +
-            params->timeCost[noeudClient->pred->cour][noeudClient->cour] -
-            params->timeCost[noeudClient->pred->cour][noeudClient->suiv->cour]<<endl;
-      // cout << "myCost 2: " << myCost;
+
       // and the possible excess capacity, the privous penalty are calculated already.
         double x1 = noeudClient->route->charge -  noeudClient->route->vehicleCapacity;
         if(eq(x1,0)) x1 = 0;
@@ -787,15 +662,7 @@ double LocalSearch::evaluateCurrentCost_stockout(int client)
         myCost += params->penalityCapa *(std::max<double>(0., x1) - std::max<double>(0., x2));
         myCost += 1000000*std::max<double> (0.,I+demandPerDay[k][client]-params->cli[client].maxInventory);
        
-        
-        if(trace) cout<<"possible penalty : "<< params->penalityCapa *
-                (std::max<double>(0., noeudClient->route->charge -
-                                          noeudClient->route->vehicleCapacity) -
-                 std::max<double>(0., noeudClient->route->charge -
-                                          noeudClient->route->vehicleCapacity -
-                                          demandPerDay[k][client]))<<endl;
         I = std::max<double> (0., I+demandPerDay[k][client]-params->cli[client].dailyDemand[k]);
-        // cout << "myCost 3: " << myCost;
       }
       else{ 
         myCost += params->cli[client].inventoryCost *  std::max<double>(0., I-params->cli[client].dailyDemand[k]);
@@ -804,7 +671,6 @@ double LocalSearch::evaluateCurrentCost_stockout(int client)
         I = std::max<double> (0., I-params->cli[client].dailyDemand[k]);
         
       }
-     if(trace) cout <<"mycost: "<<myCost<<endl;
   }
   return myCost;
 }
@@ -841,7 +707,6 @@ void LocalSearch::shaking()
         if (client1 != client2 &&
             !(noeud1->suiv == noeud2 || noeud1->pred == noeud2))
         {
-          // cout << "SWAP " << client1 << " " << client2 << " " << k << endl ;
           swapNoeud(noeud1, noeud2);
         }
       }
@@ -900,11 +765,10 @@ void LocalSearch::shaking()
 // constructeur
 LocalSearch::LocalSearch(void) {}
 
-// constructeur 2  需要提供两个参数：一个Params对象的指针和一个Individu对象的指针。
+// constructeur 2
 LocalSearch::LocalSearch(Params *params, Individu *individu)
     : params(params), individu(individu)
 {
-  // 创建并初始化多个临时向量，如tempNoeud, tempRoute等。这些向量稍后将用于填充类的成员向量。
   vector<Noeud *> tempNoeud; 
   vector<Route *> tempRoute;
 
@@ -936,17 +800,9 @@ LocalSearch::LocalSearch(Params *params, Individu *individu)
          i++)
       clients[kk].push_back(
           new Noeud(false, i, kk, false, NULL, NULL, NULL, 0));
-    /*clients[kk]这个向量中。 false: 表示这不是一个仓库，而是一个客户。
-          i: 客户的索引或编号。kk: 与这个客户相关的天数。false: 表示在给定的天数中，这个客户是不出现的。
-            NULL, NULL, NULL: 这些是后续节点、前驱节点和与这个客户相关的路线的指针，它们都初始化为NULL。
-            0: 表示开始服务的时间为0。
+
     // dimensionnement du champ depots et routes � la bonne taille
 
-       循环遍历每一天（由params->nbDays指定），进行以下操作：
-        为每一天添加对应的客户、仓库、结束仓库和路线。
-        根据仓库数量，创建新的Noeud对象来表示客户。
-        根据每天的可用车辆数量，创建新的仓库、结束仓库和路线。
-    */
     for (int i = 0; i < params->nombreVehicules[kk]; i++)
     {
       myDepot = new Noeud(true, params->ordreVehicules[kk][i].depotNumber, kk,
@@ -965,7 +821,6 @@ LocalSearch::LocalSearch(Params *params, Individu *individu)
   }
 
   // initialisation de la structure ordreParcours 
-  //这段代码初始化了两个结构——一个记录每天的客户访问顺序，另一个记录日子的顺序。
   for (int day = 0; day <= params->nbDays; day++)
     ordreParcours.push_back(temp2);
 

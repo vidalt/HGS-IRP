@@ -11,13 +11,10 @@ LinearPiece::LinearPiece()
     p2 = make_shared<Point>();
 
     next = NULL;
-    //    pre = NULL;
 
     fromC = NULL;
     fromF = NULL;
-    //cout <<"?"<<endl;
     fromC_pre = NULL;
-    //cout <<"??"<<endl;
     fromInst = NULL;
 }
 
@@ -39,17 +36,13 @@ LinearPiece::LinearPiece(double left_x, double left_y, double right_x, double ri
 
 void LinearPiece::updateLinearPiece(double left_x, double left_y, double right_x, double right_y)
 {
-    //cout <<"p1 "<<this->p1->x<<endl;
     this->p1 = make_shared<Point>(left_x, left_y);
-    //cout <<"p1 "<<this->p1->x<<endl;
     this->p2 = make_shared<Point>(right_x, right_y);
  
     
     if(eq(right_y , left_y) )this->slope=0;
     else this->slope = (right_y - left_y) / (right_x - left_x);
-    //if(eq(left_x , -1)&&eq(right_x , 85))cout <<"thisssssssss "<<setprecision(15)<<this->slope<<endl;
     this->next = nullptr;
-    //    pre = NULL;
 }
 
  LinearPiece::LinearPiece(LinearPiece *lp)
@@ -69,7 +62,6 @@ void LinearPiece::updateLinearPiece(double left_x, double left_y, double right_x
 double LinearPiece::cost(double x)
 {
     
-    //cout <<"x"<<x<<endl;
     if(eq(p1->x,p2->x)){
         if(eq(x,p1->x)){
             return p1->y;
@@ -90,14 +82,12 @@ double LinearPiece::invertCost(double y)
 
 std::shared_ptr<LinearPiece> LinearPiece::getInBound(double lb, double ub)
 {
-    //cout<<p1->x<<" "<<ub<<" "<<p2->x<<" "<<lb<<endl;
-    
     std::shared_ptr<LinearPiece> lp;
     
     if(eq (lb,ub)){
         if(le(p1->x,lb) && ge(p2->x, lb) ){
             lp = std::make_shared<LinearPiece>
-                (lb, cost(lb), lb, cost(lb));   //x1 lb   x2 ub 
+                (lb, cost(lb), lb, cost(lb));
             lp->fromInst = fromInst;
             lp->fromC = fromC;
             lp->fromC_pre = fromC_pre;
@@ -117,8 +107,6 @@ std::shared_ptr<LinearPiece> LinearPiece::getInBound(double lb, double ub)
             lp->fromF = fromF;
             lp->fromInst = fromInst;
             lp->replenishment_loss=replenishment_loss;
-            //cout <<"lp:  "<<endl;
-            //lp->print();
             return lp;
     }
     else if(eq(p1->x, ub)){
@@ -129,32 +117,28 @@ std::shared_ptr<LinearPiece> LinearPiece::getInBound(double lb, double ub)
             lp->fromF = fromF;
             lp->fromInst = fromInst;
             lp->replenishment_loss=replenishment_loss;
-            //cout <<"lp:  "<<endl;
-            //lp->print();
             return lp;
     }
-    //cout<<lt(p1->x, ub)<<"   "<<gt(p2->x, lb)<<"   "<<le(p2->x, ub)<<endl;
-    else if (lt(p1->x, ub) && ge(p2->x, lb)){ //   x1 < ub && lb < x2
+    else if (lt(p1->x, ub) && ge(p2->x, lb)){
         
-        if (lt(p1->x, lb)){             //      x1 < lb
-            if (le(p2->x, ub)){         //  x2 < ub
-                lp = std::make_shared<LinearPiece>(lb, cost(lb), p2->x, p2->y);   //x1 lb   x2 ub 
+        if (lt(p1->x, lb)){
+            if (le(p2->x, ub)){
+                lp = std::make_shared<LinearPiece>(lb, cost(lb), p2->x, p2->y);
             }
             else{
-                lp = std::make_shared<LinearPiece>(lb, cost(lb), ub, cost(ub)); //切断 x1 lb  ub   x2 
+                lp = std::make_shared<LinearPiece>(lb, cost(lb), ub, cost(ub));
             }
         }
-        else{ // x1 >= lb
+        else{
             double x = lb;
             if (gt(p1->x, x))
                 x = p1->x;
             if (le(p2->x, ub)){
                     // this piece is clone to new LP
-                lp = std::make_shared<LinearPiece>(x, p1->y, p2->x, p2->y);// lb x1   x2 ub 
+                lp = std::make_shared<LinearPiece>(x, p1->y, p2->x, p2->y);
             }
             else {
-                lp = std::make_shared<LinearPiece>(x, p1->y, ub, cost(ub)); // lb x1  ub x2  
-                //cout <<"ub = "<<ub <<endl;
+                lp = std::make_shared<LinearPiece>(x, p1->y, ub, cost(ub));
              }
         }
         lp->fromInst = fromInst;
@@ -163,8 +147,6 @@ std::shared_ptr<LinearPiece> LinearPiece::getInBound(double lb, double ub)
         lp->fromF = fromF;
         lp->fromInst = fromInst;
         lp->replenishment_loss=replenishment_loss;
-        //cout <<"lp:  "<<endl;
-        //lp->print();
         return lp;
     }
     else
@@ -226,26 +208,9 @@ bool LinearPiece::eqDeep(const shared_ptr<LinearPiece> rhs)
     return eqlp(rhs) && eqFromC(rhs) && eqFromF(rhs);
 }
 
-// LinearPiece *LinearPiece::clone() {
-//         LinearPiece *lp = new LinearPiece(this->p1->x, this->p1->y, this->p2->x, this->p2->y);
-//
-//         if (this->fromC != NULL)
-//             lp->fromC = this->fromC;
-//
-//         if (this->fromF != NULL)
-//             lp->fromF = this->fromF;
-//
-//         lp->fromInst = this->fromInst;
-//
-//         return lp;
-// }
-
 LinearPiece::~LinearPiece()
 {
-    //    delete p1;
-    //    delete p2;
 
-    //    cout << "Delete LinearPiece" << endl;
 }
 
 void LinearPiece::update(double left_x, double left_y, double right_x, double right_y)
@@ -257,16 +222,10 @@ void LinearPiece::update(double left_x, double left_y, double right_x, double ri
     slope = (right_y - left_y) / (right_x - left_x);
 }
 std::shared_ptr<LinearPiece> LinearPiece::getInpiece(double start, double end) const {
-    bool trace = false;
-    //if(eq(start,-35) && eq(end,0) && eq(p2->x,0) ) trace = true;
-    //cout <<"start end "<<start<<"  "<<end<<endl;
-    // 如果LinearPiece完全在范围之外
     if (lt(p2->x, start) || gt(p1->x, end)) return nullptr;
     
     if(neq(p2->x,p1->x) && neq(start,end) && (le(p2->x, start) || ge(p1->x, end)) )   return nullptr;
-    // 如果LinearPiece完全在范围之内
     if (le(start, p1->x) && le(p2->x, end)) {
-        //cout <<"star end "<<start<<" "<<end<<endl;
         return std::make_shared<LinearPiece>(*this);
     }
     
@@ -275,7 +234,6 @@ std::shared_ptr<LinearPiece> LinearPiece::getInpiece(double start, double end) c
     
     double endX = std::min<double>(p2->x, end);
     double endY = (endX - p1->x) * slope + p1->y;
-    if(trace)   {cout << "slope" << slope<<" p1->x" <<p1->x<< "  p1->y "<<p1->y<< endY<<endl;}
 
     std::shared_ptr<LinearPiece> lp= std::make_shared<LinearPiece>(startX, startY, endX, endY);
     lp->fromC = this->fromC;
@@ -325,9 +283,7 @@ std::shared_ptr<LinearPiece> LinearPiece::clone_addHolding(double InventoryCost,
 {
     shared_ptr<LinearPiece> lp(make_shared<LinearPiece>(this->p1->x, this->p1->y+InventoryCost*(this->p1->x-daily), 
                             this->p2->x, this->p2->y+InventoryCost*(this->p2->x-daily)));
-    //lp->slope = this->slope+InventoryCost;
     lp->next = this->next;
-    //    lp->pre = this->pre;
     lp->fromC = this->fromC;
     lp->fromF = this->fromF;
     lp->fromInst = this->fromInst;
@@ -340,9 +296,7 @@ std::shared_ptr<LinearPiece> LinearPiece::clone_addStockout(double stockout, dou
 {
     shared_ptr<LinearPiece> lp(make_shared<LinearPiece>(this->p1->x, this->p1->y-stockout*(daily-this->p1->x), 
                             this->p2->x, this->p2->y-stockout*(daily-this->p1->x)) );
-    //lp->slope = this->slope-stockout;
     lp->next = this->next;
-    //    lp->pre = this->pre;
     lp->fromC = this->fromC;
     lp->fromF = this->fromF;
     lp->fromC_pre = this->fromC_pre;

@@ -44,10 +44,10 @@ struct Point
 
     virtual ~Point()
     {
-        //        cout << "Delete point" << endl;
+
     }
     friend bool operator==(const Point& lhs, const Point& rhs) {
-        return eq(lhs.x, rhs.x) && eq(lhs.y, rhs.y); // 假设 x 和 y 是相关的成员
+        return eq(lhs.x, rhs.x) && eq(lhs.y, rhs.y);
     }
     inline Point convolve(shared_ptr<Point> p)
     {
@@ -55,9 +55,6 @@ struct Point
         double y = this->y + p->y;
 
         Point pc = Point(x, y);
-
-        //        if (this->x == 0 && p->x == 0)
-        //            pc.isFeasible = false;
 
         return pc;
     }
@@ -72,7 +69,6 @@ public:
     shared_ptr<Point> p2;
 
     shared_ptr<LinearPiece> next;
-    //        shared_ptr<LinearPiece> pre;
     shared_ptr<LinearPiece> fromC_pre;
     shared_ptr<LinearPiece> fromC;
     shared_ptr<LinearPiece> fromF;
