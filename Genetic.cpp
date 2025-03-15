@@ -39,7 +39,7 @@ void Genetic::evolve(int maxIter, int maxIterNonProd, int nbRec)
 	string temp;
 
 	
-	while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && clock() <=  2400 * CLOCKS_PER_SEC)
+	while (nbIter < maxIter && nbIterNonProd < maxIterNonProd && clock() <=  48000 * CLOCKS_PER_SEC)
 	{
 		// on demande deux individus � la population
 		population->recopieIndividu(rejeton, population->getIndividuBinT(rangRelatif));

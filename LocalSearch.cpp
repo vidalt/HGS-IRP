@@ -13,63 +13,63 @@ void LocalSearch::runILS(bool isRepPhase, int maxIterations)
 }
 
 // single RI-DS-RI
-// void LocalSearch::runSearchTotal(bool isRepPhase)
-// {
-//   this->isRepPhase = isRepPhase;
-//   updateMoves();
-//   for (int day = 1; day <= params->nbDays; day++)
-//     mutationSameDay(day);
-
-//   mutationDifferentDay();
-//   updateMoves();
-//   for (int day = 1; day <= params->nbDays; day++)
-//       mutationSameDay(day);
-// }
-
-// multi RI-DS
 void LocalSearch::runSearchTotal(bool isRepPhase)
 {
-
   this->isRepPhase = isRepPhase;
-  int nbMoves = 0;
-  int nbTotal = 0;
-  int nbPhases = 0;
-  bool traces = false;
-
-  // reorganisation des plans de transport pour chaque jour
   updateMoves();
   for (int day = 1; day <= params->nbDays; day++)
-    nbMoves += mutationSameDay(day);
-  nbTotal += nbMoves;
-  nbPhases++;
+    mutationSameDay(day);
 
-  // reorganisation des jours
-  if (nbPhases < params->maxLSPhases)
-  {
-
-    nbMoves = mutationDifferentDay();
-    nbTotal += nbMoves;
-    nbPhases++;
-  }
-
-  while (nbMoves > 0 && nbPhases < params->maxLSPhases)
-  {
-    // cout <<"nbMOves"<< nbMoves;
-    nbMoves = 0;
-    updateMoves();
-    for (int day = 1; day <= params->nbDays; day++)
-      nbMoves += mutationSameDay(day);
-    nbPhases++;
-
-    if (nbMoves > 0 && nbPhases < params->maxLSPhases)
-    {
-
-      nbMoves += mutationDifferentDay();
-      nbTotal += nbMoves;
-      nbPhases++;
-    }
-  }
+  mutationDifferentDay();
+  updateMoves();
+  for (int day = 1; day <= params->nbDays; day++)
+      mutationSameDay(day);
 }
+
+// multi RI-DS
+// void LocalSearch::runSearchTotal(bool isRepPhase)
+// {
+
+//   this->isRepPhase = isRepPhase;
+//   int nbMoves = 0;
+//   int nbTotal = 0;
+//   int nbPhases = 0;
+//   bool traces = false;
+
+//   // reorganisation des plans de transport pour chaque jour
+//   updateMoves();
+//   for (int day = 1; day <= params->nbDays; day++)
+//     nbMoves += mutationSameDay(day);
+//   nbTotal += nbMoves;
+//   nbPhases++;
+
+//   // reorganisation des jours
+//   if (nbPhases < params->maxLSPhases)
+//   {
+
+//     nbMoves = mutationDifferentDay();
+//     nbTotal += nbMoves;
+//     nbPhases++;
+//   }
+
+//   while (nbMoves > 0 && nbPhases < params->maxLSPhases)
+//   {
+//     // cout <<"nbMOves"<< nbMoves;
+//     nbMoves = 0;
+//     updateMoves();
+//     for (int day = 1; day <= params->nbDays; day++)
+//       nbMoves += mutationSameDay(day);
+//     nbPhases++;
+
+//     if (nbMoves > 0 && nbPhases < params->maxLSPhases)
+//     {
+
+//       nbMoves += mutationDifferentDay();
+//       nbTotal += nbMoves;
+//       nbPhases++;
+//     }
+//   }
+// }
 
 void LocalSearch::melangeParcours()
 {
@@ -262,11 +262,14 @@ void LocalSearch::nodeTestedForEachRoute(int cli, int day)
 // trying to change the delivery plan (lot sizing for a given customer)
 int LocalSearch::mutationDifferentDay()
 {
+  int maxRuns = -1; // -1 == no limit
+  int loopCounter = 0;
   rechercheTerminee = false;
   int nbMoves = 0;
   int times = 0;
   while (!rechercheTerminee)
   {
+    loopCounter++;
     rechercheTerminee = true;
 
     for (int posU = 0; posU < params->nbClients; posU++)
@@ -274,8 +277,8 @@ int LocalSearch::mutationDifferentDay()
       nbMoves += mutation11(ordreParcours[0][posU]);
     }
 
-    // make single run, comment this if you want to run until no more imprevement.
-    rechercheTerminee = true;
+    if (!rechercheTerminee && maxRuns > 0 && loopCounter == maxRuns)
+      rechercheTerminee = true;
   }
   return nbMoves;
 }

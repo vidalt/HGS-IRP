@@ -1,13 +1,13 @@
 #!/bin/bash
 
-program="./irp-multi-ds-single-ri-ds-ri"
+program="./irp-2-ds-single-ri-ds-ri"
 
 seeds=(0 8 20 30 40 50 100 200 500 1000)
 
 root_instance_folder="./Data/Big/Test"
 instance_subfolders=("0105" "001005")
 
-solutionFolder="./Data/Big/Solutions.0"
+solutionFolder="./Data/Big/Solutions.2"
 
 # Iterate through each folder
 for sub_folder in "${instance_subfolders[@]}"; do
