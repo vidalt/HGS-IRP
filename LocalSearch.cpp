@@ -262,7 +262,7 @@ void LocalSearch::nodeTestedForEachRoute(int cli, int day)
 // trying to change the delivery plan (lot sizing for a given customer)
 int LocalSearch::mutationDifferentDay()
 {
-  int maxRuns = -1; // -1 == no limit
+  int maxRuns = 1; // -1 == no limit
   int loopCounter = 0;
   rechercheTerminee = false;
   int nbMoves = 0;

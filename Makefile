@@ -1,4 +1,4 @@
-OUTPUT=irp-multi-ds-single-ri-ds-ri
+OUTPUT=irp-1-ds-single-ri-ds-ri
 
 all : $(OUTPUT)
 
