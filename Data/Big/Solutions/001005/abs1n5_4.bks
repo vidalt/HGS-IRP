@@ -1,0 +1,54 @@
+
+
+day[1] route[0]: travel time = 0
+ node[ 0 ] ->depot
+day[1] route[1]: travel time = 0
+ node[ 0 ] ->depot
+day[1] route[2]: travel time = 0
+ node[ 0 ] ->depot
+day[1] route[3]: travel time = 0
+ node[ 0 ] ->depot
+day[1] route[4]: travel time = 523
+ node[ 0 ] -> node[ 1 ] -> node[ 4 ] -> node[ 3 ] ->depot
+day[2] route[0]: travel time = 34
+ node[ 0 ] -> node[ 3 ] ->depot
+day[2] route[1]: travel time = 170
+ node[ 0 ] -> node[ 1 ] ->depot
+day[2] route[2]: travel time = 0
+ node[ 0 ] ->depot
+day[2] route[3]: travel time = 0
+ node[ 0 ] ->depot
+day[2] route[4]: travel time = 876
+ node[ 0 ] -> node[ 5 ] -> node[ 2 ] ->depot
+day[3] route[0]: travel time = 34
+ node[ 0 ] -> node[ 3 ] ->depot
+day[3] route[1]: travel time = 0
+ node[ 0 ] ->depot
+day[3] route[2]: travel time = 0
+ node[ 0 ] ->depot
+day[3] route[3]: travel time = 0
+ node[ 0 ] ->depot
+day[3] route[4]: travel time = 0
+ node[ 0 ] ->depot
+CUSTOMER 1 bounds (0,195) [morning: 130 ,replinishment: 31, everning: 96] [morning: 96 ,replinishment: 57, everning: 88] [morning: 88 ,replinishment: 0, everning: 23] 
+CUSTOMER 2 bounds (0,105) [morning: 70 ,replinishment: 0, everning: 35] [morning: 35 ,replinishment: 35, everning: 35] [morning: 35 ,replinishment: 0, everning: 0] 
+CUSTOMER 3 bounds (0,116) [morning: 58 ,replinishment: 2, everning: 2] [morning: 2 ,replinishment: 57, everning: 1] [morning: 1 ,replinishment: 57, everning: 0] 
+CUSTOMER 4 bounds (0,72) [morning: 48 ,replinishment: 24, everning: 48] [morning: 48 ,replinishment: 0, everning: 24] [morning: 24 ,replinishment: 0, everning: 0] 
+CUSTOMER 5 bounds (0,22) [morning: 11 ,replinishment: 0, everning: 0] [morning: 0 ,replinishment: 22, everning: 11] [morning: 11 ,replinishment: 0, everning: 0] 
+SUPPLIER    [703,646] [839,668] [861,804] 
+ROUTE: 1637
+LOAD: 0SUPPLY: 635.4
+CLIENT INVENTORY: 89.54
+CLIENT STOCKOUT: 0
+CLIENT STOCKOUT Amount: 0
+COST SUMMARY : OVERALL 2361.94
+2361.94
+5
+Total Time: 11
+PITime: 0
+Best Solution Time: 0
+ 0 1 1 523 57  5 0 1 4 3 0
+ 0 2 1 34 57  3 0 3 0
+ 0 2 1 170 57  3 0 1 0
+ 0 2 1 876 57  4 0 5 2 0
+ 0 3 1 34 57  3 0 3 0

@@ -1,4 +1,6 @@
-all : irp
+OUTPUT=irp-single-ds-multi-ri-ds
+
+all : $(OUTPUT)
 
 CCC = g++
 CCFLAGS = -g -std=gnu++14
@@ -33,8 +35,8 @@ OBJS2 = \
         $(TARGETDIR)/LotSizingSolver.o \
         
 	
-$(TARGETDIR)/irp: $(OBJS2)
-	$(CCC)  $(CCFLAGS) $(CPPFLAGS) $(PATHLIBS) -o $(TARGETDIR)/irp $(OBJS2) $(LIBS)
+$(TARGETDIR)/$(OUTPUT): $(OBJS2)
+	$(CCC)  $(CCFLAGS) $(CPPFLAGS) $(PATHLIBS) -o $(TARGETDIR)/$(OUTPUT) $(OBJS2) $(LIBS)
 
 
 $(TARGETDIR)/LinearPiece.o: LinearPiece.h LinearPiece.cpp

@@ -1,0 +1,50 @@
+
+
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 25 ] -> node[ 62 ] -> node[ 20 ] -> node[ 45 ] -> node[ 69 ] -> node[ 39 ] -> node[ 4 ] -> node[ 92 ] -> node[ 22 ] -> node[ 56 ] -> node[ 41 ] -> node[ 6 ] -> node[ 86 ] -> node[ 49 ] -> node[ 58 ] -> node[ 47 ] -> node[ 17 ] -> node[ 82 ] -> node[ 100 ] -> node[ 73 ] -> node[ 90 ] -> node[ 23 ] -> node[ 96 ] -> node[ 98 ] -> node[ 26 ] ->depot
+ node[ 0 ] -> node[ 8 ] -> node[ 40 ] -> node[ 57 ] -> node[ 11 ] -> node[ 19 ] -> node[ 88 ] -> node[ 76 ] -> node[ 52 ] -> node[ 94 ] -> node[ 13 ] -> node[ 65 ] -> node[ 36 ] -> node[ 27 ] -> node[ 7 ] -> node[ 43 ] -> node[ 48 ] -> node[ 14 ] -> node[ 93 ] -> node[ 64 ] -> node[ 53 ] -> node[ 63 ] -> node[ 16 ] -> node[ 30 ] -> node[ 89 ] -> node[ 21 ] ->depot
+ node[ 0 ] -> node[ 74 ] -> node[ 42 ] -> node[ 1 ] -> node[ 68 ] -> node[ 99 ] -> node[ 35 ] -> node[ 31 ] -> node[ 84 ] -> node[ 59 ] -> node[ 34 ] -> node[ 79 ] -> node[ 5 ] -> node[ 51 ] -> node[ 10 ] -> node[ 32 ] -> node[ 91 ] -> node[ 24 ] -> node[ 28 ] -> node[ 9 ] -> node[ 55 ] ->depot
+ node[ 0 ] -> node[ 54 ] -> node[ 66 ] -> node[ 61 ] -> node[ 18 ] -> node[ 81 ] -> node[ 38 ] -> node[ 75 ] -> node[ 87 ] -> node[ 77 ] -> node[ 67 ] -> node[ 29 ] -> node[ 78 ] -> node[ 97 ] -> node[ 33 ] -> node[ 85 ] -> node[ 80 ] -> node[ 60 ] -> node[ 44 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 74 ] -> node[ 42 ] -> node[ 1 ] -> node[ 68 ] -> node[ 16 ] -> node[ 46 ] -> node[ 63 ] -> node[ 53 ] -> node[ 37 ] -> node[ 79 ] -> node[ 15 ] -> node[ 5 ] -> node[ 83 ] -> node[ 51 ] -> node[ 95 ] -> node[ 10 ] -> node[ 2 ] -> node[ 91 ] -> node[ 28 ] -> node[ 71 ] -> node[ 9 ] -> node[ 61 ] -> node[ 66 ] -> node[ 55 ] ->depot
+ node[ 0 ] -> node[ 60 ] -> node[ 44 ] -> node[ 26 ] -> node[ 98 ] -> node[ 96 ] -> node[ 23 ] -> node[ 72 ] -> node[ 90 ] -> node[ 73 ] -> node[ 50 ] -> node[ 12 ] -> node[ 100 ] -> node[ 25 ] -> node[ 70 ] -> node[ 3 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 74 ] -> node[ 21 ] -> node[ 89 ] -> node[ 57 ] -> node[ 11 ] -> node[ 22 ] -> node[ 41 ] -> node[ 6 ] -> node[ 86 ] -> node[ 49 ] -> node[ 58 ] -> node[ 47 ] -> node[ 17 ] -> node[ 92 ] -> node[ 4 ] -> node[ 39 ] -> node[ 82 ] -> node[ 69 ] -> node[ 45 ] -> node[ 20 ] -> node[ 62 ] -> node[ 40 ] ->depot
+ node[ 0 ] -> node[ 80 ] -> node[ 85 ] -> node[ 33 ] -> node[ 97 ] -> node[ 78 ] -> node[ 29 ] -> node[ 67 ] -> node[ 77 ] -> node[ 24 ] -> node[ 87 ] -> node[ 75 ] -> node[ 38 ] -> node[ 81 ] -> node[ 18 ] -> node[ 61 ] -> node[ 54 ] ->depot
+ node[ 0 ] -> node[ 30 ] -> node[ 88 ] -> node[ 76 ] -> node[ 52 ] -> node[ 94 ] -> node[ 13 ] -> node[ 65 ] -> node[ 36 ] -> node[ 27 ] -> node[ 7 ] -> node[ 43 ] -> node[ 48 ] -> node[ 14 ] -> node[ 93 ] -> node[ 64 ] -> node[ 53 ] -> node[ 59 ] -> node[ 84 ] -> node[ 31 ] -> node[ 35 ] -> node[ 99 ] -> node[ 1 ] -> node[ 42 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 8 ] -> node[ 62 ] -> node[ 45 ] -> node[ 69 ] -> node[ 57 ] -> node[ 19 ] -> node[ 94 ] -> node[ 65 ] -> node[ 13 ] -> node[ 22 ] -> node[ 56 ] -> node[ 41 ] -> node[ 6 ] -> node[ 86 ] -> node[ 58 ] -> node[ 17 ] -> node[ 92 ] -> node[ 39 ] -> node[ 82 ] -> node[ 12 ] -> node[ 50 ] -> node[ 100 ] -> node[ 25 ] ->depot
+ node[ 0 ] -> node[ 60 ] -> node[ 44 ] -> node[ 26 ] -> node[ 98 ] -> node[ 96 ] -> node[ 72 ] -> node[ 90 ] -> node[ 73 ] -> node[ 23 ] -> node[ 70 ] -> node[ 3 ] ->depot
+ node[ 0 ] -> node[ 55 ] -> node[ 66 ] -> node[ 61 ] -> node[ 9 ] -> node[ 71 ] -> node[ 28 ] -> node[ 91 ] -> node[ 32 ] -> node[ 10 ] -> node[ 95 ] -> node[ 51 ] -> node[ 83 ] -> node[ 5 ] -> node[ 15 ] -> node[ 79 ] -> node[ 34 ] -> node[ 63 ] -> node[ 46 ] -> node[ 16 ] -> node[ 68 ] -> node[ 42 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 74 ] -> node[ 21 ] -> node[ 89 ] -> node[ 30 ] -> node[ 88 ] -> node[ 76 ] -> node[ 36 ] -> node[ 27 ] -> node[ 7 ] -> node[ 43 ] -> node[ 48 ] -> node[ 14 ] -> node[ 64 ] -> node[ 37 ] -> node[ 53 ] -> node[ 59 ] -> node[ 84 ] -> node[ 10 ] -> node[ 2 ] -> node[ 24 ] -> node[ 77 ] -> node[ 67 ] -> node[ 29 ] -> node[ 97 ] -> node[ 38 ] -> node[ 81 ] -> node[ 18 ] -> node[ 61 ] -> node[ 54 ] ->depot
+ROUTE: 13921
+LOAD: 0SUPPLY: 33537.6
+CLIENT INVENTORY: 6027.28
+CLIENT STOCKOUT: 0
+CLIENT STOCKOUT Amount: 0
+COST SUMMARY : OVERALL 53485.9
+53485.9
+13
+Total Time: 2338
+PITime: 0
+Best Solution Time: 2089
+ 0 2 1 1345 2101  27 0 25 62 20 45 69 39 4 92 22 56 41 6 86 49 58 47 17 82 100 73 90 23 96 98 26 0
+ 0 2 1 1221 2101  27 0 8 40 57 11 19 88 76 52 94 13 65 36 27 7 43 48 14 93 64 53 63 16 30 89 21 0
+ 0 2 1 1215 2101  22 0 74 42 1 68 99 35 31 84 59 34 79 5 51 10 32 91 24 28 9 55 0
+ 0 2 1 809 2094  20 0 54 66 61 18 81 38 75 87 77 67 29 78 97 33 85 80 60 44 0
+ 0 3 1 1220 2101  26 0 74 42 1 68 16 46 63 53 37 79 15 5 83 51 95 10 2 91 28 71 9 61 66 55 0
+ 0 3 1 616 1991  17 0 60 44 26 98 96 23 72 90 73 50 12 100 25 70 3 0
+ 0 4 1 1172 2096  24 0 74 21 89 57 11 22 41 6 86 49 58 47 17 92 4 39 82 69 45 20 62 40 0
+ 0 4 1 833 2101  18 0 80 85 33 97 78 29 67 77 24 87 75 38 81 18 61 54 0
+ 0 4 1 1156 2101  25 0 30 88 76 52 94 13 65 36 27 7 43 48 14 93 64 53 59 84 31 35 99 1 42 0
+ 0 5 1 1337 2101  25 0 8 62 45 69 57 19 94 65 13 22 56 41 6 86 58 17 92 39 82 12 50 100 25 0
+ 0 5 1 449 1418  13 0 60 44 26 98 96 72 90 73 23 70 3 0
+ 0 5 1 1143 2101  23 0 55 66 61 9 71 28 91 32 10 95 51 83 5 15 79 34 63 46 16 68 42 0
+ 0 6 1 1405 2101  31 0 74 21 89 30 88 76 36 27 7 43 48 14 64 37 53 59 84 10 2 24 77 67 29 97 38 81 18 61 54 0

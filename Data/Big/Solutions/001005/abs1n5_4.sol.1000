@@ -1,0 +1,33 @@
+
+
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 1 ] -> node[ 4 ] -> node[ 3 ] ->depot
+ node[ 0 ] -> node[ 3 ] ->depot
+ node[ 0 ] -> node[ 1 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 5 ] -> node[ 2 ] ->depot
+ node[ 0 ] -> node[ 3 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ROUTE: 1637
+LOAD: 0SUPPLY: 635.4
+CLIENT INVENTORY: 89.54
+CLIENT STOCKOUT: 0
+CLIENT STOCKOUT Amount: 0
+COST SUMMARY : OVERALL 2361.94
+2361.94
+5
+Total Time: 11
+PITime: 0
+Best Solution Time: 0
+ 0 1 1 523 57  5 0 1 4 3 0
+ 0 2 1 34 57  3 0 3 0
+ 0 2 1 170 57  3 0 1 0
+ 0 2 1 876 57  4 0 5 2 0
+ 0 3 1 34 57  3 0 3 0

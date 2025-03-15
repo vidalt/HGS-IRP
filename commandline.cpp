@@ -90,7 +90,7 @@ commandline::commandline(int argc, char *argv[])
         command_ok = false;
       }
     }
-    set_default_sorties_name(string(argv[1]));
+    // set_default_sorties_name(string(argv[1]));
     command_ok = true;
   }
 }
