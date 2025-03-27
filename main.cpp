@@ -45,7 +45,8 @@ int mainIRP(int argc, char *argv[])
     
     int max_iter = 100000;
     int maxIterNonProd = 10000;
-    solver.evolve(max_iter, maxIterNonProd, 1);
+    int nbRec = 3 * mesParametres->nbClients;
+    solver.evolve(max_iter, maxIterNonProd, nbRec);
 
     population->ExportPop(c.get_path_to_solution(),true);
     
