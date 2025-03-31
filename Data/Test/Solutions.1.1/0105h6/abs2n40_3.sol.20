@@ -1,0 +1,44 @@
+
+
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 36 ] -> node[ 34 ] -> node[ 9 ] -> node[ 40 ] -> node[ 22 ] -> node[ 28 ] -> node[ 24 ] ->depot
+ node[ 0 ] -> node[ 1 ] -> node[ 38 ] -> node[ 29 ] -> node[ 31 ] -> node[ 18 ] -> node[ 25 ] -> node[ 19 ] -> node[ 2 ] ->depot
+ node[ 0 ] -> node[ 32 ] -> node[ 21 ] -> node[ 3 ] -> node[ 4 ] -> node[ 7 ] -> node[ 15 ] -> node[ 12 ] -> node[ 13 ] -> node[ 20 ] -> node[ 37 ] -> node[ 14 ] -> node[ 17 ] ->depot
+ node[ 0 ] -> node[ 39 ] -> node[ 23 ] -> node[ 37 ] -> node[ 20 ] -> node[ 13 ] -> node[ 4 ] -> node[ 26 ] -> node[ 3 ] -> node[ 21 ] -> node[ 5 ] -> node[ 32 ] ->depot
+ node[ 0 ] -> node[ 35 ] -> node[ 11 ] -> node[ 17 ] -> node[ 16 ] -> node[ 14 ] -> node[ 30 ] -> node[ 10 ] ->depot
+ node[ 0 ] -> node[ 2 ] -> node[ 25 ] -> node[ 8 ] -> node[ 18 ] -> node[ 27 ] -> node[ 6 ] -> node[ 33 ] -> node[ 38 ] ->depot
+ node[ 0 ] -> node[ 2 ] -> node[ 19 ] -> node[ 36 ] -> node[ 34 ] -> node[ 9 ] -> node[ 40 ] -> node[ 22 ] -> node[ 28 ] ->depot
+ node[ 0 ] -> node[ 32 ] -> node[ 5 ] -> node[ 21 ] -> node[ 3 ] -> node[ 26 ] -> node[ 7 ] -> node[ 12 ] -> node[ 15 ] -> node[ 1 ] ->depot
+ node[ 0 ] -> node[ 25 ] -> node[ 8 ] -> node[ 18 ] -> node[ 31 ] -> node[ 29 ] -> node[ 33 ] -> node[ 38 ] ->depot
+ node[ 0 ] -> node[ 32 ] -> node[ 21 ] -> node[ 3 ] -> node[ 26 ] -> node[ 4 ] -> node[ 7 ] -> node[ 12 ] -> node[ 13 ] -> node[ 20 ] -> node[ 37 ] -> node[ 23 ] -> node[ 39 ] ->depot
+ node[ 0 ] -> node[ 2 ] -> node[ 19 ] -> node[ 36 ] -> node[ 34 ] -> node[ 9 ] -> node[ 22 ] -> node[ 28 ] -> node[ 24 ] ->depot
+ node[ 0 ] -> node[ 35 ] -> node[ 11 ] -> node[ 17 ] -> node[ 16 ] -> node[ 14 ] -> node[ 30 ] -> node[ 10 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] ->depot
+ node[ 0 ] -> node[ 2 ] -> node[ 25 ] -> node[ 8 ] -> node[ 18 ] -> node[ 27 ] -> node[ 6 ] -> node[ 29 ] -> node[ 33 ] -> node[ 38 ] -> node[ 1 ] ->depot
+ROUTE: 10965
+LOAD: 0SUPPLY: 10480.2
+CLIENT INVENTORY: 1498.68
+CLIENT STOCKOUT: 0
+CLIENT STOCKOUT Amount: 0
+COST SUMMARY : OVERALL 22943.9
+22943.9
+13
+Total Time: 1200
+PITime: 0
+Best Solution Time: 1196
+ 0 2 1 512 560  9 0 36 34 9 40 22 28 24 0
+ 0 2 1 897 664  10 0 1 38 29 31 18 25 19 2 0
+ 0 2 1 1230 664  14 0 32 21 3 4 7 15 12 13 20 37 14 17 0
+ 0 3 1 1054 664  13 0 39 23 37 20 13 4 26 3 21 5 32 0
+ 0 3 1 904 664  9 0 35 11 17 16 14 30 10 0
+ 0 3 1 856 664  10 0 2 25 8 18 27 6 33 38 0
+ 0 4 1 459 529  10 0 2 19 36 34 9 40 22 28 0
+ 0 4 1 771 664  11 0 32 5 21 3 26 7 12 15 1 0
+ 0 4 1 860 664  9 0 25 8 18 31 29 33 38 0
+ 0 5 1 1109 664  14 0 32 21 3 26 4 7 12 13 20 37 23 39 0
+ 0 5 1 518 664  10 0 2 19 36 34 9 22 28 24 0
+ 0 5 1 904 664  9 0 35 11 17 16 14 30 10 0
+ 0 6 1 891 632  12 0 2 25 8 18 27 6 29 33 38 1 0
