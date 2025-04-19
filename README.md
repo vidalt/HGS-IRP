@@ -7,7 +7,7 @@ make
 ```
 ## How to run
 ```
-./irp path-to-instance -seed 1000 -type 38 -veh <number-of-vehicle> -stock <stockout-penalty-parameter> 
+./irp path-to-instance -seed <random-seed> -type 38 -veh <number-of-vehicle> -stock <stockout-penalty-parameter> 
 ```
 
 - Example: 
