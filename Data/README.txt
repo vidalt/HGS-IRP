@@ -1,5 +1,3 @@
-Hi thibaut,
-
 here is the description of the format of the instances:
 
 - First line:
@@ -14,4 +12,3 @@ id. - x coordinate - y coordinate - starting inventory level - production rate -
 
 id. - x coordinate - y coordinate - starting inventory level - maximum inventory level - minimum inventory level (always 0) - daily demand - unitary inventory cost
 
-Claudia 
