@@ -1,9 +1,8 @@
 
 
-# HGS-IRP: A modern implementation of the Hybrid Genetic Search for the Inventory Routing Problem
+# HGS-IRP: A modern implementation of the Large Neighborhood and Hybrid Genetic Search for the Inventory Routing Problems
 
-This is a modern implementation of the Large Neighborhood and Hybrid Genetic Search for
-Inventory Routing Problems.
+This is a modern implementation of the Large Neighborhood and Hybrid Genetic Search for Inventory Routing Problems.
 
 ## References
 
