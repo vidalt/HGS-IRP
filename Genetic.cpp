@@ -257,7 +257,7 @@ int Genetic::crossPOX2()
 
 	// std::random_shuffle(joursPerturb.begin(), joursPerturb.end());
 	std::random_device rd;
-	std::mt19937 g(rd());
+	std::mt19937 g((unsigned int) params->seed);
 	std::shuffle(joursPerturb.begin(), joursPerturb.end(), g);
 
 	// Picking j1 et j2
